@@ -11,7 +11,7 @@ function get_vw_head_start()
     include(BASE_PATH . '/views/head_start.php');
 }
 
-function getpart_generic_head_title($title = null)
+function get_vw_head_title($title = null)
 {
     if (empty($title)) {
         $title = 'VirtuaGym Sync Tool';
