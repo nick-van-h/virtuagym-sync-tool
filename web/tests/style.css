@@ -1,0 +1,5 @@
+.list-of-tests li {
+    padding: 5px;
+    list-style-type: circle;
+    margin-left: 20px;
+}

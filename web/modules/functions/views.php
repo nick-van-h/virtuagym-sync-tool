@@ -29,7 +29,17 @@ function get_vw_head_end()
     include(BASE_PATH . '/views/head_end.php');
 }
 
-function get_vw_foot_end()
+function get_vw_foot()
 {
     include(BASE_PATH . '/views/foot.php');
+}
+
+function get_vw_test_nav()
+{
+    include(BASE_PATH . '/views/test_menu.php');
+}
+
+function get_vw_app_nav()
+{
+    include(BASE_PATH . '/views/app_menu.php');
 }
