@@ -1,7 +1,8 @@
 <?php
-$auth = new Auth;
+//$auth = new Authenticator;
+global $auth;
 ?>
-<nav style="background-color: lightsteelblue; padding: 10px;">
+<nav class="app" style="background-color: lightsteelblue; padding: 10px;">
     <a href="<?php echo(public_base_url()); ?>/app.php">Home</a>
     <span style="display:inline-block; width: 20px;"></span>
     <a href="<?php echo(public_base_url()); ?>/settings.php">Settings</a>

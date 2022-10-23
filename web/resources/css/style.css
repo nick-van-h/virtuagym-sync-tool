@@ -9,8 +9,10 @@
 */
 
 :root {
-    --background: #1a1d1e; /* #212224 #292a2b - #181a1c */
-    --text: #afafaf; /* #a3aecb */
+    --background: #1a1d1e;
+    /* #212224 #292a2b - #181a1c */
+    --text: #afafaf;
+    /* #a3aecb */
     --table-border: #a3aecb;
 
     /* Buttons */
@@ -18,7 +20,8 @@
     --btn-txt: #ffffffa9;
     --btn-hvr-bg: #0078e7;
 
-    --btn-alt-bg: #343a40; /*2a2d30 343a40*/
+    --btn-alt-bg: #343a40;
+    /*2a2d30 343a40*/
     --btn-alt-txt: #ffffffa9;
     --btn-alt-hvr-bg: #424a52;
 
@@ -28,7 +31,7 @@
     --frm-field-border: #2a2a2b;
     --frm-field-color: #000000;
     --frm-field-placeholder-color: #252222d0;
-    
+
 }
 
 
@@ -38,11 +41,10 @@
 
 body {
     background-color: var(--background);
-    width: calc(
-        100vw - (100vw - 100%)
-    ); /*Make sure body fits within scroll bar*/
+    width: calc(100vw - (100vw - 100%));
+    /*Make sure body fits within scroll bar*/
     color: var(--text);
-    
+
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -55,6 +57,7 @@ button {
     margin: 5px;
     cursor: pointer;
 }
+
 button:hover {
     background-color: var(--btn-hvr-bg);
 }
@@ -63,6 +66,7 @@ button.alt {
     background-color: var(--btn-alt-bg);
     color: var(--btn-alt-txt);
 }
+
 button.alt:hover {
     background-color: var(--btn-alt-hvr-bg);
 }
@@ -86,6 +90,7 @@ form input {
     padding: 5px;
     border-radius: 5px;
 }
+
 form input::placeholder {
     color: var(--frm-field-placeholder-color);
 }

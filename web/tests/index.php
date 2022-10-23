@@ -1,6 +1,6 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/../modules/autoload.php';
+require_once __DIR__ . '/../private/config/autoload.php';
 
 //Get list of test files
 $path    = __DIR__;

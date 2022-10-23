@@ -1,10 +1,10 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/../modules/autoload.php';
+require_once __DIR__ . '/../private/config/autoload.php';
 
 $username = $_POST['username'];
 $password = $_POST['password'];
-$auth = new Auth();
+$auth = new Authenticator;
 $auth->loginUser($username, $password);
 if ($auth->userIsLoggedIn()) {
     redirectToUrl(public_base_url() . '/app.php');

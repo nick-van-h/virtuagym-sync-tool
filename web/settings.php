@@ -1,12 +1,12 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/modules/autoload.php';
+require_once __DIR__ . '/private/config/autoload.php';
 
 //Enable error logging for dev environment
 set_error_reporting();
 
 //Check if the user is logged in
-$auth = new Auth;
+$auth = new Authenticator;
 if (!$auth->userIsLoggedIn()) {
     redirectToUrl(public_base_url());
 }
@@ -18,12 +18,11 @@ get_vw_head_resources();
 get_vw_head_end();
 
 //Site content
+get_vw_app_header();
+echo('<div class="app_outer">');
 get_vw_app_nav();
-?>
-<main>
-<h1>Under construction</h1>
-</main>
-<?php
+get_vw_settings();
+echo('</div>');
 
 //Foot
 get_vw_foot();

@@ -1,8 +1,8 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/../modules/autoload.php';
+require_once __DIR__ . '/../private/config/autoload.php';
 
-$auth = new Auth;
+$auth = new Authenticator;
 
 $auth->logoutUser();
 redirectToUrl(public_base_url());

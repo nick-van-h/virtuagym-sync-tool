@@ -1,25 +1,25 @@
 <?php
 
-class Auth 
+class Authenticator
 {
     //Session login statusses
     private const LOGIN_LOGGEDIN = 1;
     private const LOGIN_INVALID_CREDENTIALS = self::LOGIN_LOGGEDIN + 1;
 
-    private $db = '';
+    private $usermodel = '';
     
     function __construct() {
-        $this->db = new Db(getDbConfig());
+        $this->usermodel = new Model\Users;
     }
     /**
      * Try to login a user with a specific username & password
      */
     public function loginUser($username, $password) {
-        $pwhash = $this->db->getPasswordHash($username);
+        $pwhash = $this->usermodel->getPasswordHash($username);
         if(password_verify($password, $pwhash)) {
             $_SESSION['loginstatus'] = self::LOGIN_LOGGEDIN;
             $_SESSION['loggedin_user'] = $username;
-            $_SESSION['user_role'] = $this->db->getUserRole($username);
+            $_SESSION['user_role'] = $this->usermodel->getUserRole($username);
         } else {
             $_SESSION['loginstatus'] = self::LOGIN_INVALID_CREDENTIALS;
         }

@@ -21,6 +21,14 @@ echo('<main class="box-s">');
  * Start main content
  */
 
+//Include the functions first
+require_once __DIR__ . '/functions.php';
+
+//Define variable to be re-used in the view
+$foo = 'Bar';
+
+//Including the view should echo the content of $foo = 'Bar'
+get_view();
 
 /**
  * Summary
