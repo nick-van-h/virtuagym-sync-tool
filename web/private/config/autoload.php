@@ -15,6 +15,8 @@ try {
     require_once __DIR__ . '/../controllers/Users/Users.php';
     require_once __DIR__ . '/../models/Crypt/Crypt.php';
     require_once __DIR__ . '/../models/Authenticator/Authenticator.php';
+    require_once __DIR__ . '/../models/Settings/Settings.php';
+    require_once __DIR__ . '/../models/VirtuaGym/VirtuaGym.php';
 
     /**
      * Generic functions & helpers

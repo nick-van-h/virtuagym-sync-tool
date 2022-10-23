@@ -7,6 +7,7 @@ class Database
     protected $db;
     private $query_ok;
     private $status;
+    private $numrows;
 
     /**
      * Pass the database parameters array to the constructor
@@ -14,6 +15,7 @@ class Database
      */
     function __construct()
     {
+        $numrows = 0;
         $db = getConfig();
         try {
             //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}

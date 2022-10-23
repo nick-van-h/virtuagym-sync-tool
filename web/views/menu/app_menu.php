@@ -25,21 +25,23 @@ global $auth;
         </a>
         <?php if ($auth->userIsAdmin()) : ?>
             <a href="<?php echo(public_base_url()); ?>/admin.php">
-            <li>
-                <i class="fas fa-lock"></i>
-                <span>Admin</span>
-            </li>
+                <li>
+                    <i class="fas fa-lock"></i>
+                    <span>Admin</span>
+                </li>
             </a>
             <a href="<?php echo(public_base_url()); ?>/tests">
-            <li>
-                <i class="fas fa-code"></i>
-                <span>Tests</span>
-            </li>
+                <li>
+                    <i class="fas fa-code"></i>
+                    <span>Tests</span>
+                </li>
             </a>
         <?php endif; ?>
-        <li>
-            <i class="fas fa-sign-out-alt"></i>
-            <a href="<?php echo(public_base_url()); ?>/interfaces/logout.php">Logout</a>
-        </li>
+        <a href="<?php echo(public_base_url()); ?>/interfaces/logout.php">
+            <li>
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </li>
+        </a>
     </ul>
 </nav>

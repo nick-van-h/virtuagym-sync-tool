@@ -1,10 +1,11 @@
 <?php
 /**
- * This class provides easy (un)setter, getter & tester interfaces to the $_SESSION
+ * This class provides easy (un)setter, getter, isSetters & tester interfaces to the $_SESSION
  * Each block contains at least a setXXX and getXXX
  * Setters require one @param string $value
  * Unsetters require no paramers
  * Getters provide @return mixed $value
+ * isSetters evaluate whether or not the variable is set and @return bool $result true/false
  * Testers validate a value to a passed argument and @return bool $result true/false
  */
 
@@ -58,6 +59,9 @@ class Session {
     public function getUserRole() {
         return $this->get('user_role');
     }
+    public function isUserRoleSet(){
+        $this->isVarSet('user_role');
+    }
     public function testUserRole($test) {
         return $this->get('user_role') == $test;
     }
@@ -74,7 +78,35 @@ class Session {
     public function getKey() {
         return $this->get('key');
     }
+    public function isKeySet() {
+        $this->isVarSet('key');
+    }
 
+    /**
+     * Status
+     */
+    public function setStatus($status, $value) {
+        $_SESSION['status'][$status] = $value;
+    }
+    public function clearStatus($status) {
+        $_SESSION['status'][$status] = '';
+    }
+    public function getStatus($status) {
+        if ($this->isArrVarSet('status', $status)) {
+            return $_SESSION['status'][$status];
+        } else {
+            return false;
+        }
+    }
+    public function getAndClearStatus($status) {
+        $message = $this->getStatus($status);
+        $this->clearStatus($status);
+        return $message;
+    }
+
+    public function addDebug($status) {
+        $_SESSION['debug'][] = $status;
+    }
     /**
      * Private helpers
      */
@@ -88,15 +120,20 @@ class Session {
     }
 
     private function get($variable) {
-        if ($this->isSSet($variable)) {
+        if ($this->isVarSet($variable)) {
             return $_SESSION[$variable];
         } else {
-            throw new Exception ('Unable to access variable $_SESSION["' . $variable . '"]');
+            return false;
         }
     }
 
-    private function isSSet($variable) {
+    private function isVarSet($variable) {
         $result = isset($_SESSION[$variable]) && !empty($_SESSION[$variable]);
+        return $result;
+    }
+
+    private function isArrVarSet($array, $variable) {
+        $result = isset($_SESSION[$array][$variable]) && !empty($_SESSION[$array][$variable]);
         return $result;
     }
 }

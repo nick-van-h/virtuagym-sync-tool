@@ -15,6 +15,7 @@ username = "xxx"
 password = "yyy"
 database = "zzz"
 encryption_iv = "aaa"
+virtuagym_api_key = "bbb"
 ```
 Update according set-up
 

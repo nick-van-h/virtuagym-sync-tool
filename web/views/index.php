@@ -21,8 +21,9 @@ global $auth;
                     <input class="col-2-3" type="password" name="password"/>
                 </div>
                 <div class="row row--justify-right .row--align-right box-xs">
-                    <span class="login-message"><?php echo($auth->getLoginMessage()); ?></span><button type="submit">Submit</button>
+                    <button type="submit">Submit</button>
                 </div>
+                <div class="login-message"><?php echo($auth->getLoginMessage()); ?></div>
             </fieldset>
         </form>
     </div>

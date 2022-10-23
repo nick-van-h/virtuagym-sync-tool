@@ -12,7 +12,7 @@ class Authenticator
     
     function __construct() {
         $this->session = new Model\Session;
-        $this->usermodel = new Model\Users;
+        $this->user = new Model\Users;
         $this->crypt = new Crypt;
     }
     /**
@@ -20,12 +20,28 @@ class Authenticator
      */
     public function loginUser($username, $password) {
         $this->session->setUsername($username);
-        $pwhash = $this->usermodel->getPasswordHash();
+        $pwhash = $this->user->getPasswordHash();
         if(password_verify($password, $pwhash)) {
+            //Store the status and role of the user
             $this->session->setLoginStatus(self::LOGIN_LOGGEDIN);
-            $this->session->setUserRole($this->usermodel->getUserRole());
-            $key = $this->crypt->decryptKey($this->usermodel->getKeyEnc(), $password);
-            $this->session->setKey($key);
+            $this->session->setUserRole($this->user->getUserRole());
+
+            /**
+             * Check if there is an encryption key, if not;
+             * Generate a key
+             * Get the encrypted key
+             * Store the encrypted key in the database
+             */
+           
+            $key_enc = $this->user->getKeyEnc();
+            if(!$key_enc) {
+                $this->crypt->generateAndSetInitialKey($password);
+                $key_enc = $this->crypt->getEncryptedKey($password);
+
+                $this->user->setKeyEnc($key_enc);
+            } else {
+                $this->crypt->decryptAndSetKey($key_enc, $password);
+            }
         } else {
             $_SESSION['loginstatus'] = self::LOGIN_INVALID_CREDENTIALS;
             echo 'nok';
@@ -41,6 +57,7 @@ class Authenticator
     public function getLoginMessage() {
         if($this->loginSessionParameterIsSet()) {
             if($_SESSION['loginstatus'] == self::LOGIN_INVALID_CREDENTIALS) {
+                unset($_SESSION['loginstatus']);
                 return ('Invalid username or password');
             }
         }

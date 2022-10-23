@@ -32,7 +32,7 @@
     --frm-field-color: #000000;
     --frm-field-placeholder-color: #252222d0;
 
-    --app-header-height: 75px;
+    --app-header-height: 100px;
 
 }
 
@@ -40,6 +40,29 @@
 /**
 * Main
 */
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.5em !important;
+}
+
+h3 {
+    font-size: 1.17em;
+}
+
+h4 {
+    font-size: 1.12em;
+}
+
+h5 {
+    font-size: 0.83em;
+}
+
+h6 {
+    font-size: 0.75em;
+}
 
 body {
     background-color: var(--background);
@@ -101,6 +124,39 @@ form input::placeholder {
     color: var(--frm-field-placeholder-color);
 }
 
+form .login-message {
+    display: flex;
+    justify-content: center;
+    height: 0px;
+    transform: translateY(10px);
+    color: #dfaf58cf;
+    animation: fadeOut forwards;
+    animation-duration: 2s;
+    animation-delay: 2s;
+}
+
+form.settings {
+    margin: 30px 0px;
+}
+
+form.settings .status-message {
+    padding: 10px;
+    opacity: 1;
+    animation: fadeOut forwards;
+    animation-duration: 2s;
+    animation-delay: 2s;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
 /**
 * Menu
 */
@@ -112,7 +168,7 @@ nav.app {
     height: 100%;
     transition: all .5s ease;
 
-    background-color: #1e1e1f;
+    background-color: #00083c12;
 }
 
 nav i {
@@ -131,12 +187,16 @@ nav a:visited {
     color: #fff;
 }
 
+nav.app ul {
+    margin-top: 25px;
+}
+
 nav ul li {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    padding: 15px 25px;
+    padding: 17px 40px;
     cursor: pointer;
 }
 
@@ -214,6 +274,7 @@ label #cancel {
 
 main.app {
     display: inline-block;
+    padding-left: 75px;
 }
 
 header.app {
@@ -221,4 +282,5 @@ header.app {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-bottom: 2px solid grey;
 }

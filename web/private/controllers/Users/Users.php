@@ -63,29 +63,30 @@ class Users extends Database {
      * Key (encrypted)
      */
     function setKeyEnc($key_enc) {
-        $this->setSetting('key_enc', $key);
+        $this->setSetting('key_enc', $key_enc);
     }
     function getKeyEnc() {
-        return($this->getSettingValue('key_enc'));
+        $result = $this->getSettingValue('key_enc');
+        return($result);
     }
 
     /**
      * VirtuaGym username (enc)
      */
-    function setVirtuagymUsername($vg_username_enc) {
+    function setVirtuagymUsernameEnc($vg_username_enc) {
         $this->setSetting('virtuagym_username_enc', $vg_username_enc);
     }
-    function getVirtuagymUsername() {
+    function getVirtuagymUsernameEnc() {
         return($this->getSettingValue('virtuagym_username_enc'));
     }
 
     /**
      * VirtuaGym password (enc)
      */
-    function setVirtuagymPassword($vg_password_enc) {
+    function setVirtuagymPasswordEnc($vg_password_enc) {
         $this->setSetting('virtuagym_password_enc', $vg_password_enc);
     }
-    function getVirtuagymPassword() {
+    function getVirtuagymPasswordEnc() {
         return($this->getSettingValue('virtuagym_password_enc'));
     }
 
@@ -106,7 +107,8 @@ class Users extends Database {
         $stmt->bind_param("ss",$username,$setting_name);
         $stmt->execute();
         $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
+        $this->numrows = $result->num_rows;
+        if ($this->numrows > 0) {
             $row = $result->fetch_assoc();
             if($row['type'] == 'str') {
 
@@ -137,7 +139,8 @@ class Users extends Database {
         }
 
         //Check if the setting already exists for the user, if so we need to update, else we need to add
-        if($this->getSettingValue($setting_name)) {
+        $this->getSettingValue($setting_name);
+        if($this->numrows) {
             $sql = "UPDATE settings
                     SET value_str=(?), value_int=(?), type=(?)
                     WHERE setting_name=(?) AND user_id = (SELECT id FROM users WHERE username = (?))";

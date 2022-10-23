@@ -49,6 +49,7 @@ echo "iv random: " . $iv_random . ' - to be appended to password before scramble
 
 // Alternatively, any 16 digits may be used 
 // characters or numeric for iv 
+$encryption_key = HASH("SHA256",openssl_digest($simple_password, 'SHA256', TRUE));
 $encryption_key = openssl_digest($simple_password, 'SHA256', TRUE);
 echo "Encryption key: " . $encryption_key . ' - to be stored in $_SESSION[]'; br();
 
