@@ -6,7 +6,7 @@ Server side tool to enable one way sync of VirtuaGym appointments to personal ca
 Create file *web/modules/config.php* with content:
 ```
 const CONFIG_PATH = '/xxx/xxx/xxx'
-const DB_CONFIG_FILE = CONFIG_PATH . 'yyy.ini';
+const CONFIG_FILE = CONFIG_PATH . 'yyy.ini';
 ```
 Create file */xxx/xxx/xxx/yyy.ini* with content:
 ```
@@ -14,6 +14,7 @@ host = "localhost"
 username = "xxx"
 password = "yyy"
 database = "zzz"
+encryption_iv = "aaa"
 ```
 Update according set-up
 

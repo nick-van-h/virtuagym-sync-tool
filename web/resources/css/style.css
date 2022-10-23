@@ -32,6 +32,8 @@
     --frm-field-color: #000000;
     --frm-field-placeholder-color: #252222d0;
 
+    --app-header-height: 75px;
+
 }
 
 
@@ -46,6 +48,10 @@ body {
     color: var(--text);
 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh);
 }
 
 button {
@@ -93,4 +99,126 @@ form input {
 
 form input::placeholder {
     color: var(--frm-field-placeholder-color);
+}
+
+/**
+* Menu
+*/
+
+nav.app {
+    position: fixed;
+    width: 240px;
+    left: -240px;
+    height: 100%;
+    transition: all .5s ease;
+
+    background-color: #1e1e1f;
+}
+
+nav i {
+    font-size: 29px;
+    color: #fff;
+    line-height: 45px;
+    width: 40px;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+}
+
+nav a:visited {
+    color: #fff;
+}
+
+nav ul li {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 15px 25px;
+    cursor: pointer;
+}
+
+nav ul li:hover {
+    background-color: #0e59a0;
+    border-left: 2px;
+    border-color: #0078e7;
+}
+
+#check {
+    display: none;
+}
+
+label #btn,
+label #cancel {
+    position: absolute;
+    cursor: pointer;
+    color: white;
+    border-radius: 5px;
+    border: 1px solid #262626;
+    margin: 15px 30px;
+    font-size: 29px;
+    background: #262626;
+    height: 45px;
+    width: 45px;
+    text-align: center;
+    line-height: 45px;
+    transition: all .5s ease;
+}
+
+label #cancel {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#check:checked~nav.app {
+    left: 0;
+}
+
+#check:checked~label #btn {
+    margin-left: 245px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+#check:checked~label #cancel {
+    margin-left: 245px;
+    opacity: 1;
+    visibility: visible;
+}
+
+@media(min-width : 860px) {
+    nav.app {
+        position: relative;
+        left: 0;
+        display: inline-block;
+        height: auto;
+    }
+
+    #btn,
+    #cancel {
+        display: none;
+    }
+}
+
+/**
+* Main
+*/
+.app_outer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    height: calc(100vh - var(--app-header-height))
+}
+
+main.app {
+    display: inline-block;
+}
+
+header.app {
+    height: var(--app-header-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

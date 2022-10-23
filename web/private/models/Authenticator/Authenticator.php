@@ -7,21 +7,28 @@ class Authenticator
     private const LOGIN_INVALID_CREDENTIALS = self::LOGIN_LOGGEDIN + 1;
 
     private $usermodel = '';
+    private $crypt = '';
+    private $session = '';
     
     function __construct() {
+        $this->session = new Model\Session;
         $this->usermodel = new Model\Users;
+        $this->crypt = new Crypt;
     }
     /**
      * Try to login a user with a specific username & password
      */
     public function loginUser($username, $password) {
-        $pwhash = $this->usermodel->getPasswordHash($username);
+        $this->session->setUsername($username);
+        $pwhash = $this->usermodel->getPasswordHash();
         if(password_verify($password, $pwhash)) {
-            $_SESSION['loginstatus'] = self::LOGIN_LOGGEDIN;
-            $_SESSION['loggedin_user'] = $username;
-            $_SESSION['user_role'] = $this->usermodel->getUserRole($username);
+            $this->session->setLoginStatus(self::LOGIN_LOGGEDIN);
+            $this->session->setUserRole($this->usermodel->getUserRole());
+            $key = $this->crypt->decryptKey($this->usermodel->getKeyEnc(), $password);
+            $this->session->setKey($key);
         } else {
             $_SESSION['loginstatus'] = self::LOGIN_INVALID_CREDENTIALS;
+            echo 'nok';
         }
     }
 

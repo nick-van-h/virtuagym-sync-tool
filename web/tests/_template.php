@@ -20,6 +20,7 @@ echo('<main class="box-s">');
 /**
  * Start main content
  */
+echo('<h1>Test</h1>');
 
 
 /**

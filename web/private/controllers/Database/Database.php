@@ -14,25 +14,20 @@ class Database
      */
     function __construct()
     {
-        $db = $this->getDbConfig();
-        if($db) {
-            try {
-                //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}
-                $this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
-            } catch (mysqli_sql_exception $e) {
-                //Store the exception details as error
-                setError("MySQLi Error Code: " . $e->getCode() . " | Exception Msg: " . $e->getMessage());
-                exit;
-            }
-            //Set status succesful
-            $this->setOk();
-        } else {
-            this->setError('Unable to open config file ' . DB_CONFIG_FILE);
+        $db = getConfig();
+        try {
+            //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}
+            $this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
+        } catch (mysqli_sql_exception $e) {
+            //Store the exception details as error
+            setError("MySQLi Error Code: " . $e->getCode() . " | Exception Msg: " . $e->getMessage());
+            exit;
         }
+        //Set status succesful
+        $this->setOk();
     }
 
     function __destruct() {
-        //Close the connection when the class is terminated
         mysqli_close($this->db);
     }
 
@@ -67,43 +62,5 @@ class Database
     private function setOk() {
         $this->status = "All good";
         $this->query_ok = true;
-    }
-
-    /**
-     * Returns the full path to the database .ini file
-     * 
-     * @return string
-     */
-    private function getDbConfigFile()
-    {
-        $db_conf = DB_CONFIG_FILE;
-
-        $crl = curl_init(DB_CONFIG_FILE);
-        curl_setopt($crl, CURLOPT_NOBODY, true);
-        curl_exec($crl);
-
-        $ret = curl_getinfo($crl, CURLINFO_HTTP_CODE);
-        curl_close($crl);
-
-        if ($ret = 200) {
-            return DB_CONFIG_FILE;
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns an array containing the database config parameters
-     * 
-     * @return array contains host, username, password, database
-     */
-    private function getDbConfig()
-    {
-        $file = $this->getDbConfigFile();
-        if($file) {
-            return parse_ini_file($file);
-        } else {
-            return false;
-        }
     }
 }

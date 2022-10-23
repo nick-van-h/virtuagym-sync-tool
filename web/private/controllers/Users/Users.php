@@ -2,16 +2,24 @@
 
 Namespace Model;
 
+use Model\Session;
 use Model\Database;
 
 class Users extends Database {
+    private $session;
+
+    function __construct() {
+        parent::__construct();
+        $this->session = new Session;
+    }
+
     /**
-     * Get the password hash for a given user
+     * Get the password hash for the logged in user
      * 
-     * @param string $username
      * @return string password_hash
      */
-    function getPasswordHash($username) {
+    function getPasswordHash() {
+        $username = $this->session->getUsername();
         $sql = "SELECT password_hash 
                 FROM users 
                 WHERE username = (?)";
@@ -27,7 +35,11 @@ class Users extends Database {
         }
     }
 
-    function setPassword($username,$pwhash) {
+    /**
+     * Update the password hash for the logged in user
+     */
+    function setPasswordHash($pwhash) {
+        $username = $this->session->getUsername();
         $sql = "UPDATE users 
                 SET password_hash=(?)
                 WHERE username = (?)";
@@ -37,11 +49,51 @@ class Users extends Database {
         return $stmt->affected_rows;
     }
 
-    function getUserRole($username) {
-        return($this->getSettingValue($username,'user_role'));
+    /**
+     * User role
+     */
+    function setUserRole($role) {
+        $this->setSetting('user_role', $role);
+    }
+    function getUserRole() {
+        return($this->getSettingValue('user_role'));
     }
 
-    function getSettingValue($username,$setting_name) {
+    /**
+     * Key (encrypted)
+     */
+    function setKeyEnc($key_enc) {
+        $this->setSetting('key_enc', $key);
+    }
+    function getKeyEnc() {
+        return($this->getSettingValue('key_enc'));
+    }
+
+    /**
+     * VirtuaGym username (enc)
+     */
+    function setVirtuagymUsername($vg_username_enc) {
+        $this->setSetting('virtuagym_username_enc', $vg_username_enc);
+    }
+    function getVirtuagymUsername() {
+        return($this->getSettingValue('virtuagym_username_enc'));
+    }
+
+    /**
+     * VirtuaGym password (enc)
+     */
+    function setVirtuagymPassword($vg_password_enc) {
+        $this->setSetting('virtuagym_password_enc', $vg_password_enc);
+    }
+    function getVirtuagymPassword() {
+        return($this->getSettingValue('virtuagym_password_enc'));
+    }
+
+    /**
+     * Generic private functions for getting & setting settings
+     */
+    private function getSettingValue($setting_name) {
+        $username = $this->session->getUsername();
         $sql = "SELECT `value_str`, `value_int`, `type`
         FROM settings s
         LEFT JOIN (
@@ -49,7 +101,7 @@ class Users extends Database {
             FROM users
             WHERE username = (?)
         ) u on u.id = s.user_id
-        WHERE variable = (?)";
+        WHERE setting_name = (?)";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("ss",$username,$setting_name);
         $stmt->execute();
@@ -70,8 +122,9 @@ class Users extends Database {
     /**
      * Add a user setting to the table
      */
-    function setSetting($username, $setting_name, $setting_value) {
-        //Set the string/integer values accoring the type
+    private function setSetting($setting_name, $setting_value) {
+        //Prepare variables to be insterted
+        $username = $this->session->getUsername();
         $type = '';
         if(!is_int($setting_value)) {
             $value_str = $setting_value;
@@ -84,15 +137,15 @@ class Users extends Database {
         }
 
         //Check if the setting already exists for the user, if so we need to update, else we need to add
-        if($this->getSettingValue($username, $setting_name)) {
+        if($this->getSettingValue($setting_name)) {
             $sql = "UPDATE settings
                     SET value_str=(?), value_int=(?), type=(?)
-                    WHERE variable=(?) AND user_id = (SELECT id FROM users WHERE username = (?))";
+                    WHERE setting_name=(?) AND user_id = (SELECT id FROM users WHERE username = (?))";
             $stmt = $this->db->prepare($sql);
             $stmt->bind_param("sisss", $value_str, $value_int, $type, $setting_name, $username);
         } else {
-            $sql = "INSERT INTO settings (`user_id`, `variable`, `value_str`, `value_int`, `type`)
-                    SELECT id as user_id,(?) as variable,(?) as value_str,(?) as value_int,(?) as type FROM users WHERE username = (?)";
+            $sql = "INSERT INTO settings (`user_id`, `setting_name`, `value_str`, `value_int`, `type`)
+                    SELECT id as user_id,(?) as setting_name,(?) as value_str,(?) as value_int,(?) as type FROM users WHERE username = (?)";
             $stmt = $this->db->prepare($sql);
             $stmt->bind_param("ssiss", $setting_name, $value_str, $value_int, $type, $username);
         }

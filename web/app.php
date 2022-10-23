@@ -8,6 +8,8 @@ set_error_reporting();
 //Check if the user is logged in
 $auth = new Authenticator;
 if (!$auth->userIsLoggedIn()) {
+    echo('unauthorized');
+    exit;
     redirectToUrl(public_base_url());
 }
 

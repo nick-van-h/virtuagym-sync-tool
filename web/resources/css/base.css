@@ -11,15 +11,19 @@
 .box-xs {
     padding: 0.5rem;
 }
+
 .box-s {
     padding: 1rem;
 }
+
 .box {
     padding: 1.5rem;
 }
+
 .box-l {
     padding: 2rem;
 }
+
 .box-xl {
     padding: 2.5rem;
 }
@@ -27,15 +31,19 @@
 .space-l-xs {
     margin-left: 0.5rem;
 }
+
 .space-l-s {
     margin-left: 1rem;
 }
+
 .space-l {
     margin-left: 1.5rem;
 }
+
 .space-l-l {
     margin-left: 2rem;
 }
+
 .space-l-xl {
     margin-left: 2.5rem;
 }
@@ -43,15 +51,19 @@
 .space-r-xs {
     margin-right: 0.5rem;
 }
+
 .space-r-s {
     margin-right: 1rem;
 }
+
 .space-r {
     margin-right: 1.5rem;
 }
+
 .space-r-l {
     margin-right: 2rem;
 }
+
 .space-r-xl {
     margin-right: 2.5rem;
 }
@@ -59,15 +71,19 @@
 .space-t-xs {
     margin-top: 0.5rem;
 }
+
 .space-t-s {
     margin-top: 1rem;
 }
+
 .space-t {
     margin-top: 1.5rem;
 }
+
 .space-t-l {
     margin-top: 2rem;
 }
+
 .space-t-xl {
     margin-top: 2.5rem;
 }
@@ -75,15 +91,19 @@
 .space-b-xs {
     margin-bottom: 0.5rem;
 }
+
 .space-b-s {
     margin-bottom: 1rem;
 }
+
 .space-b {
     margin-bottom: 1.5rem;
 }
+
 .space-b-l {
     margin-bottom: 2rem;
 }
+
 .space-b-xl {
     margin-bottom: 2.5rem;
 }
@@ -102,6 +122,7 @@
     align-content: flex-start;
     justify-content: center;
 }
+
 .row--full-height {
     height: 100% !important;
 }
@@ -110,12 +131,15 @@
     display: flex !important;
     align-items: center;
 }
+
 .row--vcenter {
     align-content: center !important;
 }
+
 .row--nowrap {
     flex-wrap: nowrap !important;
 }
+
 .row--justify-right {
     justify-content: flex-end !important;
 }
@@ -123,16 +147,20 @@
 .row--gap-xs {
     column-gap: 0.1rem;
 }
+
 .row--gap-s {
     column-gap: 0.2rem;
 }
+
 .row--gap,
 .row--gap-m {
     column-gap: 0.5rem;
 }
+
 .row--gap-l {
     column-gap: 0.7rem;
 }
+
 .row--gap-xl {
     column-gap: 1rem;
 }
@@ -146,19 +174,24 @@
 .col--minwidth {
     min-width: 27rem;
 }
+
 .col--gap-xs {
     row-gap: 0.1rem;
 }
+
 .col--gap-s {
     row-gap: 0.2rem;
 }
+
 .col--gap,
 .col--gap-m {
     row-gap: 0.5rem;
 }
+
 .col--gap-l {
     row-gap: 0.7rem;
 }
+
 .col--gap-xl {
     row-gap: 1rem;
 }

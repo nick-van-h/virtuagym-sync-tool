@@ -56,7 +56,7 @@ function get_vw_app_nav()
  */
 function get_vw_app_header()
 {
-    include(BASE_PATH . '/views/content/header.php');
+    include(BASE_PATH . '/views/content/app_header.php');
 }
 
 /**

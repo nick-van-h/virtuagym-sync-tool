@@ -1,0 +1,1 @@
+CREATE TABLE `u93257p88111_vst`.`users` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `username` VARCHAR(255) NOT NULL , `password_hash` VARCHAR(255) NOT NULL , PRIMARY KEY (`id`), INDEX (`username`)) ENGINE = InnoDB;
