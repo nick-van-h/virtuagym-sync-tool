@@ -14,6 +14,7 @@ host = "localhost"
 username = "xxx"
 password = "yyy"
 database = "zzz"
+encryption_key = "aaaaaa"
 encryption_iv = "aaa"
 virtuagym_api_key = "bbb"
 ```
