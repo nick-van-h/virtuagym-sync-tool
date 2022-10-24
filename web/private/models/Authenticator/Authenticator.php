@@ -35,12 +35,12 @@ class Authenticator
            
             $key_enc = $this->user->getKeyEnc();
             if(!$key_enc) {
-                $this->crypt->generateAndSetInitialKey($password);
-                $key_enc = $this->crypt->getEncryptedKey($password);
+                $this->crypt->generateAndSetInitialKey();
+                $key_enc = $this->crypt->getEncryptedKey();
 
                 $this->user->setKeyEnc($key_enc);
             } else {
-                $this->crypt->decryptAndSetKey($key_enc, $password);
+                $this->crypt->decryptAndSetKey($key_enc);
             }
         } else {
             $_SESSION['loginstatus'] = self::LOGIN_INVALID_CREDENTIALS;
