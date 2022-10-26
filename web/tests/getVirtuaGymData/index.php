@@ -31,6 +31,7 @@ get_vw_head_end();
 get_vw_test_nav();
 echo('<main class="box-s">');
 
+const API_URL = 'https://api.virtuagym.com/api/v0';
 $username = TEST_USER;
 $password = TEST_PWD;
 
@@ -67,6 +68,7 @@ $now = strtotime($dt->format('Y-m-d') . ' 00:00:00');
 $prev = strtotime($dt->modify('-1 month')->modify('-1 day')->format('Y-m-d') . ' 00:00:00');
 echo('Look back until ' . $dt->format('Y-m-d') . ' = timestamp ' . $prev);br();
 
+//echo_pre($acts->result);
 foreach($acts->result as $act) {
     $max = max($max, $act->timestamp);
     if ($act->timestamp >= $now) {  

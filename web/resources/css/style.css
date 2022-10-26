@@ -135,18 +135,6 @@ form .login-message {
     animation-delay: 2s;
 }
 
-form.settings {
-    margin: 30px 0px;
-}
-
-form.settings .status-message {
-    padding: 10px;
-    opacity: 1;
-    animation: fadeOut forwards;
-    animation-duration: 2s;
-    animation-delay: 2s;
-}
-
 @keyframes fadeOut {
     0% {
         opacity: 1;
@@ -156,6 +144,30 @@ form.settings .status-message {
         opacity: 0;
     }
 }
+
+form.settings {
+    margin: 30px 0px;
+}
+
+form.settings fieldset {
+    width: 400px;
+}
+
+form.settings .status-message {
+    padding: 0px 20px;
+    max-height: 100px;
+    margin-bottom: 30px;
+    overflow: hidden;
+    animation: 0.5s ease-in-out;
+    transition: 0.5s ease-in-out;
+}
+
+.status-message--hidden {
+    max-height: 0px !important;
+    animation: 0.5s ease-in-out;
+    transition: 0.5s ease-in-out;
+}
+
 
 /**
 * Menu
@@ -275,6 +287,9 @@ label #cancel {
 main.app {
     display: inline-block;
     padding-left: 75px;
+    flex-grow: 1;
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 header.app {
@@ -283,4 +298,39 @@ header.app {
     align-items: center;
     justify-content: center;
     border-bottom: 2px solid grey;
+}
+
+
+/**
+* Appointment (tmp)
+*/
+
+.training-entry {
+    width: 400px;
+    background-color: #020560d4;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    display: flex;
+}
+
+.training-entry.cancelled,
+.training-entry.not-joined {
+    background-color: gray;
+}
+
+.training-entry .date,
+.training-entry .time,
+.training-entry .title {
+    padding: 5px;
+    min-width: 120px;
+}
+
+.training-entry .title {
+    font-weight: bold;
+    font-size: larger;
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+    width: 100%;
 }

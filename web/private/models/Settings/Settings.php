@@ -32,7 +32,6 @@ class Settings {
 
         //Resolve status
         if ($success) {
-            echo('Update OK!');br();
             $this->session->setStatus('virtuagym','Credentials updated succesfully');
         } else {
             $this->session->setStatus('virtuagym','Error while updating credentials: ' . $status);

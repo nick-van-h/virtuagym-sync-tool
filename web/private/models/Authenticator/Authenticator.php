@@ -20,6 +20,7 @@ class Authenticator
      */
     public function loginUser($username, $password) {
         $this->session->setUsername($username);
+        $this->session->setUserID($this->user->getID());
         $pwhash = $this->user->getPasswordHash();
         if(password_verify($password, $pwhash)) {
             //Store the status and role of the user

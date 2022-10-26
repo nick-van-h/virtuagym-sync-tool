@@ -60,6 +60,27 @@ class Users extends Database {
     }
 
     /**
+     * ID
+     */
+    function getID() {
+        $username = $this->session->getUsername();
+        $sql = "SELECT `id`
+        FROM users
+        WHERE username = (?)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("s",$username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $this->numrows = $result->num_rows;
+        if ($this->numrows > 0) {
+            $row = $result->fetch_assoc();
+            return($row['id']);
+        } else {
+            return(false);
+        }
+    }
+
+    /**
      * Key (encrypted)
      */
     function setKeyEnc($key_enc) {
@@ -87,7 +108,8 @@ class Users extends Database {
         $this->setSetting('virtuagym_password_enc', $vg_password_enc);
     }
     function getVirtuagymPasswordEnc() {
-        return($this->getSettingValue('virtuagym_password_enc'));
+        $pw_enc = $this->getSettingValue('virtuagym_password_enc');
+        return($pw_enc);
     }
 
     /**
