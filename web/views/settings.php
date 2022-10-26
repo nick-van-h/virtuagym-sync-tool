@@ -8,7 +8,9 @@ $crypt = new Crypt;
 <main class="app box-s">
 <h1>Settings</h1>
 <h2>Virtuagym credentials</h2>
-<form class="settings" action="interfaces/updateVirtuagymCredentials.php" method="post">
+
+<!-- action="interfaces/updateVirtuagymCredentials.php" -->
+<form class="settings" id="settings-virtuagym" method="post">
     <fieldset>
         <div class="row row--align box-xs">
             <label class="col-1-3" for="username">Username</label>
@@ -22,9 +24,13 @@ $crypt = new Crypt;
             <button type="submit" name="test">Test</button>
             <button type="submit" name="save">Save</button>
         </div>
-        <div class="status-message">
-            <span><?php echo($settings->getVirtuagymMessage('virtuagym')); ?></span>
-        </div>
     </fieldset>
+    <div class="status-message status-message--hidden">
+        <span><?php echo($settings->getVirtuagymMessage('virtuagym')); ?></span>
+    </div>
 </form>
+
+<h2>Calendar credentials</h2>
+<br>
+&lt;Under construction>
 </main>

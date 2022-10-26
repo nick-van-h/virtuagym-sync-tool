@@ -10,7 +10,6 @@
  */
 
 Namespace Model;
-use Exception;
 
 class Session {
 
@@ -32,6 +31,19 @@ class Session {
     }
     public function getUsername() {
         return $this->get('loggedin_username');
+    }
+
+    /**
+     * User ID
+     */
+    public function setUserID($userid) {
+        $this->set('loggedin_userid', $userid);
+    }
+    public function unsetUserID() {
+        $this->unset('loggedin_userid');
+    }
+    public function getUserID() {
+        return $this->get('loggedin_userid');
     }
 
     /**

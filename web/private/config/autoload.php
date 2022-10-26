@@ -12,7 +12,8 @@ try {
      */
     require_once __DIR__ . '/../controllers/Session/Session.php';
     require_once __DIR__ . '/../controllers/Database/Database.php';
-    require_once __DIR__ . '/../controllers/Users/Users.php';
+    require_once __DIR__ . '/../controllers/Database/Users.php';
+    require_once __DIR__ . '/../controllers/Database/VGDB.php';
     require_once __DIR__ . '/../models/Crypt/Crypt.php';
     require_once __DIR__ . '/../models/Authenticator/Authenticator.php';
     require_once __DIR__ . '/../models/Settings/Settings.php';

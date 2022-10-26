@@ -19,6 +19,7 @@ get_vw_head_title('VirtuaGym Sync Tool');
 get_vw_head_resources();
 get_vw_head_end();
 
+
 //Site content
 get_vw_app_header();
 echo('<div class="app_outer">');

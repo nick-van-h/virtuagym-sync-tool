@@ -28,7 +28,7 @@ Logo generated with [Textcraft](https://textcraft.net/)
 # API call results
 
 ### User activities
-
+```
 Array
 (
     [0] => stdClass Object
@@ -51,9 +51,10 @@ Array
             [superset_with_next_act] => 
         )
 )
+```
 
 ### Gym events
-
+```
 stdClass Object
 (
     [statuscode] => 200
@@ -92,9 +93,10 @@ stdClass Object
                 )
         )
 )
+```
 
 # Gym activity definitions
-
+```
 stdClass Object
 (
     [statuscode] => 200
@@ -141,3 +143,4 @@ stdClass Object
                 )
         )
 )
+```
