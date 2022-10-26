@@ -1,6 +1,80 @@
 
 # API call results
 
+### User profile
+
+```
+stdClass Object
+(
+    [id] => 6208394
+    [email] => nick.vh89@pm.me
+    [username] => Nick-vh
+    [username_url] => nick-vh
+    [length_unit] => cm
+    [weight_unit] => kg
+    [user_avatar] => 
+    [pro] => 1
+    [language] => nl
+    [activated] => 1
+    [timestamp_edit] => 1666813653
+    [cover_photo] => /images/cover_photos/cover-photo-4.png
+    [total_kcal] => 81892
+    [total_min] => 8010
+    [total_km] => 0
+    [fitness_points] => 104875
+    [nr_likes] => 0
+    [has_coach] => 1
+    [nr_followers] => 0
+    [nr_following] => 0
+    [member_ids] => Array
+        (
+            [0] => stdClass Object
+                (
+                    [club_id] => 20556
+                    [member_id] => 8955401
+                    [member_pro] => 0
+                )
+
+            [1] => stdClass Object
+                (
+                    [club_id] => 16389
+                    [member_id] => 34285503
+                    [member_pro] => 1
+                )
+
+        )
+
+    [content_language] => nl
+    [birthday] => 19-02-1989
+    [length] => 175
+    [weight] => 73
+    [country] => NL
+    [city] => Veldhoven
+    [timezone] => Europe/Amsterdam
+    [firstname] => Nick
+    [lastname] => van Huijkelom
+    [name] => Nick van Huijkelom
+    [gender] => m
+    [club_ids] => Array
+        (
+            [0] => 20556
+            [1] => 16389
+        )
+
+    [member_id] => 8955401
+    [selected_bodymetrics] => Array
+        (
+            [0] => weight
+            [1] => waist
+            [2] => fat
+            [3] => visceral
+            [4] => fat_free_mass
+            [5] => bmi
+        )
+
+)
+```
+
 ### User activities
 
 ```
