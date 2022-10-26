@@ -66,15 +66,80 @@ class VirtuaGym {
         //Make the call to get the activity data
         $path = 'activity';
         $this->call($path);
-        //echo_pre($this->data);
 
+        //Buffer all activities less than one month old
         $dt = new DateTime();
+        $earliest = strtotime($dt->modify('-1 month')->modify('-1 day')->format('Y-m-d') . ' 00:00:00');
         foreach($this->data as $activity) {
-            //$user_id, $act_inst_id, $done, $deleted, $act_id, $event_id
-            $this->vgdb->bufferActivity($activity);
+            if($activity->timestamp >= $earliest) $this->vgdb->bufferActivity($activity);
         }
+        //Query the buffer to the database
         $this->vgdb->queryActivities();
+    }
 
+    function callClubIds() {
+        //Make the call to get the club id's
+        $path = 'user/current';
+        $this->call($path);
+        if ($this->hasResults()) {
+            $clubs = $this->data->club_ids;
+            $this->vgdb->storeClubs($clubs);
+        }
+    }
+
+    function callActivityDefinitions() {
+        $clubs = $this->vgdb->getClubs();
+
+        foreach($clubs as $club) {
+            //Make the call to get the club activities
+            $path = '/club/' . $club . '/activity/definition';
+            $this->call($path);
+            if ($this->hasResults()) {
+                foreach($this->data as $actdef) {
+                    $this->vgdb->bufferActDef($actdef);
+                }
+            }
+        }
+        $this->vgdb->queryActDef();
+    }
+
+    function callEventDefinitions() {
+        $clubs = $this->vgdb->getClubs();
+        $dates = $this->getDates();
+
+        foreach($clubs as $club) {
+            foreach($dates as $dt) {
+                //Make the call to get the club events
+                $path = '/club/' . $club . '/event/' . $dt;
+                $this->call($path);
+                if ($this->hasResults()) {
+                    foreach($this->data as $evtdef) {
+                        $this->vgdb->bufferEvtDef($evtdef);
+                    }
+                }
+            }
+        }
+        $this->vgdb->queryEvtDef();
+    }
+
+    function getEnrichedActivities() {
+        return ($this->vgdb->getAllJoined());
+    }
+
+    private function getDates() {
+        $dt = new DateTime();
+        $earliest = $dt->modify('-1 month')->modify('-1 day')->format('Y-m-d') . ' 00:00:00';
+        $dtMax = new DateTime(date("Y-m-d H:i:s", $this->vgdb->getLatestActivityTimestamp()));
+        $dtArr = [];
+        while($dt < $dtMax) {
+            $dtArr[] = $dt->format("Y/m");
+            $dt->modify("+1 month");
+        }
+        return $dtArr;
+    }
+
+    private function hasResults() {
+        return $this->statuscode == self::STATUS_OK && $this->resultcount;
     }
 
     /**

@@ -299,3 +299,38 @@ header.app {
     justify-content: center;
     border-bottom: 2px solid grey;
 }
+
+
+/**
+* Appointment (tmp)
+*/
+
+.training-entry {
+    width: 400px;
+    background-color: #020560d4;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    display: flex;
+}
+
+.training-entry.cancelled,
+.training-entry.not-joined {
+    background-color: gray;
+}
+
+.training-entry .date,
+.training-entry .time,
+.training-entry .title {
+    padding: 5px;
+    min-width: 120px;
+}
+
+.training-entry .title {
+    font-weight: bold;
+    font-size: larger;
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+    width: 100%;
+}
