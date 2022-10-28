@@ -100,6 +100,12 @@ class Authenticator
         }
         return $success;
     }
+
+    public function revokeToken() {
+        $dt = new DateTime;
+        $this->user->setTokenExpiryDate($dt->format('d-m-Y H:i:s'));
+    }
+
     /**
      * Logout the current user
      */

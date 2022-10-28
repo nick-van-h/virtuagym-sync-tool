@@ -130,13 +130,16 @@ class Users extends Database {
             $row = $result->fetch_assoc();
             return($row['username']);
         } else {
-            echo ('no result from query');
             return(false);
         }
     }
 
     function getTokenExpiryDate() {
         return $this->getSettingValue('token_expiry_date');
+    }
+
+    function setTokenExpiryDate($value) {
+        $this->setSetting('token_expiry_date', $value);
     }
 
     /**
