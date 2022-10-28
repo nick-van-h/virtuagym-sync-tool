@@ -6,14 +6,27 @@ class Authenticator
     private const LOGIN_LOGGEDIN = 1;
     private const LOGIN_INVALID_CREDENTIALS = self::LOGIN_LOGGEDIN + 1;
 
-    private $usermodel = '';
-    private $crypt = '';
-    private $session = '';
+    private $crypt;
+    private $user;
+    private $session;
     
     function __construct() {
         $this->session = new Model\Session;
         $this->user = new Model\Users;
         $this->crypt = new Crypt;
+    }
+
+    function createNewUser($username, $password) {
+        //To be implemented
+    }
+
+    function resetPassword($password) {
+        $pwhash = password_hash($password, PASSWORD_DEFAULT);
+        if ($this->user->setPasswordHash($pwhash)) {
+            $this->session->setStatus('login-status','Success','New password has been set, you can now log in with your new password.');
+        } else {
+            $this->session->setStatus('login-status','Warning','Error during password reset, please try again.');
+        }
     }
     /**
      * Try to login a user with a specific username & password
@@ -44,8 +57,8 @@ class Authenticator
                 $this->crypt->decryptAndSetKey($key_enc);
             }
         } else {
-            $_SESSION['loginstatus'] = self::LOGIN_INVALID_CREDENTIALS;
-            echo 'nok';
+            $this->session->setLoginStatus(self::LOGIN_INVALID_CREDENTIALS);
+            $this->session->unsetUser();
         }
     }
 
@@ -60,22 +73,41 @@ class Authenticator
             if($_SESSION['loginstatus'] == self::LOGIN_INVALID_CREDENTIALS) {
                 unset($_SESSION['loginstatus']);
                 return ('Invalid username or password');
+            } else {
+                return $this->session->getStatus('login-status');
             }
         }
     }
 
     public function userIsAdmin() {
-        return $_SESSION['user_role'] =='admin';
+        return $this->userIsLoggedIn() && $_SESSION['user_role'] =='admin';
     }
 
+    public function userIsDev() {
+        return $this->userIsLoggedIn() && $_SESSION['user_role'] =='dev';
+    }
+
+    public function validateToken($token) {
+        $success = false;
+        $this->session->setUsername($this->user->getUsernameFromToken($token));
+        if($this->session->getUsername()) {
+            $dt = new DateTime;
+            $exp = $this->user->getTokenExpiryDate();
+            $dtexp = $exp ? new DateTime($exp) : new DateTime();
+            if ($dt <= $dtexp) {
+                $success = true;
+            }
+        }
+        return $success;
+    }
     /**
      * Logout the current user
      */
     function logoutUser()
     {
-        //Unset all login related session parameters
-        unset($_SESSION['loginstatus']);
-        unset($_SESSION['loggedin_user']);
+        //Unset all login related session parameters including the login status
+        $this->session->unsetLoginStatus();
+        $this->session->unsetUser();
     }
 
     

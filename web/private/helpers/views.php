@@ -90,3 +90,21 @@ function get_vw_settings()
 {
     include(BASE_PATH . '/views/settings.php');
 }
+
+/**
+ * Debug
+ */
+function get_vw_debug()
+{
+    include(BASE_PATH . '/views/debug.php');
+}
+
+function get_vw_pw_reset() 
+{
+    include(BASE_PATH . '/views/pwreset.php');
+}
+
+function get_vw_invalid_token()
+{
+    include(BASE_PATH . '/views/invalid_token.php');
+}

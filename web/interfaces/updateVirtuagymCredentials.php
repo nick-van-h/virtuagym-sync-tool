@@ -16,9 +16,9 @@ exit;
 if(isset($_POST['test']))  {
     if($vg->testConnection($username, $password)) {
         $data = $vg->getData();
-        $session->setStatus('virtuagym','Connection OK! Account detected for ' . $data->name);
+        $session->setStatus('virtuagym','Success','Connection OK! Account detected for ' . $data->name);
     } else {
-        $session->setStatus('virtuagym','Connection error: ' . $vg->getStatusMessage());
+        $session->setStatus('virtuagym','Warning','Connection error: ' . $vg->getStatusMessage());
     }
 } else {
     $settings->updateVirtuagymCredentials($username, $password);

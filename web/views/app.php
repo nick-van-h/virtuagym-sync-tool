@@ -1,21 +1,23 @@
-<main class="app box-s">
-<h1>Under construction</h1>
+<main class="app">
+    <div class="img-container img-page-title">
+        <img src="<?php echo(public_base_url()); ?>/resources/img/title_home_alt.png">
+    </div>
 <?php
-$vg = new VirtuaGym;
-$vg->callActivities();
-echo($vg->getResultCount() . ' activities found');br();
-$vg->callClubIds();
-$vg->callActivityDefinitions();
-$vg->callEventDefinitions();
-$activities = $vg->getEnrichedActivities();
-foreach ($activities as $act) {
-    echo '<div class="training-entry' . ($act['cancelled'] ? ' cancelled' : '') . (!$act['joined'] ? ' not-joined' : '') . '">';
-        echo '<div class="dt">';
-            echo '<div class="date">' . date("d-m-Y", $act['event_start']) . '</div>';
-            echo '<div class="time">' . date("H:i", $act['event_start']) . ' - ' . date("H:i", $act['event_end']) . '</div>';
-        echo '</div>';
-        echo '<div class="title">' . $act['name'] . '</div>';
+    echo '<div class="training-entry cancelled">';
+    echo '<div class="dt">';
+        echo '<div class="date">11-11-2011</div>';
+        echo '<div class="time">18:00 - 19:00</div>';
     echo '</div>';
-}
+    echo '<div class="title">WOD (Strength)</div>';
+echo '</div>';
+
+echo '<div class="training-entry">';
+echo '<div class="dt">';
+    echo '<div class="date">11-11-2011</div>';
+    echo '<div class="time">19:00 - 20:00</div>';
+echo '</div>';
+echo '<div class="title">WOD (Strength)</div>';
+echo '</div>';
+
 ?>
 </main>

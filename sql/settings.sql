@@ -3,3 +3,5 @@ CREATE TABLE `u93257p88111_vst`.`settings` ( `id` INT(11) NOT NULL AUTO_INCREMEN
 ALTER TABLE `settings` CHANGE `variable` `setting_name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
 
 INSERT INTO `settings`(`user_id`, `setting_name`, `value_str`, `type`) VALUES (1,"user_role","admin","str");
+
+INSERT INTO `settings`(`user_id`, `setting_name`, `value_str`, `type`) VALUES ('1','password_reset_token','CorrectHorseBatteryStaple','str');

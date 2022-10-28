@@ -21,6 +21,16 @@ class Session {
     }
 
     /**
+     * Generic unset (logout) user
+     */
+    public function unsetUser() {
+        $this->unsetUsername();
+        $this->unsetUserID();
+        $this->unsetUserRole();
+        $this->unsetKey();
+    }
+
+    /**
      * Username
      */
     public function setUsername($username) {
@@ -68,6 +78,9 @@ class Session {
     public function setUserRole($status) {
         $this->set('user_role', $status);
     }
+    public function unsetUserRole() {
+        $this->unset('user_role');
+    }
     public function getUserRole() {
         return $this->get('user_role');
     }
@@ -97,15 +110,24 @@ class Session {
     /**
      * Status
      */
-    public function setStatus($status, $value) {
-        $_SESSION['status'][$status] = $value;
+    public function setStatus($status, $code, $value) {
+        $_SESSION['status'][$status]['code'] = $code;
+        $_SESSION['status'][$status]['message'] = $value;
     }
     public function clearStatus($status) {
-        $_SESSION['status'][$status] = '';
+        $_SESSION['status'][$status]['code'] = '';
+        $_SESSION['status'][$status]['message'] = '';
     }
     public function getStatus($status) {
         if ($this->isArrVarSet('status', $status)) {
-            return $_SESSION['status'][$status];
+            return $_SESSION['status'][$status]['message'];
+        } else {
+            return false;
+        }
+    }
+    public function getStatusCode($status) {
+        if ($this->isArrVarSet('status', $status)) {
+            return $_SESSION['status'][$status]['code'];
         } else {
             return false;
         }

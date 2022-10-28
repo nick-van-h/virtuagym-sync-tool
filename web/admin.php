@@ -7,7 +7,7 @@ set_error_reporting();
 
 //Check if the user is logged in
 $auth = new Authenticator;
-if (!$auth->userIsLoggedIn()) {
+if (!$auth->userIsLoggedIn() && !$auth->userIsAdmin()) {
     redirectToUrl(public_base_url());
 }
 
@@ -18,9 +18,9 @@ get_vw_head_resources();
 get_vw_head_end();
 
 //Site content
-get_vw_app_header();
-echo('<div class="app_outer">');
 get_vw_app_nav();
+echo('<div class="app_outer">');
+get_vw_app_header();
 get_vw_admin();
 echo('</div>');
 

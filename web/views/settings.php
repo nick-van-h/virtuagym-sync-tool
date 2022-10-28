@@ -5,9 +5,11 @@ $crypt = new Crypt;
 
 ?>
 
-<main class="app box-s">
-<h1>Settings</h1>
-<h2>Virtuagym credentials</h2>
+<main class="app">
+    <div class="img-container img-page-title">
+        <img src="<?php echo(public_base_url()); ?>/resources/img/title_settings.png">
+    </div>
+<h1>Virtuagym credentials</h1>
 
 <!-- action="interfaces/updateVirtuagymCredentials.php" -->
 <form class="settings" id="settings-virtuagym" method="post">
@@ -30,7 +32,11 @@ $crypt = new Crypt;
     </div>
 </form>
 
-<h2>Calendar credentials</h2>
+<h1>Calendar credentials</h1>
 <br>
 &lt;Under construction>
+<h1>Manage account</h1>
+    <div class="img-container">
+        <img src="<?php echo(public_base_url()); ?>/resources/img/here_be_dragons.png">
+    </div>
 </main>

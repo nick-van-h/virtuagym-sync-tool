@@ -46,6 +46,7 @@ class Users extends Database {
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("ss",$pwhash,$username);
         $stmt->execute();
+        echo ($stmt->affected_rows . ' rows updated');
         return $stmt->affected_rows;
     }
 
@@ -110,6 +111,32 @@ class Users extends Database {
     function getVirtuagymPasswordEnc() {
         $pw_enc = $this->getSettingValue('virtuagym_password_enc');
         return($pw_enc);
+    }
+
+    function getUsernameFromToken($token) {
+        $sql = "SELECT `username`
+        FROM users u
+        RIGHT OUTER JOIN (
+            SELECT `user_id`
+            FROM settings
+            WHERE `setting_name` = 'password_reset_token' AND `value_str` = (?)
+        ) s ON s.user_id = u.id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("s",$token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $this->numrows = $result->num_rows;
+        if ($this->numrows > 0) {
+            $row = $result->fetch_assoc();
+            return($row['username']);
+        } else {
+            echo ('no result from query');
+            return(false);
+        }
+    }
+
+    function getTokenExpiryDate() {
+        return $this->getSettingValue('token_expiry_date');
     }
 
     /**

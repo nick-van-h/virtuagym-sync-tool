@@ -2,6 +2,15 @@
 //Default include autoload
 require_once __DIR__ . '/../private/config/autoload.php';
 
+//Enable error logging for dev environment
+set_error_reporting();
+
+//Check if the user is logged in
+$auth = new Authenticator;
+if (!$auth->userIsLoggedIn() && !$auth->userIsAdmin()) {
+    redirectToUrl(public_base_url());
+}
+
 //Get list of test files
 $path    = __DIR__;
 $files = array_values(array_diff(scandir($path), array('..', '.', 'index.php')));
@@ -15,7 +24,10 @@ get_vw_head_end();
 
 //Build the content
 get_vw_test_nav();
-echo ('<main class="box">');
+echo ('<main class="test">');
+echo ('<div class="img-container img-page-title">');
+echo ('<img src="' . public_base_url() . '/resources/img/title_tests.png">');
+echo ('</div>');
 
 //Main content
 echo ('<ul class="list-of-tests">');

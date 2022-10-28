@@ -1,10 +1,7 @@
-<main class="app box-s">
-<h1>Admin control panel</h1>
+<main class="app">
+    <div class="img-container img-page-title">
+        <img src="<?php echo(public_base_url()); ?>/resources/img/title_admin.png">
+    </div>
+<h1>Manage users</h1>
 Under construction
-<h2>Debug</h2>
-<h2>Status dashboard</h2>
-<?php global $auth; echo_pre(($_SESSION)); ?>
-<form action="interfaces/clearDebug.php">
-    <button type="submit">Clear debug</button>
-</form>
 </main>

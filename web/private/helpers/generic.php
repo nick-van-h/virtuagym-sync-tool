@@ -24,6 +24,15 @@ function public_base_url()
     );
 }
 
+function full_url()
+{
+    return sprintf(
+        "%s://%s",
+        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+        $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']
+    );
+}
+
 /**
  * Returns the full path to the database .ini file
  * 

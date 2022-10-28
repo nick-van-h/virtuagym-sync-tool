@@ -3,3 +3,8 @@
     list-style-type: circle;
     margin-left: 20px;
 }
+
+/* .list-of-tests li a,
+.list-of-tests li a:visited {
+    color: var(--text);
+} */

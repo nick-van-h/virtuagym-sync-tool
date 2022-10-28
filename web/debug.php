@@ -7,7 +7,7 @@ set_error_reporting();
 
 //Check if the user is logged in
 $auth = new Authenticator;
-if (!$auth->userIsLoggedIn()) {
+if (!$auth->userIsLoggedIn() && (!$auth->userIsAdmin() || $auth->userIsDev())) {
     redirectToUrl(public_base_url());
 }
 
@@ -17,12 +17,11 @@ get_vw_head_title('VirtuaGym Sync Tool');
 get_vw_head_resources();
 get_vw_head_end();
 
-
 //Site content
 get_vw_app_nav();
 echo('<div class="app_outer">');
 get_vw_app_header();
-get_vw_app();
+get_vw_debug();
 echo('</div>');
 
 //Foot

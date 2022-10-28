@@ -7,6 +7,12 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+//Check if the user is logged in
+$auth = new Authenticator;
+if (!$auth->userIsLoggedIn() && !$auth->userIsAdmin()) {
+    redirectToUrl(public_base_url());
+}
+
 //Build the head part of the document
 get_vw_head_start();
 get_vw_head_title('VirtuaGym Sync Tool');
@@ -29,7 +35,7 @@ get_vw_head_end();
 
 //Site content
 get_vw_test_nav();
-echo('<main class="box-s">');
+echo('<main class="test box-s">');
 
 const API_URL = 'https://api.virtuagym.com/api/v0';
 $username = TEST_USER;

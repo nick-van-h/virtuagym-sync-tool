@@ -9,19 +9,48 @@
 */
 
 :root {
+
+    --background-menu: #081014;
+    --background-canvas: #0a151b;
+    --background-field: #0a151b;
+    --background-table: #0d1a22;
+    --background-table-alt: #0F1F29;
+    --background-table-accent: #0a151b;
+
+    --border: #5191a2;
+    --text: #dfe1e2;
+    --text-alt: #dfe1e2;
+    --text-warning: #c48308;
+    --text-success: #175c3b;
+    --table-text: #dfe1e2;
+    --link: #1c74b8;
+
+    --badge-item: #227cbf;
+    --badge-hover: #26a7f4;
+    --badge-text: #081014;
+
+    --input-border: #1e6da8;
+    --input-background: #0e2938;
+
+    --menu-item: #175c3b;
+    --menu-hover: #0c2e1e;
+    --menu-accent: #51846c;
+    --menu-icon-selected: #268b2f;
+    --menu-icon-hover: #26b131;
+    --menu-text: #dfe1e2;
+
+
+    --app-header-height: 100px;
+
+    /* 
     --background: #1a1d1e;
-    /* #212224 #292a2b - #181a1c */
-    --text: #afafaf;
-    /* #a3aecb */
     --table-border: #a3aecb;
 
-    /* Buttons */
     --btn-bg: #0e59a0;
     --btn-txt: #ffffffa9;
     --btn-hvr-bg: #0078e7;
 
     --btn-alt-bg: #343a40;
-    /*2a2d30 343a40*/
     --btn-alt-txt: #ffffffa9;
     --btn-alt-hvr-bg: #424a52;
 
@@ -32,7 +61,29 @@
     --frm-field-color: #000000;
     --frm-field-placeholder-color: #252222d0;
 
-    --app-header-height: 100px;
+
+
+    --black-max: #00010D;
+
+    --black-dark-d: #202326;
+    --black-dark-l: #35373a;
+    --black-mid-d: #494b4d;
+    --black-mid-l: #6d6e6f;
+    --black-light-d: #d7d7d9;
+    --black-light-l: #e3e4e6;
+
+    --white-min: #fcfcfc;
+
+    --blue-light-l: #95c9f8;
+    --blue-light-d: #67b4fc;
+    --blue-mid-l: #50aafe;
+    --blue-mid-d: #318ce1;
+    --blue-dark-l: #2a78c3;
+    --blue-dark-d: #1c5086;
+
+    --blue-max: #0b1f38; */
+
+
 
 }
 
@@ -64,64 +115,174 @@ h6 {
     font-size: 0.75em;
 }
 
+a,
+a:visited {
+    color: var(--link);
+}
+
 body {
-    background-color: var(--background);
-    width: calc(100vw - (100vw - 100%));
+    background-color: var(--background-canvas);
     /*Make sure body fits within scroll bar*/
+    /* width: calc(100vw - (100vw - 100%)); */
+    /* height: calc(100vh - (100vh - 100%)); */
+    width: 100vw;
+    height: 100vh;
+
     color: var(--text);
 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
     display: flex;
-    flex-direction: column;
-    min-height: calc(100vh);
+    flex-direction: row;
 }
 
 button {
-    background-color: var(--btn-bg);
-    color: var(--btn-txt);
+    background-color: var(--badge-item);
+    color: var(--badge-text);
     border-radius: 3px;
     font-size: large;
+    font-weight: bold;
     padding: 10px;
     margin: 5px;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: var(--btn-hvr-bg);
+    background-color: var(--badge-hover);
 }
 
 button.alt {
-    background-color: var(--btn-alt-bg);
-    color: var(--btn-alt-txt);
+    background-color: var(--badge-pressed);
 }
 
 button.alt:hover {
-    background-color: var(--btn-alt-hvr-bg);
+    background-color: var(--badge-hover);
+}
+
+.warning {
+    color: var(--text-warning);
 }
 
 
 /**
 * Form
 */
-form.login {
-    border-width: 1px;
-    border-style: solid;
-    border-color: var(--frm-border);
-    background-color: var(--frm-bg);
+
+
+main.login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+main.login .img-container {
+    width: 100%;
+    margin: 100px 0;
+}
+
+main.login .img-container img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 640px;
+    padding: 0 20px;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background-color: var(--background-table);
+}
+
+.login-container .tabs {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.login-container .tabs .item {
+    position: relative;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+
+#rad-login:checked~.tabs .item.login {
+    border-right: 2px solid var(--border);
+    border-top-right-radius: 10px;
+}
+
+#rad-signup:checked~.tabs .item.signup {
+    border-left: 2px solid var(--border);
+    border-top-left-radius: 10px;
+}
+
+#rad-login:not(:checked)~.tabs .item.login,
+#rad-signup:not(:checked)~.tabs .item.signup {
+    border-bottom: 2px solid var(--border);
+    background-color: var(--background-table-alt);
+}
+
+#rad-login:not(:checked)~.form-container .login {
+    visibility: hidden;
+}
+
+#rad-signup:not(:checked)~.form-container .signup {
+    visibility: hidden;
+}
+
+.login-container input.tabs-selector {
+    display: none;
+}
+
+.login-container label.tabs-selector {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 100;
+
+}
+
+.form-container {
+    position: relative;
+
+}
+
+form.signup {
+    /* TODO: Change to form.login when sign up is implemented since it will probably be bigger */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 form input {
-    background-color: var(--frm-field-bg);
-    border-color: var(--frm-field-border);
-    border: 1px solid var(--frm-field-border);
-    color: var(--frm-field-color);
+    background-color: var(--input-background);
+    border: 2px solid var(--input-border);
+    color: var(--table-text);
     padding: 5px;
     border-radius: 5px;
 }
 
 form input::placeholder {
-    color: var(--frm-field-placeholder-color);
+    color: var(--text-alt);
 }
 
 form .login-message {
@@ -129,7 +290,7 @@ form .login-message {
     justify-content: center;
     height: 0px;
     transform: translateY(10px);
-    color: #dfaf58cf;
+    color: var(--text-warning);
     animation: fadeOut forwards;
     animation-duration: 2s;
     animation-delay: 2s;
@@ -175,28 +336,40 @@ form.settings .status-message {
 
 nav.app {
     position: fixed;
-    width: 240px;
+    flex: 0 0 240px;
     left: -240px;
     height: 100%;
     transition: all .5s ease;
 
-    background-color: #00083c12;
+    background-color: var(--background-menu);
+}
+
+nav.app .img-container {
+    margin: 50px 0;
+}
+
+nav.app .img-container img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding: 0 20px;
 }
 
 nav i {
     font-size: 29px;
-    color: #fff;
+    color: var(--menu-text);
     line-height: 45px;
     width: 40px;
 }
 
 nav a {
-    color: #fff;
+    color: var(--menu-text);
     text-decoration: none;
 }
 
 nav a:visited {
-    color: #fff;
+    color: var(--menu-text);
 }
 
 nav.app ul {
@@ -213,10 +386,23 @@ nav ul li {
 }
 
 nav ul li:hover {
-    background-color: #0e59a0;
-    border-left: 2px;
-    border-color: #0078e7;
+    background-color: var(--menu-item);
+    border-right: 5px solid;
+    border-color: var(--menu-accent);
 }
+
+nav ul li.selected {
+    border-right: 5px solid;
+    border-color: var(--menu-accent);
+}
+
+/* nav ul li.selected .fas {
+    color: var(--menu-icon-selected)
+}
+
+nav ul li.selected:hover .fas {
+    color: var(--menu-icon-hover)
+} */
 
 #check {
     display: none;
@@ -226,7 +412,7 @@ label #btn,
 label #cancel {
     position: absolute;
     cursor: pointer;
-    color: white;
+    color: var(--text);
     border-radius: 5px;
     border: 1px solid #262626;
     margin: 15px 30px;
@@ -279,12 +465,15 @@ label #cancel {
 */
 .app_outer {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: flex-start;
-    height: calc(100vh - var(--app-header-height))
+    /* height: calc(100vh - var(--app-header-height)) */
+    height: 100%;
+    flex-grow: 1;
 }
 
-main.app {
+main.app,
+main.test {
     display: inline-block;
     padding-left: 75px;
     flex-grow: 1;
@@ -292,12 +481,24 @@ main.app {
     overflow-x: hidden;
 }
 
+.img-container.img-page-title {
+    margin: 45px -25px !important;
+    border-bottom: 2px solid var(--border);
+}
+
 header.app {
     height: var(--app-header-height);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 2px solid grey;
+    /* border-bottom: 2px solid grey; */
+}
+
+@media(min-width: 860px) {
+    header.app {
+        height: 0px;
+        display: none;
+    }
 }
 
 
@@ -307,7 +508,7 @@ header.app {
 
 .training-entry {
     width: 400px;
-    background-color: #020560d4;
+    background-color: var(--badge-item);
     border-radius: 10px;
     margin-bottom: 10px;
     padding: 10px;
@@ -316,7 +517,7 @@ header.app {
 
 .training-entry.cancelled,
 .training-entry.not-joined {
-    background-color: gray;
+    background-color: var(--badge-pressed);
 }
 
 .training-entry .date,

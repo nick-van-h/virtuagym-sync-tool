@@ -3,4 +3,4 @@
 require_once __DIR__ . '/../private/config/autoload.php';
 
 $_SESSION['debug'] = [];
-redirectToUrl(public_base_url() . '/admin.php');
+redirectToUrl(public_base_url() . '/debug.php');
