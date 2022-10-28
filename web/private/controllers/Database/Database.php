@@ -17,16 +17,20 @@ class Database
     {
         $numrows = 0;
         $db = getConfig();
-        try {
-            //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}
-            $this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
-        } catch (mysqli_sql_exception $e) {
-            //Store the exception details as error
-            setError("MySQLi Error Code: " . $e->getCode() . " | Exception Msg: " . $e->getMessage());
-            exit;
+        if($db) {
+            try {
+                //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}
+                $this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
+            } catch (Exceptiond $e) {
+                //Store the exception details as error
+                $this->setError("MySQLi Error Code: " . $e->getCode() . " | Exception Msg: " . $e->getMessage());
+                exit;
+            }
+            //Set status succesful
+            $this->setOk();
+        } else {
+            $this->setError('Unable to get config file');
         }
-        //Set status succesful
-        $this->setOk();
     }
 
     function __destruct() {
