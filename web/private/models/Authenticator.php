@@ -11,8 +11,8 @@ class Authenticator
     private $session;
     
     function __construct() {
-        $this->session = new Model\Session;
-        $this->user = new Model\Users;
+        $this->session = new Controller\Session;
+        $this->user = new Controller\Users;
         $this->crypt = new Crypt;
     }
 

@@ -19,11 +19,10 @@ $files = array_values(array_diff(scandir($path), array('..', '.', 'index.php')))
 get_vw_head_start();
 get_vw_head_title('VirtuaGym Sync Tool');
 get_vw_head_resources();
-echo ('<link rel="stylesheet" type="text/css" href="style.css">');
 get_vw_head_end();
 
 //Build the content
-get_vw_test_nav();
+get_vw_nav();
 echo ('<main class="test">');
 echo ('<div class="img-container img-page-title">');
 echo ('<img src="' . public_base_url() . '/resources/img/title_tests.png">');

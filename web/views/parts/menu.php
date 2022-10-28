@@ -50,7 +50,7 @@ $curPage = substr($_SERVER["SCRIPT_NAME"],strrpos($_SERVER["SCRIPT_NAME"],"/")+1
                 </li>
             </a>
         <?php endif; ?>
-        <a href="<?php echo(public_base_url()); ?>/interfaces/logout.php">
+        <a href="<?php echo(public_base_url()); ?>/interfaces/server/logout.php">
             <li>
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>

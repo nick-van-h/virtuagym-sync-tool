@@ -34,7 +34,7 @@ th {
 get_vw_head_end();
 
 //Site content
-get_vw_test_nav();
+get_vw_nav();
 echo('<main class="test box-s">');
 
 const API_URL = 'https://api.virtuagym.com/api/v0';

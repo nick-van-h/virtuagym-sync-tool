@@ -1,6 +1,6 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/../private/config/autoload.php';
+require_once __DIR__ . '/../../private/config/autoload.php';
 
 //Check for AJAX request
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {

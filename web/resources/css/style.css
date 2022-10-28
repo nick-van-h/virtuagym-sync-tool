@@ -9,7 +9,6 @@
 */
 
 :root {
-
     --background-menu: #081014;
     --background-canvas: #0a151b;
     --background-field: #0a151b;
@@ -39,52 +38,7 @@
     --menu-icon-hover: #26b131;
     --menu-text: #dfe1e2;
 
-
     --app-header-height: 100px;
-
-    /* 
-    --background: #1a1d1e;
-    --table-border: #a3aecb;
-
-    --btn-bg: #0e59a0;
-    --btn-txt: #ffffffa9;
-    --btn-hvr-bg: #0078e7;
-
-    --btn-alt-bg: #343a40;
-    --btn-alt-txt: #ffffffa9;
-    --btn-alt-hvr-bg: #424a52;
-
-    --frm-bg: #21212263;
-    --frm-border: #2a2a2b;
-    --frm-field-bg: #969da0d4;
-    --frm-field-border: #2a2a2b;
-    --frm-field-color: #000000;
-    --frm-field-placeholder-color: #252222d0;
-
-
-
-    --black-max: #00010D;
-
-    --black-dark-d: #202326;
-    --black-dark-l: #35373a;
-    --black-mid-d: #494b4d;
-    --black-mid-l: #6d6e6f;
-    --black-light-d: #d7d7d9;
-    --black-light-l: #e3e4e6;
-
-    --white-min: #fcfcfc;
-
-    --blue-light-l: #95c9f8;
-    --blue-light-d: #67b4fc;
-    --blue-mid-l: #50aafe;
-    --blue-mid-d: #318ce1;
-    --blue-dark-l: #2a78c3;
-    --blue-dark-d: #1c5086;
-
-    --blue-max: #0b1f38; */
-
-
-
 }
 
 
@@ -93,18 +47,26 @@
 */
 h1 {
     font-size: 2em;
+    line-height: 2.4rem;
+    margin-top: 1rem;
 }
 
 h2 {
     font-size: 1.5em !important;
+    line-height: 1.9rem;
+    margin-top: 0.8rem;
 }
 
 h3 {
     font-size: 1.17em;
+    line-height: 1.8rem;
+    margin-top: 0.6rem;
 }
 
 h4 {
     font-size: 1.12em;
+    line-height: 1.7rem;
+    margin-top: 0.5rem;
 }
 
 h5 {
@@ -134,6 +96,8 @@ body {
 
     display: flex;
     flex-direction: row;
+
+    line-height: 1.5rem;
 }
 
 button {
@@ -186,8 +150,12 @@ main.login .img-container img {
     margin-left: auto;
     margin-right: auto;
     width: 100%;
+}
+
+.container-outer {
+    padding: 0px 20px;
     max-width: 640px;
-    padding: 0 20px;
+    width: 100%;
 }
 
 .login-container {
@@ -195,7 +163,6 @@ main.login .img-container img {
     justify-content: center;
     flex-direction: column;
     width: 100%;
-    max-width: 600px;
     border: 2px solid var(--border);
     border-radius: 10px;
     background-color: var(--background-table);
@@ -258,7 +225,13 @@ main.login .img-container img {
 
 .form-container {
     position: relative;
+    padding: 20px 0;
+}
 
+@media (min-width: 400px) {
+    .form-container {
+        padding: 20px;
+    }
 }
 
 form.signup {
@@ -534,4 +507,40 @@ header.app {
     align-items: center;
     margin-left: 15px;
     width: 100%;
+}
+
+/**
+* Tests & debug
+*/
+.list-of-tests li {
+    padding: 5px;
+    list-style-type: circle;
+    margin-left: 20px;
+}
+
+.debug b {
+    margin-left: 20px;
+}
+
+.debug b i {
+    margin-right: 3px;
+    font-weight: lighter;
+    /* font-size: smaller; */
+    color: #fbb45a;
+}
+
+.debug p {
+    height: 10px;
+}
+
+.debug pre {
+    font-size: small;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 10px 20px;
+    margin: -3px 25px 10px;
+    background-color: #22313a;
+    border-left: 5px solid #57646d;
+    width: fit-content;
+    line-height: 1.1rem;
+    white-space: pre-wrap;
 }

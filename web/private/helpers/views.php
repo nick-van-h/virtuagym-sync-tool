@@ -41,14 +41,10 @@ function get_vw_foot()
 /**
  * Menu
  */
-function get_vw_test_nav()
-{
-    include(BASE_PATH . '/views/menu/test_menu.php');
-}
 
-function get_vw_app_nav()
+function get_vw_nav()
 {
-    include(BASE_PATH . '/views/menu/app_menu.php');
+    include(BASE_PATH . '/views/parts/menu.php');
 }
 
 /**
@@ -56,44 +52,32 @@ function get_vw_app_nav()
  */
 function get_vw_app_header()
 {
-    include(BASE_PATH . '/views/content/app_header.php');
+    include(BASE_PATH . '/views/parts/app_header.php');
 }
 
 /**
- * Index
+ * Main
  */
 function get_vw_index()
 {
     include(BASE_PATH . '/views/index.php');
 }
 
-/**
- * App
- */
 function get_vw_app()
 {
     include(BASE_PATH . '/views/app.php');
 }
 
-/**
- * Admin
- */
 function get_vw_admin()
 {
     include(BASE_PATH . '/views/admin.php');
 }
 
-/**
- * Settings
- */
 function get_vw_settings()
 {
     include(BASE_PATH . '/views/settings.php');
 }
 
-/**
- * Debug
- */
 function get_vw_debug()
 {
     include(BASE_PATH . '/views/debug.php');

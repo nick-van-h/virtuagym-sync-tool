@@ -80,10 +80,17 @@ function br() {
     echo('<br>');
 }
 
-function echo_pre($arr) {
+function echo_pre($arr, $name = null) 
+{
+    echo('<div class="debug">');
+    if (!empty($name)) {
+        echo('<b><i>$</i>' . $name . ':</b>');
+    } else {
+        echo('<p />');
+    };
     echo('<pre>');
     print_r($arr);
-    echo('</pre>');
+    echo('</pre></div>');
 }
 
 /**

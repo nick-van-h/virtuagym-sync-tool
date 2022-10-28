@@ -1,9 +1,9 @@
 <?php
 
-namespace Model;
+namespace Controller;
 
-Use Model\Database;
-use Model\Session;
+Use Controller\Database;
+Use Controller\Session;
 
 Class VGDB extends Database {
 
@@ -25,17 +25,21 @@ Class VGDB extends Database {
         $sql = "SELECT MAX(`timestamp`) as `timestamp`
                 FROM activities
                 WHERE user_id = (?)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i",$userid);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            return($row['timestamp']);
-        } else {
-            return(false);
-        }
-        return $timestamp;
+        parent::bufferParams($userid);
+        parent::query($sql);
+        return parent::getOne('timestamp');
+
+        // $stmt = $this->db->prepare($sql);
+        // $stmt->bind_param("i",$userid);
+        // $stmt->execute();
+        // $result = $stmt->get_result();
+        // if ($result->num_rows > 0) {
+        //     $row = $result->fetch_assoc();
+        //     return($row['timestamp']);
+        // } else {
+        //     return(false);
+        // }
+        // return $timestamp;
     }
 
     public function bufferActivity($activity) {

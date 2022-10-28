@@ -1,7 +1,7 @@
 <?php
 
-use Model\Users;
-use Model\Session;
+Use Controller\Users;
+Use Controller\Session;
 
 class Settings {
     private $user;

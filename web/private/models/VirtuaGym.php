@@ -1,8 +1,8 @@
 <?php
 
-use Model\Users;
-use Model\Session;
-use Model\VGDB;
+Use Controller\Users;
+Use Controller\Session;
+Use Controller\VGDB;
 
 class VirtuaGym {
     private $username;

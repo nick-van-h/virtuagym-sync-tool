@@ -1,6 +1,6 @@
 <?php
 $settings = new Settings;
-$user = new Model\Users;
+$user = new Controller\Users;
 $crypt = new Crypt;
 
 ?>
@@ -11,7 +11,6 @@ $crypt = new Crypt;
     </div>
 <h1>Virtuagym credentials</h1>
 
-<!-- action="interfaces/updateVirtuagymCredentials.php" -->
 <form class="settings" id="settings-virtuagym" method="post">
     <fieldset>
         <div class="row row--align box-xs">

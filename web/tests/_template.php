@@ -20,7 +20,7 @@ get_vw_head_resources();
 get_vw_head_end();
 
 //Site content
-get_vw_test_nav();
+get_vw_nav();
 echo('<main class="test box-s">');
 
 /**

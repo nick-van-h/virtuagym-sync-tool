@@ -10,14 +10,14 @@ try {
      * Class modules
      * Load classes based on the data model
      */
-    require_once __DIR__ . '/../controllers/Session/Session.php';
-    require_once __DIR__ . '/../controllers/Database/Database.php';
-    require_once __DIR__ . '/../controllers/Database/Users.php';
-    require_once __DIR__ . '/../controllers/Database/VGDB.php';
-    require_once __DIR__ . '/../models/Crypt/Crypt.php';
-    require_once __DIR__ . '/../models/Authenticator/Authenticator.php';
-    require_once __DIR__ . '/../models/Settings/Settings.php';
-    require_once __DIR__ . '/../models/VirtuaGym/VirtuaGym.php';
+    require_once __DIR__ . '/../controllers/Session.php';
+    require_once __DIR__ . '/../controllers/Database.php';
+    require_once __DIR__ . '/../controllers/Users.php';
+    require_once __DIR__ . '/../controllers/VGDB.php';
+    require_once __DIR__ . '/../models/Crypt.php';
+    require_once __DIR__ . '/../models/Authenticator.php';
+    require_once __DIR__ . '/../models/Settings.php';
+    require_once __DIR__ . '/../models/VirtuaGym.php';
 
     /**
      * Generic functions & helpers

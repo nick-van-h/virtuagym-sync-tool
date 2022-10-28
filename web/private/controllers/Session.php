@@ -9,7 +9,7 @@
  * Testers validate a value to a passed argument and @return bool $result true/false
  */
 
-Namespace Model;
+Namespace Controller;
 
 class Session {
 
@@ -138,13 +138,16 @@ class Session {
         return $message;
     }
 
+    /**
+     * Debug
+     */
     public function addDebug($status) {
         $_SESSION['debug'][] = $status;
     }
+
     /**
      * Private helpers
      */
-
     private function set($variable, $value) {
         $_SESSION[$variable] = $value;
     }

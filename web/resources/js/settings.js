@@ -20,7 +20,7 @@ $(function () {
         //Do the AJAX request
         $.ajax({
             type: "POST",
-            url: rootPath + "../../interfaces/setting_vgCredentials.php",
+            url: rootPath + "../../interfaces/web/setting_vgCredentials.php",
             data: data,
             beforeSend: function () { },
             success: function (response) {

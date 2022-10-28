@@ -10,7 +10,7 @@ class Crypt
     private const OPTIONS = 0;
 
     function __construct() {
-        $this->session = new Model\Session;
+        $this->session = new Controller\Session;
         $conf = getConfig();
         $this->key = $conf['encryption_key'];
         $this->encryption_iv = $conf['encryption_iv'];

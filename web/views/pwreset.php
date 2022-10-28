@@ -2,7 +2,7 @@
     <h1>Set new password</h1>
     Under construction
     <div class="form-container">
-        <form class="reset-password box-xl" action="interfaces/resetpassword.php" method="post">
+        <form class="reset-password box-xl" action="interfaces/server/resetpassword.php" method="post">
             <fieldset>
                 <div class="row row--align box-xs">
                     <label class="col-1-3" for="password">New password</label>

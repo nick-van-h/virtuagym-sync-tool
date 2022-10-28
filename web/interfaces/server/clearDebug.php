@@ -1,6 +1,6 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/../private/config/autoload.php';
+require_once __DIR__ . '/../../private/config/autoload.php';
 
 $_SESSION['debug'] = [];
 redirectToUrl(public_base_url() . '/debug.php');
