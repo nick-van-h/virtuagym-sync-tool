@@ -20,6 +20,11 @@ Class VGDB extends Database {
         $this->session = new Session;
     }
 
+    /**
+     * =============================================
+     * Generic getters
+     * =============================================
+     */
     public function getLatestActivityTimestamp() {
         $userid = $this->session->getUserID();
         $sql = "SELECT MAX(`timestamp`) as `timestamp`
@@ -28,220 +33,212 @@ Class VGDB extends Database {
         parent::bufferParams($userid);
         parent::query($sql);
         return parent::getOne('timestamp');
-
-        // $stmt = $this->db->prepare($sql);
-        // $stmt->bind_param("i",$userid);
-        // $stmt->execute();
-        // $result = $stmt->get_result();
-        // if ($result->num_rows > 0) {
-        //     $row = $result->fetch_assoc();
-        //     return($row['timestamp']);
-        // } else {
-        //     return(false);
-        // }
-        // return $timestamp;
     }
 
+    function getAllJoined() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $dt = new \DateTime();
+        $dt->modify('-1 month');
+        $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
+
+        //Query results
+        $sql = "SELECT DISTINCT 
+                    a.`user_id`,
+                    a.`act_inst_id`,
+                    a.`done`,
+                    a.`deleted`,
+                    a.`act_id`,
+                    a.`event_id`,
+                    a.`timestamp`,
+                    ad.`activity_id`,
+                    ad.`name`,
+                    ad.`deleted` as actdef_deleted,
+                    ad.`club_id`,
+                    ad.`duration`,
+                    ed.`event_start`,
+                    ed.`event_end`,
+                    ed.`attendees`,
+                    ed.`max_attendees`,
+                    ed.`joined`,
+                    ed.`deleted` as evtdef_deleted,
+                    ed.`cancelled`,
+                    ed.`bookable_from`
+                FROM `activities` a
+                LEFT JOIN `act_def` ad ON a.act_id = activity_id
+                LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
+                WHERE a.user_id = (?) AND ed.event_start > (?)
+                ORDER BY ed.event_start DESC";
+        parent::bufferParams($userid, $mintimestamp);
+        parent::query($sql);
+        return parent::getRows();
+    }
+
+    /**
+     * =============================================
+     * User activities
+     * =============================================
+     */
     public function bufferActivity($activity) {
         //Get the full list of existing activities from the server if not yet set
         if(empty($this->curEntries)) $this->retrieveAll_act_inst_id();
 
-        //Generate the child to be added to the array
-        $act = Array(
-            'user_id' => $this->session->getUserID(),
-            'act_inst_id' => $activity->act_inst_id,
-            'done' => $activity->done,
-            'deleted' => $activity->deleted,
-            'act_id' => $activity->act_id,
-            'event_id' => $activity->event_id,
-            'timestamp' => $activity->timestamp,
-        );
-
         //Add the child to the designated array based on if it exists already in the database
         if(in_array($activity->act_inst_id, $this->curEntries)) {
-            $this->dupEntries[] = $act;
+            $this->dupEntries[] = $activity;
         } else {
-            $this->newEntries[] = $act;
+            $this->newEntries[] = $activity;
         }
     }
 
     public function queryActivities() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $success = true;
+
         /**
          * Update the existing activities with new values
          */
-        $rowsUpdated = 0;
-        if(!empty($this->dupEntries)) {
-            $sql = "UPDATE activities
-                    SET done=(?), deleted=(?), act_id=(?), event_id=(?), timestamp=(?)
-                    WHERE user_id=(?) AND act_inst_id=(?)";
-            $stmt = $this->db->prepare($sql);
-            foreach($this->dupEntries as $act) {
-                $stmt->bind_param("iiisiii", $act['done'], $act['deleted'], $act['act_id'], $act['event_id'], $act['timestamp'], $act['user_id'], $act['act_inst_id']);
-                $status = $stmt->execute();
-                $rowsUpdated += $stmt->affected_rows;
-            }
+        $sql = "UPDATE activities
+                SET done=(?), deleted=(?), act_id=(?), event_id=(?), timestamp=(?)
+                WHERE user_id=(?) AND act_inst_id=(?)";
+        foreach($this->dupEntries as $act) {
+            parent::bufferParams($act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp, $userid, $act->act_inst_id);
         }
+        parent::query($sql);
+        $success &= parent::getQueryOK();
 
         /**
          * Insert new activities
          */
-        if(!empty($this->newEntries)) {
-            $sql = "INSERT INTO activities (`user_id`, `act_inst_id`, `done`, `deleted`, `act_id`, `event_id`, `timestamp`)
-                    VALUES (?,?,?,?,?,?,?)";
-            $stmt = $this->db->prepare($sql);
-            foreach($this->newEntries as $act) {
-                $stmt->bind_param("iiiiisi", $act['user_id'], $act['act_inst_id'], $act['done'], $act['deleted'], $act['act_id'], $act['event_id'], $act['timestamp']);
-                $status = $stmt->execute();
-                $rowsUpdated += $stmt->affected_rows;
-            }
+        $sql = "INSERT INTO activities (`user_id`, `act_inst_id`, `done`, `deleted`, `act_id`, `event_id`, `timestamp`)
+                VALUES (?,?,?,?,?,?,?)";
+        foreach($this->newEntries as $act) {
+            parent::bufferParams($userid, $act->act_inst_id, $act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp);
         }
+        parent::query($sql);
+        $success &= parent::getQueryOK();
 
         //Clear the existing activities array because it is now obsolete
         $this->clearBuffer();
+
+        //Return the query status
+        return $success;
     }
 
-    //=============================================
+    /**
+     * =============================================
+     * Activity definitions
+     * =============================================
+     */
     public function bufferActDef($activity) {
         //Get the full list of existing activities from the server if not yet set
         if(empty($this->curEntries)) $this->retrieveAll_activity_id();
 
-        //Generate the child to be added to the array
-        $act = Array(
-            'user_id' => $this->session->getUserID(),
-            'activity_id' => $activity->id,
-            'name' => $activity->name,
-            'deleted' => $activity->deleted,
-            'club_id' => $activity->club_id,
-            'duration' => $activity->duration,
-        );
-
         //Add the child to the designated array based on if it exists already in the database
         if(in_array($activity->id, $this->curEntries)) {
-            $this->dupEntries[] = $act;
+            $this->dupEntries[] = $activity;
         } else {
-            $this->newEntries[] = $act;
+            $this->newEntries[] = $activity;
         }
     }
 
     public function queryActDef() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $success = true;
+
         /**
          * Update the existing activities with new values
          */
-        if(!empty($this->dupEntries)) {
-            $sql = "UPDATE act_def
-                    SET name=(?), deleted=(?), club_id=(?), duration=(?)
-                    WHERE user_id=(?) AND activity_id=(?)";
-            $stmt = $this->db->prepare($sql);
-            foreach($this->dupEntries as $act) {
-                $stmt->bind_param("siiiii", $act['name'], $act['deleted'], $act['club_id'], $act['duration'], $act['user_id'], $act['act_inst_id']);
-                $status = $stmt->execute();
-            }
+        $sql = "UPDATE act_def
+                SET `name`=(?), `deleted`=(?), `club_id`=(?), `duration`=(?)
+                WHERE `user_id`=(?) AND `activity_id`=(?)";
+        $stmt = $this->db->prepare($sql);
+        foreach($this->dupEntries as $act) {
+            parent::bufferParams($act->name, $act->deleted, $act->club_id, $act->duration, $userid, $act->id);
         }
+        parent::query($sql);
 
         /**
          * Insert new activities
          */
-        if(!empty($this->newEntries)) {
-            $sql = "INSERT INTO act_def (`user_id`, `activity_id`, `name`, `deleted`, `club_id`, `duration`)
-                    VALUES (?,?,?,?,?,?)";
-            $stmt = $this->db->prepare($sql);
-            foreach($this->newEntries as $act) {
-                $stmt->bind_param("iisiii", $act['user_id'], $act['activity_id'], $act['name'], $act['deleted'], $act['club_id'], $act['duration']);
-                $status = $stmt->execute();
-            }
+        $sql = "INSERT INTO act_def (`user_id`, `activity_id`, `name`, `deleted`, `club_id`, `duration`)
+                VALUES (?,?,?,?,?,?)";
+        $stmt = $this->db->prepare($sql);
+        foreach($this->newEntries as $act) {
+            parent::bufferParams($userid, $act->activity_id, $act->name, $act->deleted, $act->club_id, $act->duration);
         }
+        parent::query($sql);
 
         //Clear the existing activities array because it is now obsolete
         $this->clearBuffer();
+
+        //Return the query status
+        return $success;
     }
 
-    //=============================================
+
+    /**
+     * =============================================
+     * Event definitions
+     * =============================================
+     */
     public function bufferEvtDef($activity) {
         //Get the full list of existing activities from the server if not yet set
         if(empty($this->curEntries)) $this->retrieveAll_event_id();
-
-        //Generate the child to be added to the array
-        $act = Array(
-            'user_id' => $this->session->getUserID(),
-            'event_id' => $activity->event_id,
-            'activity_id' => $activity->activity_id,
-            'event_start' => $activity->event_start,
-            'event_end' => $activity->event_end,
-            'attendees' => $activity->attendees,
-            'max_attendees' => $activity->max_attendees,
-            'joined' => $activity->joined,
-            'deleted' => $activity->deleted,
-            'cancelled' => $activity->canceled,
-            'bookable_from' => $activity->bookable_from_timestamp,
-        );
-
+        
         //Add the child to the designated array based on if it exists already in the database
         if(in_array($activity->event_id, $this->curEntries)) {
-            $this->dupEntries[] = $act;
+            $this->dupEntries[] = $activity;
         } else {
-            $this->newEntries[] = $act;
+            $this->newEntries[] = $activity;
         }
     }
 
     public function queryEvtDef() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $success = true;
+
         /**
          * Update the existing activities with new values
          */
-        if(!empty($this->dupEntries)) {
-            $sql = "UPDATE evt_def
-                    SET activity_id=(?), event_start=(?), event_end=(?), attendees=(?), max_attendees=(?), joined=(?), deleted=(?), cancelled=(?), bookable_from=(?)
-                    WHERE user_id=(?) AND event_id=(?)";
-            $stmt = $this->db->prepare($sql);
-            foreach($this->dupEntries as $act) {
-                $stmt->bind_param("iiiiiiiiiis", $act['activity_id'], $act['event_start'], $act['event_end'], $act['attendees'], $act['max_attendees'], $act['joined'], $act['deleted'], $act['cancelled'], $act['bookable_from'], $act['user_id'], $act['event_id']);
-                $status = $stmt->execute();
-            }
+        $sql = "UPDATE evt_def
+                SET activity_id=(?), event_start=(?), event_end=(?), attendees=(?), max_attendees=(?), joined=(?), deleted=(?), cancelled=(?), bookable_from=(?)
+                WHERE user_id=(?) AND event_id=(?)";
+        foreach($this->dupEntries as $act) {
+            parent::bufferParams($act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp, $userid, $act->event_id);
         }
+        parent::query($sql);
 
         /**
          * Insert new activities
          */
-        if(!empty($this->newEntries)) {
-            $sql = "INSERT INTO `evt_def`(`user_id`, `event_id`, `activity_id`, `event_start`, `event_end`, `attendees`, `max_attendees`, `joined`, `deleted`, `cancelled`, `bookable_from`)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-            $stmt = $this->db->prepare($sql);
-            foreach($this->newEntries as $act) {
-                $stmt->bind_param("isiiiiiiiii", $act['user_id'], $act['event_id'], $act['activity_id'], $act['event_start'], $act['event_end'], $act['attendees'], $act['max_attendees'], $act['joined'], $act['deleted'], $act['cancelled'], $act['bookable_from']);
-                $status = $stmt->execute();
-            }
+        $sql = "INSERT INTO `evt_def`(`user_id`, `event_id`, `activity_id`, `event_start`, `event_end`, `attendees`, `max_attendees`, `joined`, `deleted`, `cancelled`, `bookable_from`)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        foreach($this->newEntries as $act) {
+            parent::bufferParams($userid, $act->event_id, $act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp);
         }
+        parent::query($sql);
 
         //Clear the existing activities array because it is now obsolete
         $this->clearBuffer();
-    }
 
-    function getAllJoined() {
-        $userid = $this->session->getUserID();
-        $sql = "SELECT * FROM `activities` a
-                LEFT JOIN `act_def` ad ON a.act_id = activity_id
-                LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
-                WHERE a.user_id = (?)
-                ORDER BY ed.event_start DESC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $userid);
-
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $arr = [];
-            while($row = $result->fetch_assoc()) {
-                $arr[] = $row;
-            }
-            return $arr;
-        } else {
-            return(false);
-        }
+        //Return the query status
+        return $success;
     }
     
 
-    //=============================================
+    /**
+     * =============================================
+     * Clubs
+     * =============================================
+     */
     function storeClubs($clubs) {
+        //Generic variables
         $userid = $this->session->getUserID();
+
         //Generate arrays for new & obsolete clubs
         $curClubs = $this->getClubs();
         $obsClubs = [];
@@ -249,7 +246,7 @@ Class VGDB extends Database {
         if(!empty($curClubs) && $curClubs) {
             foreach($clubs as $club) {
                 if(!in_array($club, $curClubs)) {
-                    $newClub[] = $club;
+                    $newClubs[] = $club;
                 }
             }
             foreach($curClubs as $club) {
@@ -262,94 +259,64 @@ Class VGDB extends Database {
         }
         
         //Store new clubs
-        if(!empty($newClubs)) {
-            $sql = "INSERT INTO clubs (`user_id`, `club_id`)
-                    VALUES (?,?)";
-            $stmt = $this->db->prepare($sql);
-            foreach($newClubs as $club) {
-                $stmt->bind_param("ii", $userid, $club);
-                $status = $stmt->execute();
-            }
+        $sql = "INSERT INTO clubs (`user_id`, `club_id`)
+                VALUES (?,?)";
+        foreach($newClubs as $club) {
+            parent::bufferParams($userid, $club);
         }
+        parent::query($sql);
 
         //Delete obsolete clubs
-        if(!empty($obsClubs)) {
-            $sql = "DELETE FROM `clubs` WHERE `user_id`=(?) AND `club_id`=(?)";
-            $stmt = $this->db->prepare($sql);
-            foreach($obsClubs as $club) {
-                $stmt->bind_param("ii", $userid, $club);
-                $status = $stmt->execute();
-                echo('deleted club ' . $club);
-            }
+        $sql = "DELETE FROM `clubs` WHERE `user_id`=(?) AND `club_id`=(?)";
+        foreach($obsClubs as $club) {
+            parent::bufferParams($userid, $club);
         }
+        parent::query($sql);
     }
 
-    //=============================================
     function getClubs() {
         $userid = $this->session->getUserID();
         $sql = "SELECT club_id
                 FROM clubs
                 WHERE user_id = (?)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $userid);
-
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $arr = [];
-            while($row = $result->fetch_assoc()) {
-                $arr[] = $row['club_id'];
-            }
-            return $arr;
-        } else {
-            return(false);
-        }
+        parent::bufferParams($userid);
+        parent::query($sql);
+        return parent::getRows('club_id');
     }
 
+    /**
+     * =============================================
+     * Private helpers
+     * =============================================
+     */
     private function retrieveAll_act_inst_id() {
         $userid = $this->session->getUserID();
-        $sql = "SELECT DISTINCT act_inst_id
+        $sql = "SELECT DISTINCT `act_inst_id`
                 FROM activities
                 WHERE user_id = (?)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $userid);
-
-        $this->putQueryToCurEntries($stmt, 'act_inst_id');
+        parent::bufferParams($userid);
+        parent::query($sql);
+        $this->curEntries = parent::getRows('act_inst_id');
     }
 
     private function retrieveAll_activity_id() {
         $userid = $this->session->getUserID();
-        $sql = "SELECT DISTINCT activity_id
+        $sql = "SELECT DISTINCT `activity_id`
                 FROM act_def
                 WHERE user_id = (?)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $userid);
-
-        $this->putQueryToCurEntries($stmt, 'activity_id');
+        parent::bufferParams($userid);
+        parent::query($sql);
+        $this->curEntries = parent::getRows('activity_id');
     }
 
     private function retrieveAll_event_id() {
         $userid = $this->session->getUserID();
-        $sql = "SELECT DISTINCT event_id
+        $sql = "SELECT DISTINCT `event_id`
                 FROM evt_def
                 WHERE user_id = (?)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $userid);
-
-        $this->putQueryToCurEntries($stmt, 'event_id');
-    }
-
-    private function putQueryToCurEntries($stmt, $col) {
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $arr = [];
-            while($row = $result->fetch_assoc()) {
-                $this->curEntries[] = $row[$col];
-            }
-        } else {
-            return(false);
-        }
+        parent::bufferParams($userid);
+        parent::query($sql);
+        $this->curEntries = parent::getRows('event_id');
     }
 
     private function clearBuffer() {

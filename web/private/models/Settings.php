@@ -37,6 +37,15 @@ class Settings {
             $this->session->setStatus('virtuagym','Warning','Error while updating credentials: ' . $status);
         }
     }
+
+    public function getVirtuagymUsername() {
+        return $this->crypt->getDecryptedMessage($this->user->getVirtuagymUsernameEnc())
+    }
+
+    public function getVirtuagymPassword() {
+        return $this->crypt->getDecryptedMessage($this->user->getVirtuagymPasswordEnc())
+    }
+
     public function getVirtuagymMessage() {
         return $this->session->getAndClearStatus('virtuagym');
     }

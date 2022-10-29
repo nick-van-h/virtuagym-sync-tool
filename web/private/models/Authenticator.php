@@ -38,7 +38,7 @@ class Authenticator
         if(password_verify($password, $pwhash)) {
             //Store the status and role of the user
             $this->session->setLoginStatus(self::LOGIN_LOGGEDIN);
-            $this->session->setUserRole($this->user->getUserRole());
+            $this->session->setUserRole($this->user->getRole());
 
             /**
              * Check if there is an encryption key, if not;

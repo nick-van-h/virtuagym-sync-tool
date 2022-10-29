@@ -1,0 +1,35 @@
+/**
+* Tests & debug
+*/
+.list-of-tests li {
+    padding: 5px;
+    list-style-type: circle;
+    margin-left: 20px;
+}
+
+.debug b {
+    margin-left: 20px;
+}
+
+.debug b i {
+    margin-right: 3px;
+    font-weight: lighter;
+    /* font-size: smaller; */
+    color: #fbb45a;
+}
+
+.debug p {
+    height: 10px;
+}
+
+.debug pre {
+    font-size: small;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 10px 20px;
+    margin: -3px 25px 10px;
+    background-color: var(--badge-bg);
+    border-left: 5px solid var(--badge-accent);
+    width: fit-content;
+    line-height: 1.1rem;
+    white-space: pre-wrap;
+}

@@ -35,14 +35,6 @@ class VirtuaGym {
         $this->password = $this->crypt->getDecryptedMessage($this->user->getVirtuagymPasswordEnc());
     }
 
-    public function testConnection($username = '', $password = '') {
-        if (!empty($username)) $this->username = $username;
-        if (!empty($password)) $this->password = $password;
-        $path = 'user/current';
-        $this->call($path);
-        return $this->statuscode == self::STATUS_OK;
-    }
-
     /**
      * Generic interfaces
      */
@@ -60,9 +52,45 @@ class VirtuaGym {
     }
 
     /**
+     * Test if the connection and credentials are working properly
+     */
+    public function testConnection($username = '', $password = '') {
+        if (!empty($username)) $this->username = $username;
+        if (!empty($password)) $this->password = $password;
+        $path = 'user/current';
+        $this->call($path);
+        return $this->statuscode == self::STATUS_OK;
+    }
+
+    /**
+     * Sync all activities from the API to our database
+     */
+    public function syncAll() {
+        $this->callActivities();
+        $this->callClubIds();
+        $this->callActivityDefinitions();
+        $this->callEventDefinitions();
+    }
+
+    /**
+     * Return the joined activities from our database
+     */
+    function getEnrichedActivities() {
+        return ($this->vgdb->getAllJoined());
+    }
+
+    /**
+     * Return the date of the last sync
+     */
+    function getLastSyncDate() {
+        //TODO: Implement
+        return 'Way too long ago';
+    }
+
+    /**
      * Specific calls
      */
-    function callActivities() {
+    private function callActivities() {
         //Make the call to get the activity data
         $path = 'activity';
         $this->call($path);
@@ -77,7 +105,7 @@ class VirtuaGym {
         $this->vgdb->queryActivities();
     }
 
-    function callClubIds() {
+    private function callClubIds() {
         //Make the call to get the club id's
         $path = 'user/current';
         $this->call($path);
@@ -87,7 +115,7 @@ class VirtuaGym {
         }
     }
 
-    function callActivityDefinitions() {
+    private function callActivityDefinitions() {
         $clubs = $this->vgdb->getClubs();
 
         foreach($clubs as $club) {
@@ -103,7 +131,7 @@ class VirtuaGym {
         $this->vgdb->queryActDef();
     }
 
-    function callEventDefinitions() {
+    private function callEventDefinitions() {
         $clubs = $this->vgdb->getClubs();
         $dates = $this->getDates();
 
@@ -122,16 +150,12 @@ class VirtuaGym {
         $this->vgdb->queryEvtDef();
     }
 
-    function getEnrichedActivities() {
-        return ($this->vgdb->getAllJoined());
-    }
-
     private function getDates() {
-        $dt = new DateTime();
-        $earliest = $dt->modify('-1 month')->modify('-1 day')->format('Y-m-d') . ' 00:00:00';
+        $dt = new DateTime(date('Y-m-1'));
+        $earliest = $dt->modify('-1 month')->format('Y-m-d') . ' 00:00:00';
         $dtMax = new DateTime(date("Y-m-d H:i:s", $this->vgdb->getLatestActivityTimestamp()));
         $dtArr = [];
-        while($dt < $dtMax) {
+        while($dt <= $dtMax) {
             $dtArr[] = $dt->format("Y/m");
             $dt->modify("+1 month");
         }

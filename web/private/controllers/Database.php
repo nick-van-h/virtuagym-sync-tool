@@ -90,27 +90,36 @@ class Database
         } else {
             $param = $bindParams;
         }
+        
 
         /**
          * Get the paramer types for each member of the bind_param
          * Add that to this class's paramtypes array
          */
-        $params = '';
+        $paramTypes = '';
         foreach ($param as $key => $val) {
-            if(substr($val, 0, 3) == "{i}") {
-                $params .= 'i';
+            if(isset($val)) {
+                if(substr($val, 0, 3) == "{i}") {
+                    $paramTypes .= 'i';
+                } else {
+                    $paramTypes .= $this->determineType($val);
+                }
             } else {
-                $params .= $this->determineType($val);
+                $paramTypes .= 's';
             }
         }
-        $this->paramTypes[] = $params;
+        $this->paramTypes[] = $paramTypes;
 
 
         foreach ($param as $key => $val) {
             //Force integer if prefix is {i}
             $ss = '';
-            if(substr($val, 0, 3) == "{i}") {
-                $ss = substr($val, 3);
+            if(isset($val)) {
+                if(substr($val, 0, 3) == "{i}") {
+                    $ss = substr($val, 3);
+                } else {
+                    $ss = $val;
+                }
             } else {
                 $ss = $val;
             }
@@ -118,6 +127,7 @@ class Database
             $param[$key] = ($ss == 'NULL' ? NULL : $ss);
         }
         $this->paramsArr[] = $param;
+
     }
 
     /**
@@ -158,6 +168,18 @@ class Database
      * Execute one single query and append the results to this class's array
      */
     private function queryOne($query, $types = null, $params = null) {
+        //Catch a query with paramaters (? or :) while no parameters ar bound
+        if(preg_match('/[?:]/', $query) && !(isset($params) && !empty($params))) {
+            $this->rows[] = NULL;
+            return;
+        }
+
+        /**
+         * Bind parameters
+         * Only necessary if they are set
+         * Queries without parameters do not need to be bound
+         * Queries with parameters but without binds have been caught in previous block already
+         */
         if (isset($params) && !empty($params)) {
             //Prepare the array to be used for this loop's $stmt->bind_param()
             $arr = [];
@@ -207,9 +229,17 @@ class Database
     /**
      * Get all rows from the first query
      */
-    function getRows() {
+    function getRows($col = null) {
         if($this->getOneNumrows()) {
-            return $this->rows[0];
+            if(!empty($col)) {
+                $rows = [];
+                foreach ($this->rows[0] as $row) {
+                    $rows[] = $row[$col];
+                }
+                return $rows;
+            } else {
+                return $this->rows[0];
+            }
         } else {
             return false;
         }
@@ -241,7 +271,11 @@ class Database
      * Get the number of rows affected by the first query
      */
     function getOneNumrows() {
-        return $this->numrows[0];
+        if(!empty($this->numrows[0])) {
+            return $this->numrows[0];
+        } else {
+            return false;
+        }
     }
 
     /**

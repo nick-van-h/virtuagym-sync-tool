@@ -30,16 +30,33 @@ echo('<h1>Test Database class</h1>');
 $db = new Controller\Database;
 
 echo('<h2>Query without parameters</h2>');
+$arr = [];
 echo('Select user ID for Testuser, then getOne');br();
 $sql = "SELECT `id`
         FROM `users`
         WHERE `username` = 'Testuser'";
+foreach ($arr as $val) {
+    echo('Value in array: ' . $val);br();
+}
 $db->query($sql);
 $numrows = $db->getAllNumrows();
 $rows = $db->getOne();
 echo ('Resulting row:');
 echo_pre($rows,'rows');
 echo ('Expected outcome: [id] => 1');br();br();
+echo('Query ran with result: ' . $db->getStatus());br();br();
+
+echo('<h2>Query without parameters but with question in query</h2>');
+echo('Select user ID for Testuser, then getOne');br();
+$sql = "SELECT `id`
+        FROM `users`
+        WHERE `username` = (?)";
+$db->query($sql);
+$numrows = $db->getAllNumrows();
+$rows = $db->getOne();
+echo ('Resulting row:');
+echo_pre($rows,'rows');
+echo ('Expected outcome: null');br();br();
 echo('Query ran with result: ' . $db->getStatus());br();br();
 
 echo('<h2>Query one with single input</h2>');

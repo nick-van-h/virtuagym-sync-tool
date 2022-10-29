@@ -1,0 +1,129 @@
+/**
+* Menu
+*/
+
+nav.app {
+    position: fixed;
+    flex: 0 0 240px;
+    left: -240px;
+    height: 100%;
+    transition: all .5s ease;
+
+    background-color: var(--background-menu);
+}
+
+nav.app .img-container {
+    margin: 50px 0;
+}
+
+nav.app .img-container img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding: 0 20px;
+}
+
+nav i {
+    font-size: 29px;
+    color: var(--menu-text);
+    line-height: 45px;
+    width: 40px;
+}
+
+nav a {
+    color: var(--menu-text);
+    text-decoration: none;
+}
+
+nav a:visited {
+    color: var(--menu-text);
+}
+
+nav.app ul {
+    margin-top: 25px;
+}
+
+nav ul li {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 17px 40px;
+    cursor: pointer;
+}
+
+nav ul li:hover {
+    background-color: var(--menu-item);
+    border-right: 5px solid;
+    border-color: var(--menu-accent);
+}
+
+nav ul li.selected {
+    border-right: 5px solid;
+    border-color: var(--menu-accent);
+}
+
+/* nav ul li.selected .fas {
+    color: var(--menu-icon-selected)
+}
+
+nav ul li.selected:hover .fas {
+    color: var(--menu-icon-hover)
+} */
+
+#check {
+    display: none;
+}
+
+label #btn,
+label #cancel {
+    position: absolute;
+    cursor: pointer;
+    color: var(--text);
+    border-radius: 5px;
+    border: 1px solid #262626;
+    margin: 15px 30px;
+    font-size: 29px;
+    background: #262626;
+    height: 45px;
+    width: 45px;
+    text-align: center;
+    line-height: 45px;
+    transition: all .5s ease;
+}
+
+label #cancel {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#check:checked~nav.app {
+    left: 0;
+}
+
+#check:checked~label #btn {
+    margin-left: 245px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+#check:checked~label #cancel {
+    margin-left: 245px;
+    opacity: 1;
+    visibility: visible;
+}
+
+@media(min-width : 860px) {
+    nav.app {
+        position: relative;
+        left: 0;
+        display: inline-block;
+        height: auto;
+    }
+
+    #btn,
+    #cancel {
+        display: none;
+    }
+}

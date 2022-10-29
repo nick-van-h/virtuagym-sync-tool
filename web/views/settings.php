@@ -15,11 +15,11 @@ $crypt = new Crypt;
     <fieldset>
         <div class="row row--align box-xs">
             <label class="col-1-3" for="username">Username</label>
-            <input class="col-2-3" type="text" name="username" value="<?php echo($crypt->getDecryptedMessage($user->getVirtuagymUsernameEnc())); ?>"  required/>
+            <input class="col-2-3" type="text" name="username" value="<?php echo($settings->getVirtuagymUsername()); ?>"  required/>
         </div>
         <div class="row row--align box-xs">
             <label class="col-1-3" for="password">Password</label>
-            <input class="col-2-3" type="password" name="password" value="<?php echo($crypt->getDecryptedMessage($user->getVirtuagymPasswordEnc())); ?>" required/>
+            <input class="col-2-3" type="password" name="password" value="<?php echo($settings->getVirtuagymPassword()); ?>" required/>
         </div>
         <div class="row row--justify-right .row--align-right box-xs">
             <button type="submit" name="test">Test</button>

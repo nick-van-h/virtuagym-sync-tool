@@ -15,7 +15,7 @@ if (!$auth->userIsLoggedIn() && !$auth->userIsAdmin()) {
 
 //Build the head part of the document
 get_vw_head_start();
-get_vw_head_title('VST Test - xxx');
+get_vw_head_title('VST Test - Virtuagym data with class');
 get_vw_head_resources();
 get_vw_head_end();
 
@@ -29,14 +29,11 @@ echo('<main class="test box-s">');
 echo('<h1>Test</h1>');
 $vg = new VirtuaGym;
 if ($vg->testConnection()) {
-    $vg->callActivities();
-    echo($vg->getResultCount() . ' activities found');br();
-    $vg->callClubIds();
-    $vg->callActivityDefinitions();
-    $vg->callEventDefinitions();
+    $vg->syncAll();
     $activities = $vg->getEnrichedActivities();
     foreach ($activities as $act) {
         echo '<div class="training-entry' . ($act['cancelled'] ? ' cancelled' : '') . (!$act['joined'] ? ' not-joined' : '') . '">';
+            echo '<div class="dow">' . date("D", $act['event_start']) . '</div>';
             echo '<div class="dt">';
                 echo '<div class="date">' . date("d-m-Y", $act['event_start']) . '</div>';
                 echo '<div class="time">' . date("H:i", $act['event_start']) . ' - ' . date("H:i", $act['event_end']) . '</div>';

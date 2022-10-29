@@ -6,6 +6,10 @@
 <!-- Custom CSS -->
 <link rel="stylesheet" type="text/css" href="<?php echo(public_base_url()); ?>/resources/css/base.css">
 <link rel="stylesheet" type="text/css" href="<?php echo(public_base_url()); ?>/resources/css/style.css">
+<link rel="stylesheet" type="text/css" href="<?php echo(public_base_url()); ?>/resources/css/form.css">
+<link rel="stylesheet" type="text/css" href="<?php echo(public_base_url()); ?>/resources/css/layout.css">
+<link rel="stylesheet" type="text/css" href="<?php echo(public_base_url()); ?>/resources/css/menu.css">
+<link rel="stylesheet" type="text/css" href="<?php echo(public_base_url()); ?>/resources/css/test.css">
 
 <!-- Vendor JS -->
 <script src="<?php echo(public_base_url()); ?>/resources/js/vendor/jquery-3.6.0.js"></script>
