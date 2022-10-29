@@ -10,17 +10,17 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     $action = (isset($_POST['action']) ? $_POST['action'] : '');
 
     $settings = new Settings;
-    $vg = new VirtuaGym;
+    $sync = new Sync;
 
     $payload = [];
 
     
     if($action=="test") {
-        if($vg->testConnection($username, $password)) {
-            $data = $vg->getData();
-            $payload['statusmessage'] = 'Connection OK! Account detected for ' . $data->name;
+        $name = $sync->getVgName($username, $password);
+        if($name) {
+            $payload['statusmessage'] = 'Connection OK! Account detected for ' . $name;
         } else {
-            $payload['statusmessage'] = 'Connection error: ' . $vg->getStatusMessage();
+            $payload['statusmessage'] = 'Connection error: ' . $sync->getLastVgMessage();
         }
     } else {
         $settings->updateVirtuagymCredentials($username, $password);

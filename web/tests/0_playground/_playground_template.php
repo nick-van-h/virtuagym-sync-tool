@@ -1,6 +1,6 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/../../private/config/autoload.php';
+require_once __DIR__ . '/../../../private/config/autoload.php';
 $start = new DateTime();
 
 ini_set('display_errors', 1);
@@ -26,15 +26,8 @@ echo('<main class="test box-s">');
 /**
  * Start main content
  */
+echo('<h1>Test</h1>');
 
-//Include the functions first
-require_once __DIR__ . '/functions.php';
-
-//Define variable to be re-used in the view
-$foo = 'Bar';
-
-//Including the view should echo the content of $foo = 'Bar'
-get_view();
 
 /**
  * Summary

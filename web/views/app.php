@@ -9,8 +9,8 @@
 
 <?php
 
-$vg = new VirtuaGym;
-$activities = $vg->getEnrichedActivities();
+$sync = new Sync;
+$activities = $sync->getAllStoredActivities();
 $dt = new DateTime();
 $ldt = new DateTime();
 

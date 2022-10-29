@@ -21,7 +21,6 @@ try {
     require_once __DIR__ . '/../models/Crypt.php';
     require_once __DIR__ . '/../models/Authenticator.php';
     require_once __DIR__ . '/../models/Settings.php';
-    require_once __DIR__ . '/../models/VirtuaGym.php';
     require_once __DIR__ . '/../models/Sync.php';
 
     /**

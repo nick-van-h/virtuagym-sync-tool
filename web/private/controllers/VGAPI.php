@@ -33,16 +33,16 @@ class VGAPI {
     /**
      * Generic interfaces
      */
-    public function getStatusCode() {
+    public function getLastStatusCode() {
         return $this->statuscode;
     }
-    public function getStatusMessage() {
+    public function getLastStatusMessage() {
         return $this->statusmessage;
     }
-    public function getResultCount() {
+    public function getLastResultCount() {
         return $this->resultcount;
     }
-    public function getData() {
+    public function getLastData() {
         return $this->data;
     }
 

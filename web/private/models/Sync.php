@@ -43,6 +43,27 @@ class Sync {
 
     }
 
+    /**
+     * Test connections
+     */
+    public function testVgConnection($username = NULL, $password = NULL) {
+        return $this->vgapi->testConnection($username = NULL, $password = NULL);
+    }
+
+    public function getVgName($username = NULL, $password = NULL) {
+        $this->vgapi->testConnection($username, $password);
+        $data = $this->vgapi->getLastData();
+        if (!empty($data->name)) {
+            return $data->name;
+        } else {
+            return false;
+        }
+    }
+
+    public function getLastVgMessage() {
+        return $this->vgapi->getLastStatusMessage();
+    }
+
 
     /**
      * Sync all activities from the API to our database

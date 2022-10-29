@@ -1,6 +1,6 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/../../private/config/autoload.php';
+require_once __DIR__ . '/../../../private/config/autoload.php';
 $start = new DateTime();
 
 ini_set('display_errors', 1);

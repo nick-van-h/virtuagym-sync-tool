@@ -1,6 +1,6 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/../private/config/autoload.php';
+require_once __DIR__ . '/../../private/config/autoload.php';
 
 //Enable error logging for dev environment
 set_error_reporting();
@@ -28,21 +28,13 @@ echo ('<div class="img-container img-page-title">');
 echo ('<img src="' . public_base_url() . '/resources/img/title_tests.png">');
 echo ('</div>');
 
+echo ('<h1>Playground</h1>');
+echo ('Random test files, usually to try out stuff');
+
 //Main content
-echo('<h1>Test cases</h1>');
 echo ('<ul class="list-of-tests">');
 foreach ($files as $file) {
-    if (is_dir($file) && !preg_match("/(0_)/",$file)) {
-        echo ('<li><a href="' . $file . '">' . $file . '</a></li>');
-    }
-}
-echo ('</ul>');
-
-
-echo('<h2>Other</h2>');
-echo ('<ul class="list-of-tests">');
-foreach ($files as $file) {
-    if (is_dir($file) && preg_match("/(0_)/",$file)) {
+    if (is_dir($file)) {
         echo ('<li><a href="' . $file . '">' . $file . '</a></li>');
     }
 }
