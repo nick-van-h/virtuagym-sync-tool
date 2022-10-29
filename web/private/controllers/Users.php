@@ -96,6 +96,50 @@ class Users extends Database {
         return($pw_enc);
     }
 
+    /**
+     * Token expiry date
+     */
+    function getTokenExpiryDate() {
+        return $this->getSettingValue('token_expiry_date');
+    }
+
+    function setTokenExpiryDate($value) {
+        $this->setSetting('token_expiry_date', $value);
+    }
+
+    /**
+     * Calendar provider
+     */
+    function getCalendarProvider() {
+        return $this->getSettingValue('calendar_provider');
+    }
+
+    function setCalendarProvider($value) {
+        $this->setSetting('calendar_provider', $value);
+    }
+
+    /**
+     * Calendar credentials
+     */
+    function getCalendarCredentials() {
+        //TODO: Implement
+        return false;
+    }
+
+    /**
+     * Target agenda
+     */
+    function getTargetAgenda() {
+        return $this->getSettingValue('target_agenda');
+    }
+
+    function setTargetAgenda($value) {
+        $this->setSetting('target_agenda', $value);
+    }
+
+    /**
+     * Specific: get username from password reset token
+     */
     function getUsernameFromToken($token) {
         $sql = "SELECT `username`
                 FROM users u
@@ -107,14 +151,6 @@ class Users extends Database {
         parent::bufferParams($token);
         parent::query($sql);
         return (parent::getOne('username'));
-    }
-
-    function getTokenExpiryDate() {
-        return $this->getSettingValue('token_expiry_date');
-    }
-
-    function setTokenExpiryDate($value) {
-        $this->setSetting('token_expiry_date', $value);
     }
 
     /**

@@ -14,10 +14,15 @@ try {
     require_once __DIR__ . '/../controllers/Database.php';
     require_once __DIR__ . '/../controllers/Users.php';
     require_once __DIR__ . '/../controllers/VGDB.php';
+    require_once __DIR__ . '/../controllers/VGAPI.php';
+    require_once __DIR__ . '/../controllers/Calendar/CalendarInterface.php';
+    require_once __DIR__ . '/../controllers/Calendar/Calendar_Google.php';
+    require_once __DIR__ . '/../controllers/Calendar.php';
     require_once __DIR__ . '/../models/Crypt.php';
     require_once __DIR__ . '/../models/Authenticator.php';
     require_once __DIR__ . '/../models/Settings.php';
     require_once __DIR__ . '/../models/VirtuaGym.php';
+    require_once __DIR__ . '/../models/Sync.php';
 
     /**
      * Generic functions & helpers

@@ -79,6 +79,14 @@ Class VGDB extends Database {
      * User activities
      * =============================================
      */
+    public function storeActivities($activities) {
+        foreach($activities as $activity) {
+            $this->bufferActivity($activity);
+        }
+        //Query the buffer to the database
+        $this->queryActivities();
+    }
+
     public function bufferActivity($activity) {
         //Get the full list of existing activities from the server if not yet set
         if(empty($this->curEntries)) $this->retrieveAll_act_inst_id();
@@ -131,6 +139,16 @@ Class VGDB extends Database {
      * Activity definitions
      * =============================================
      */
+    public function storeActivityDefinitions($activities) {
+        foreach($activities as $clubactivities) {
+            foreach($clubactivities as $clubactivity) {
+                $this->bufferActDef($clubactivity);
+            }
+        }
+        //Query the buffer to the database
+        $this->queryActDef();
+    }
+
     public function bufferActDef($activity) {
         //Get the full list of existing activities from the server if not yet set
         if(empty($this->curEntries)) $this->retrieveAll_activity_id();
@@ -184,6 +202,15 @@ Class VGDB extends Database {
      * Event definitions
      * =============================================
      */
+    public function storeEventDefinitions($events) {
+        foreach($events as $clubevents) {
+            foreach($clubevents as $clubevent) {
+                $this->bufferEvtDef($clubevent);
+            }
+        }
+        $this->queryEvtDef();
+    }
+
     public function bufferEvtDef($activity) {
         //Get the full list of existing activities from the server if not yet set
         if(empty($this->curEntries)) $this->retrieveAll_event_id();

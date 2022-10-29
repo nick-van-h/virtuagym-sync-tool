@@ -46,6 +46,22 @@ class Settings {
         return $this->crypt->getDecryptedMessage($this->user->getVirtuagymPasswordEnc());
     }
 
+    public function getCalendarProvider() {
+
+    }
+
+    public function setCalendarProvider() {
+
+    }
+
+    public function getTargetAgenda() {
+
+    }
+
+    public function setTargetAgenda() {
+
+    }
+
     public function getVirtuagymMessage() {
         return $this->session->getAndClearStatus('virtuagym');
     }
