@@ -39,11 +39,11 @@ class Settings {
     }
 
     public function getVirtuagymUsername() {
-        return $this->crypt->getDecryptedMessage($this->user->getVirtuagymUsernameEnc())
+        return $this->crypt->getDecryptedMessage($this->user->getVirtuagymUsernameEnc());
     }
 
     public function getVirtuagymPassword() {
-        return $this->crypt->getDecryptedMessage($this->user->getVirtuagymPasswordEnc())
+        return $this->crypt->getDecryptedMessage($this->user->getVirtuagymPasswordEnc());
     }
 
     public function getVirtuagymMessage() {
