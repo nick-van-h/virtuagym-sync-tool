@@ -32,6 +32,16 @@ $crypt = new Crypt;
 </form>
 
 <h1>Calendar credentials</h1>
+<form class="settings" id="settings-calendar" method="post">
+    <fieldset>
+        <div class="row row--align box-xs">
+            <label class="col-1-3" for="calendar-provider">Calendar provider</label>
+            <div class="col-2-3 select"><select name="calendar-provider">
+                <option value="1">Google</option>
+            </select></div>
+        </div>
+    </fieldset>
+</form>
 <br>
 &lt;Under construction>
 <h1>Manage account</h1>

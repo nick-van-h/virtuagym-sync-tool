@@ -115,18 +115,6 @@ form.signup {
     justify-content: center;
 }
 
-form input {
-    background-color: var(--input-background);
-    border: 2px solid var(--input-border);
-    color: var(--table-text);
-    padding: 5px;
-    border-radius: 5px;
-}
-
-form input::placeholder {
-    color: var(--text-alt);
-}
-
 form .login-message {
     display: flex;
     justify-content: center;
@@ -153,7 +141,7 @@ form.settings {
 }
 
 form.settings fieldset {
-    width: 400px;
+    width: 600px;
 }
 
 form.settings .status-message {

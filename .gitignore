@@ -1,3 +1,4 @@
 /web/private/config/config_specific.php
 /config
 /sql/private
+/web/tests/0_playground
