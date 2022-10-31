@@ -5,12 +5,17 @@ use Controller\Session;
 Use Controller\VGDB;
 Use Controller\VGAPI;
 Use Controller\Calendar;
+use Controller\Settings;
 
 
 class Sync {
+    private $user;
+    private $crypt;
+    private $session;
     private $vgapi;
     private $vgdb;
     private $calendar;
+    private $settings;
 
     public function __construct() {
         /**
@@ -20,6 +25,7 @@ class Sync {
         $this->crypt = new Crypt;
         $this->session = new Session;
         $this->vgdb = new VGDB;
+        $this->settings = new Settings;
 
         /**
          * Get api key, decrypted username and decrypted password
@@ -85,6 +91,10 @@ class Sync {
         $this->vgdb->storeClubs($clubs);
         $this->vgdb->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
         $this->vgdb->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
+
+        //Store last sync date
+        $dt = new DateTime();
+        $this->user->setLastSync($dt->format(d-m-Y H:i:s));
 
         /**
          * Update calendar with latest activities

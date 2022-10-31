@@ -45,7 +45,6 @@ class Settings {
     public function getVirtuagymPassword() {
         return $this->crypt->getDecryptedMessage($this->user->getVirtuagymPasswordEnc());
     }
-
     public function getCalendarProvider() {
 
     }
