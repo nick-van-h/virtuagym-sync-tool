@@ -1,4 +1,6 @@
 /web/private/config/config_specific.php
-/config
+/config/vst.ini
 /sql/private
 /web/tests/0_playground
+/vendor
+composer.lock

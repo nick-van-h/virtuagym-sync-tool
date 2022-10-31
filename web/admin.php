@@ -1,6 +1,7 @@
 <?php
 //Default include autoload
-require_once __DIR__ . '/private/config/autoload.php';
+//require_once __DIR__ . '/private/config/autoload.php';
+require_once 'vst/vendor/autoload.php';
 
 //Enable error logging for dev environment
 set_error_reporting();

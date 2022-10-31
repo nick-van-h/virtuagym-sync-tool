@@ -1,0 +1,12 @@
+{
+    "name": "vst/virtuagym-sync-tool",
+    "description": "Virtuagym Sync Tool",
+    "type": "project",
+    "license": "GNU General Public License v3.0",
+    "autoload": {
+        "files": [
+            "web/private/config/autoload.php"
+        ]
+    },
+    "minimum-stability": "dev"
+}
