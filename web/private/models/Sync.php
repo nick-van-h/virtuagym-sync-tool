@@ -16,6 +16,7 @@ class Sync {
     private $vgdb;
     private $calendar;
     private $settings;
+    private $log;
 
     public function __construct() {
         /**
@@ -26,6 +27,7 @@ class Sync {
         $this->session = new Session;
         $this->vgdb = new VGDB;
         $this->settings = new Settings;
+        $this->log = new Log;
 
         /**
          * Get api key, decrypted username and decrypted password
@@ -70,11 +72,26 @@ class Sync {
         return $this->vgapi->getLastStatusMessage();
     }
 
+    public function manualSyncAll() {
+        $this->log->addEvent($this->session->getUserID(), 'Manual sync', 'Sync start');
+        $this->log->startLinking();
+        $this->syncAll();
+        $this->log->addEvent($this->session->getUserID(), 'Manual sync', 'Sync end');
+        $this->log->stopLinking();
+    }
+    
+    public function scheduledSyncAll() {
+        $this->log->addEvent($this->session->getUserID(), 'Scheduled sync', 'Sync start');
+        $this->log->startLinking();
+        $this->syncAll();
+        $this->log->addEvent($this->session->getUserID(), 'Scheduled sync', 'Sync end');
+        $this->log->stopLinking();
+    }
 
     /**
      * Sync all activities from the API to our database
      */
-    public function syncAll() {
+    private function syncAll() {
         /**
          * Get raw data from VG API and store in VG database
          */

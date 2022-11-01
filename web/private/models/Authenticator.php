@@ -56,6 +56,8 @@ class Authenticator
             } else {
                 $this->crypt->decryptAndSetKey($key_enc);
             }
+            $system = ''; //TODO: implement
+            $this->log->addEvent('Login','Login successful from ' . $system);
         } else {
             $this->session->setLoginStatus(self::LOGIN_INVALID_CREDENTIALS);
             $this->session->unsetUser();

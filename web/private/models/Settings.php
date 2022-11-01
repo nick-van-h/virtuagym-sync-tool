@@ -33,8 +33,10 @@ class Settings {
         //Resolve status
         if ($success) {
             $this->session->setStatus('virtuagym','Success','Credentials updated succesfully');
+            $this->log->addEvent('Settings','Updated VirtuaGym credential succesfully');
         } else {
             $this->session->setStatus('virtuagym','Warning','Error while updating credentials: ' . $status);
+            $this->log->addEvent('Settings','Updated VirtuaGym failed with status: ' . $status);
         }
     }
 
