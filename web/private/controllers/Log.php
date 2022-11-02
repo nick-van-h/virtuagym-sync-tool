@@ -57,9 +57,9 @@ Class Log extends Database {
      * If the userid is passed then also filter on user_id
      * If no userid is passed then do not filter on user_id
      */
-    private function ApiCalls($from, $to=null, $userid=null) {
+    private function queryApiCalls($from, $to=null, $userid=null) {
         //Init parameters
-        if (!isset($end)) $end = new DateTime();
+        if (!isset($to)) $to = new DateTime();
 
         //Convert dt variables to sql timestamps
         $sqlStart = strtotime($from->format('d-m-Y H:i:s'));
@@ -79,7 +79,7 @@ Class Log extends Database {
             parent::bufferParams($sqlStart, $sqlEnd);
         }
         parent::query($sql);
-        return parent::getRows();
+        return parent::getAllRows();
     }
 
     /**
@@ -106,7 +106,7 @@ Class Log extends Database {
      */
     public function querySyncRuns($from, $to=null, $userid=null) {
         //Init parameters
-        if (!isset($end)) $end = new DateTime();
+        if (!isset($to)) $to = new DateTime();
 
         //Convert dt variables to sql timestamps
         $sqlStart = strtotime($from->format('d-m-Y H:i:s'));
@@ -135,7 +135,7 @@ Class Log extends Database {
             parent::bufferParams($sqlStart, $sqlEnd, $userid);
         }
         parent::query($sql);
-        return parent::getRows();
+        return parent::getAllRows();
     }
 
     private function addEntry($trigger, $category, $message) {
