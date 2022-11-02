@@ -5,12 +5,18 @@ use Controller\Session;
 Use Controller\VGDB;
 Use Controller\VGAPI;
 Use Controller\Calendar;
+use Controller\Settings;
 
 
 class Sync {
+    private $user;
+    private $crypt;
+    private $session;
     private $vgapi;
     private $vgdb;
     private $calendar;
+    private $settings;
+    private $log;
 
     public function __construct() {
         /**
@@ -20,6 +26,8 @@ class Sync {
         $this->crypt = new Crypt;
         $this->session = new Session;
         $this->vgdb = new VGDB;
+        $this->settings = new Settings;
+        $this->log = new Log;
 
         /**
          * Get api key, decrypted username and decrypted password
@@ -64,11 +72,26 @@ class Sync {
         return $this->vgapi->getLastStatusMessage();
     }
 
+    public function manualSyncAll() {
+        $this->log->addEvent($this->session->getUserID(), 'Manual sync', 'Sync start');
+        $this->log->startLinking();
+        $this->syncAll();
+        $this->log->addEvent($this->session->getUserID(), 'Manual sync', 'Sync end');
+        $this->log->stopLinking();
+    }
+    
+    public function scheduledSyncAll() {
+        $this->log->addEvent($this->session->getUserID(), 'Scheduled sync', 'Sync start');
+        $this->log->startLinking();
+        $this->syncAll();
+        $this->log->addEvent($this->session->getUserID(), 'Scheduled sync', 'Sync end');
+        $this->log->stopLinking();
+    }
 
     /**
      * Sync all activities from the API to our database
      */
-    public function syncAll() {
+    private function syncAll() {
         /**
          * Get raw data from VG API and store in VG database
          */
@@ -85,6 +108,10 @@ class Sync {
         $this->vgdb->storeClubs($clubs);
         $this->vgdb->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
         $this->vgdb->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
+
+        //Store last sync date
+        $dt = new DateTime();
+        $this->user->setLastSync($dt->format(d-m-Y H:i:s));
 
         /**
          * Update calendar with latest activities
