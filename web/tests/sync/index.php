@@ -29,7 +29,7 @@ echo('<main class="test box-s">');
 echo('<h1>Sync all</h1>');
 echo('Perform a sync all, then get stored activities');
 $sync = new Sync;
-$sync->manualSyncAll();
+$sync->syncAll();
 $activities = $sync->getAllStoredActivities();
 
 foreach ($activities as $act) {

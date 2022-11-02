@@ -32,25 +32,9 @@ class Authenticator
      * Try to login a user with a specific username & password
      */
     public function loginUser($username, $password) {
-        //Set username & ID, get stored password hash for compare
         $this->session->setUsername($username);
         $this->session->setUserID($this->user->getID());
         $pwhash = $this->user->getPasswordHash();
-        
-
-        //Get user origin info
-        if(!empty($_SERVER['HTTP_CIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CIENT_IP'];
-        } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
-        }
-        $client = $_SERVER['HTTP_USER_AGENT'];
-        $os = explode(";",$client)[1];
-        $browser = end(explode(" ",$client));
-
-        //Validate the user's password with the hash
         if(password_verify($password, $pwhash)) {
             //Store the status and role of the user
             $this->session->setLoginStatus(self::LOGIN_LOGGEDIN);
@@ -72,37 +56,35 @@ class Authenticator
             } else {
                 $this->crypt->decryptAndSetKey($key_enc);
             }
-
-            //Log a succesful login
-            $this->log->addEvent('Login','Login successful from ' . $browser . ' on ' . $os . ' @ ' . $ip);
         } else {
             $this->session->setLoginStatus(self::LOGIN_INVALID_CREDENTIALS);
             $this->session->unsetUser();
-
-            //Log an unsuccesful login
-            $this->log->addWarning('Login','Login attempt with invalid credentials from ' . $browser . ' on ' . $os . ' @ ' . $ip);
         }
     }
 
     public function userIsLoggedIn() {
-        return ($this->session->getLoginStatus() == self::LOGIN_LOGGEDIN);
+        if($this->loginSessionParameterIsSet()) {
+            return ($_SESSION['loginstatus'] == self::LOGIN_LOGGEDIN);
+        }
     }
 
     public function getLoginMessage() {
-        if($this->session->getLoginStatus() == self::LOGIN_INVALID_CREDENTIALS) {
-            $this->session->unsetLoginStatus();
-            return ('Invalid username or password');
-        } else {
-            return $this->session->getStatus('login-status');
+        if($this->loginSessionParameterIsSet()) {
+            if($_SESSION['loginstatus'] == self::LOGIN_INVALID_CREDENTIALS) {
+                unset($_SESSION['loginstatus']);
+                return ('Invalid username or password');
+            } else {
+                return $this->session->getStatus('login-status');
+            }
         }
     }
 
     public function userIsAdmin() {
-        return $this->userIsLoggedIn() && $$this->session->getUserRole() =='admin';
+        return $this->userIsLoggedIn() && $_SESSION['user_role'] =='admin';
     }
 
     public function userIsDev() {
-        return $this->userIsLoggedIn() && $$this->session->getUserRole() =='dev';
+        return $this->userIsLoggedIn() && $_SESSION['user_role'] =='dev';
     }
 
     public function validateToken($token) {
@@ -132,5 +114,12 @@ class Authenticator
         //Unset all login related session parameters including the login status
         $this->session->unsetLoginStatus();
         $this->session->unsetUser();
+    }
+
+    
+    private function loginSessionParameterIsSet()
+    {
+        //Return the status of the session variable
+        return (isset($_SESSION['loginstatus']) && !empty($_SESSION['loginstatus']));
     }
 }
