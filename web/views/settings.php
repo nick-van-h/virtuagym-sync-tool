@@ -40,6 +40,9 @@ $crypt = new Crypt;
                 <option value="1">Google</option>
             </select></div>
         </div>
+        <div id="calendar-settings">
+            <!-- Calendar specific content goes here -->
+        </div>
     </fieldset>
 </form>
 <br>
