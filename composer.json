@@ -1,0 +1,22 @@
+{
+    "name": "vst/virtuagym-sync-tool",
+    "description": "Virtuagym Sync Tool",
+    "type": "project",
+    "license": "GNU General Public License v3.0",
+    "autoload": {
+        "psr-4": {
+            "Vst\\Controller\\": "src/modules/Controller",
+            "Vst\\Model\\": "src/modules/Model"
+        },
+        "files": [
+            "config/config.php",
+            "config/config_specific.php",
+            "src/modules/helpers/generic.php",
+            "src/modules/helpers/views.php"
+        ]
+    },
+    "minimum-stability": "dev",
+    "config": {
+        "vendor-dir": "vendor/vst"
+    }
+}
