@@ -1,8 +1,12 @@
-/scripts/private
+/bin/private
+/config/db/private
 
-/src/modules/config/config_specific.php
-/src/tests/0_playground
+*tests/0_*
 
 /vendor
 composer.lock
+
+*_*template.php
+
 vst.ini
+config_specific.php

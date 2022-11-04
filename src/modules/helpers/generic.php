@@ -20,7 +20,7 @@ function public_base_url()
     return sprintf(
         "%s://%s",
         isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-        $_SERVER['SERVER_NAME'] == 'localhost' ? 'localhost/vst/src' : $_SERVER['SERVER_NAME']
+        $_SERVER['SERVER_NAME'] == 'localhost' ? 'localhost/vst/public' : $_SERVER['SERVER_NAME']
     );
 }
 
