@@ -6,7 +6,5 @@
 /vendor
 composer.lock
 
-*_*template.php
-
 vst.ini
 config_specific.php
