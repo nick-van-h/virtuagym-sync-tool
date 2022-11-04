@@ -1,13 +1,17 @@
 <?php
 
-namespace Vst\Controller\Calendar;
+Namespace Controller\Calendar;
 
-//use Vst\Controller\Calendar\CalendarInterface;
+use Controller\Calendar\CalendarInterface;
 
 
 Class Google implements CalendarInterface {
+    private $client;
 
-    public function __construct($credentials) {}
+    public function __construct($credentials) {
+        $client = new Google\Client();
+        
+    }
     public function addAppointment() {}
     public function updateAppointment() {}
     public function removeAppointment() {}

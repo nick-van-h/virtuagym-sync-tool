@@ -1,7 +1,7 @@
 <?php
-$settings = new Vst\Model\Settings;
-$user = new Vst\Controller\Users;
-$crypt = new Vst\Model\Crypt;
+$settings = new Settings;
+$user = new Controller\Users;
+$crypt = new Crypt;
 
 ?>
 
@@ -39,6 +39,9 @@ $crypt = new Vst\Model\Crypt;
             <div class="col-2-3 select"><select name="calendar-provider">
                 <option value="1">Google</option>
             </select></div>
+        </div>
+        <div id="calendar-settings">
+            <!-- Calendar specific content goes here -->
         </div>
     </fieldset>
 </form>
