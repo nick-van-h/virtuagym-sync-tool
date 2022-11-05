@@ -19,6 +19,7 @@ class VGAPI {
     private $crypt;
     private $session;
     private $vgdb;
+    private $log
 
     private const API_URL = 'https://api.virtuagym.com/api/v0';
     private const STATUS_OK = '200';
@@ -28,6 +29,9 @@ class VGAPI {
         $this->apiKey = $apikey;
         $this->username = $username;
         $this->password = $password;
+
+        //Init constructors
+        $this->log = new Log;
     }
 
     /**
@@ -151,6 +155,7 @@ class VGAPI {
      */
     private function call($path) {
         $url = self::API_URL . '/' . $path . '?api_key=' . $this->apiKey;
+        $this->log->addEvent('API-call', 'Requested '. self::API_URL . '/' . $path);
         try {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -160,6 +165,7 @@ class VGAPI {
             curl_close($ch);
         } catch (Exception $e) {
             echo('Exit with message: ' . $e->getMessage());
+            $this->log->addWarning('API-call', 'Call to ' . self::API_URL . '/' . $path . ' failed with message: ' . $e->getMessage());
         }
         $result = json_decode($reply);
         $this->statuscode = $result->statuscode;

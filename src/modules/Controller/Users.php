@@ -97,6 +97,17 @@ class Users extends Database {
     }
 
     /**
+     * Last Virtuagym Sync
+     */
+    public function setLastSync($dt) {
+        $this->setSetting('virtuagym_last_sync', $dt);
+    }
+    public function getLastSync($dt) {
+        $$dt = $this->getSetting('virtuagym_last_sync');
+        return $dt;
+    }
+
+    /**
      * Token expiry date
      */
     function getTokenExpiryDate() {
