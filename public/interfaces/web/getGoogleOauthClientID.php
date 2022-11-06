@@ -14,7 +14,12 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
         'payload' => 'default'
     );
 
-    //Logic goes here//
+    //Get the client id from the json
+    $oauth = getGoogleOauth();
+    $payload['client_id'] = $oauth->web->client_id;
+
+    //Get the redirect uri
+    $payload['redirect_uri'] = public_base_url() . '/interfaces/web/googleLoginCallback.php';
 
     //Incorporate the payload and return the result
     $resp['payload'] = $payload;

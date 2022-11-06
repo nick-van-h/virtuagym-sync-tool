@@ -126,6 +126,10 @@ body {
     line-height: 1.5rem;
 }
 
+body.LOCALHOST {
+    border: 2px dashed #c48308bf;
+}
+
 /**
 * Button
 */

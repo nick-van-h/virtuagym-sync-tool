@@ -7,4 +7,5 @@
 composer.lock
 
 vst.ini
+oauth-credentials.json
 config_specific.php

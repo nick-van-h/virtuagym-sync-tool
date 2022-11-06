@@ -17,6 +17,7 @@ main.test {
     flex-grow: 1;
     overflow: auto;
     overflow-x: hidden;
+    word-break: break-all;
 }
 
 .img-container.img-page-title {

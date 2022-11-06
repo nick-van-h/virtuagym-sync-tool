@@ -12,7 +12,12 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     $settings = new Vst\Model\Settings;
     $sync = new Vst\Model\Sync;
 
+    //Init return values
     $payload = [];
+    $resp = array(
+        'success' => true,
+        'payload' => 'default'
+    );
 
     
     if($action=="test") {
@@ -27,11 +32,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
         $payload['statusmessage'] = $settings->getVirtuagymMessage();
     }
 
-    $resp = array(
-        'success' => true,
-        'payload' => $payload
-    );
-
+    //Incorporate the payload and return the result
+    $resp['payload'] = $payload;
     echo (json_encode($resp));
 } else {
     //Throw exception and stop execution

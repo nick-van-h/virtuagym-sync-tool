@@ -38,11 +38,10 @@ function full_url()
  * 
  * @return string
  */
-function getConfigFile()
+function getFile($fileLocation)
 {
-    $db_conf = CONFIG_FILE;
 
-    $crl = curl_init(CONFIG_FILE);
+    $crl = curl_init($fileLocation);
     curl_setopt($crl, CURLOPT_NOBODY, true);
     curl_exec($crl);
 
@@ -50,7 +49,7 @@ function getConfigFile()
     curl_close($crl);
 
     if ($ret = 200) {
-        return CONFIG_FILE;
+        return $fileLocation;
     } else {
         throw new Exception('Config file not found', 100);
         return false;
@@ -64,9 +63,19 @@ function getConfigFile()
  */
 function getConfig()
 {
-    $file = getConfigFile();
+    $file = getFile(CONFIG_FILE);
     if($file) {
         return parse_ini_file($file);
+    } else {
+        throw new Exception('Unable to read config file', 100);
+        return false;
+    }
+}
+function getGoogleOauth()
+{
+    $file = getFile(OAUTH_FILE);
+    if($file) {
+        return json_decode(file_get_contents($file));
     } else {
         throw new Exception('Unable to read config file', 100);
         return false;

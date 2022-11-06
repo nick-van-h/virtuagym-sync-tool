@@ -1,7 +1,7 @@
 <?php
-$settings = new Settings;
-$user = new Controller\Users;
-$crypt = new Crypt;
+$settings = new Vst\Model\Settings;
+$user = new Vst\Controller\Users;
+$crypt = new Vst\Model\Crypt;
 
 ?>
 
@@ -42,6 +42,7 @@ $crypt = new Crypt;
         </div>
         <div id="calendar-settings">
             <!-- Calendar specific content goes here -->
+            <?php include __DIR__ . '/parts/setting_calendar_google.php'; ?>
         </div>
     </fieldset>
 </form>

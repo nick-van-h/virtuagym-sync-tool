@@ -11,4 +11,7 @@ $(document).ready(function () {
             return false;
         }
     });
+
+
+    console.log("Your document is ready!");
 });

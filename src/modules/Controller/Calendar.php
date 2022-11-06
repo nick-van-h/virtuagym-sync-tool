@@ -2,28 +2,20 @@
 
 namespace Vst\Controller;
 
-use Vst\Controller\Calendar\Google;
+//use Vst\Controller\Calendar\Google;
 
+/**
+ * Static calendar factory
+ */
 class Calendar {
-    private $calendar;
-    private $initOk;
+    public static function getProvider($provider, $credentials)
+    {
+        $className = __NAMESPACE__.'\Calendar\\'.ucfirst($provider);
 
-    public function __construct($provider, $credentials) {
-
-        //Init calendar controller based on user setting
-        switch ($provider) {
-            case 'Google':
-                $this->calendar = new Google($credentials);
-                break;
-            default:
-                $this->calendar = NULL;
+        if (!class_exists($className)) {
+            throw new \InvalidArgumentException('Specified provider ' . $provider . ' does not exist');
         }
 
-        //Test the connection
-        if(!empty($this->calendar)) {
-            $this->initOk = $this->calendar->testConnection();
-        } else {
-            $this->initOk = false;
-        }
+        return new $className($credentials);
     }
 }

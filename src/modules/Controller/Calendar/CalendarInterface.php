@@ -1,6 +1,6 @@
 <?php
 
-Namespace Controller\Calendar;
+Namespace Vst\Controller\Calendar;
 
 interface CalendarInterface {
     /**
@@ -50,4 +50,25 @@ interface CalendarInterface {
     public function updateAppointment();
     public function removeAppointment();
     public function getAppointment();
+
+    // Functions template
+    // 
+    // public function testConnection()
+    // {}
+    // public function setupCalendarProvider()
+    // {}
+    // 
+    // public function getCalendars()
+    // {}
+    // public function testCalendar()
+    // {}
+    //
+    // public function addAppointment()
+    // {}
+    // public function updateAppointment()
+    // {}
+    // public function removeAppointment()
+    // {}
+    // public function getAppointment()
+    // {}
 }
