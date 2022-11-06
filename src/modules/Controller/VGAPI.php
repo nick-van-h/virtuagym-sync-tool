@@ -19,10 +19,11 @@ class VGAPI {
     private $crypt;
     private $session;
     private $vgdb;
-    private $log
+    private $log;
 
     private const API_URL = 'https://api.virtuagym.com/api/v0';
     private const STATUS_OK = '200';
+    private const EXCEED_REQUESTS = 'Too many API requests.';
 
     public function __construct($apikey, $username, $password){
         //Set the config parameters
@@ -56,8 +57,12 @@ class VGAPI {
     public function testConnection($username = '', $password = '') {
         if (!empty($username)) $this->username = $username;
         if (!empty($password)) $this->password = $password;
+        $this->log->addEvent('VirtuaGym', 'Testing credentials');
+        $this->log->startSubLinking();
         $path = 'user/current';
         $this->call($path);
+        $this->log->addEvent('VirtuaGym', 'Result: ' . $this->statusmessage);
+        $this->log->stopSubLinking();
         return $this->statuscode == self::STATUS_OK;
     }
 
@@ -107,7 +112,7 @@ class VGAPI {
         //Loop through clubs
         foreach($clubs as $club) {
             //Make the call to get the activities for that club
-            $path = '/club/' . $club . '/activity/definition';
+            $path = 'club/' . $club . '/activity/definition';
             $this->call($path);
 
             //Store the call result in the data array
@@ -128,7 +133,7 @@ class VGAPI {
         foreach($clubs as $club) {
             foreach($dates as $dt) {
                 //Make the call to get the club events for that month
-                $path = '/club/' . $club . '/event/' . $dt;
+                $path = 'club/' . $club . '/event/' . $dt;
                 $this->call($path);
 
                 //Store the call result in the data array
@@ -155,7 +160,7 @@ class VGAPI {
      */
     private function call($path) {
         $url = self::API_URL . '/' . $path . '?api_key=' . $this->apiKey;
-        $this->log->addEvent('API-call', 'Requested '. self::API_URL . '/' . $path);
+        $this->log->addApiCall('VirtuaGym', 'Requested '. self::API_URL . '/' . $path);
         try {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

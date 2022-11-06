@@ -4,16 +4,19 @@ namespace Vst\Model;
 
 use Vst\Controller\Users;
 use Vst\Controller\Session;
+use Vst\Controller\Log;
 
 class Settings {
     private $user;
     private $session;
     private $crypt;
+    private $log;
 
     public function __construct() {
         $this->user = new Users;
         $this->session = new Session;
         $this->crypt = new Crypt;
+        $this->log = new Log;
     }
 
     public function updateVirtuagymCredentials($username, $password) {
@@ -35,10 +38,10 @@ class Settings {
         //Resolve status
         if ($success) {
             $this->session->setStatus('virtuagym','Success','Credentials updated succesfully');
-            $this->log->addEvent('Settings','Updated VirtuaGym credential succesfully');
+            $this->log->addEvent('Settings','Updated VirtuaGym credentials');
         } else {
             $this->session->setStatus('virtuagym','Warning','Error while updating credentials: ' . $status);
-            $this->log->addEvent('Settings','Updated VirtuaGym failed with status: ' . $status);
+            $this->log->addEvent('Settings','Updating VirtuaGym failed with status: ' . $status);
         }
     }
 

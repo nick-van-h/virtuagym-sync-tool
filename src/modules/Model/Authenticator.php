@@ -4,6 +4,7 @@ namespace Vst\Model;
 
 use Vst\Controller\Session;
 use Vst\Controller\Users;
+use Vst\Controller\Log;
 
 class Authenticator
 {
@@ -14,11 +15,13 @@ class Authenticator
     private $crypt;
     private $user;
     private $session;
+    private $log;
     
     function __construct() {
         $this->session = new Session;
         $this->user = new Users;
         $this->crypt = new Crypt;
+        $this->log = new Log;
     }
 
     function createNewUser($username, $password) {
@@ -52,7 +55,8 @@ class Authenticator
         }
         $client = $_SERVER['HTTP_USER_AGENT'];
         $os = explode(";",$client)[1];
-        $browser = end(explode(" ",$client));
+        $exp = explode(" ",$client);
+        $browser = end($exp);
 
         //Validate the user's password with the hash
         if(password_verify($password, $pwhash)) {
@@ -102,20 +106,20 @@ class Authenticator
     }
 
     public function userIsAdmin() {
-        return $this->userIsLoggedIn() && $$this->session->getUserRole() =='admin';
+        return $this->userIsLoggedIn() && $this->session->getUserRole() =='admin';
     }
 
     public function userIsDev() {
-        return $this->userIsLoggedIn() && $$this->session->getUserRole() =='dev';
+        return $this->userIsLoggedIn() && $this->session->getUserRole() =='dev';
     }
 
     public function validateToken($token) {
         $success = false;
         $this->session->setUsername($this->user->getUsernameFromToken($token));
         if($this->session->getUsername()) {
-            $dt = new DateTime;
+            $dt = new \DateTime;
             $exp = $this->user->getTokenExpiryDate();
-            $dtexp = $exp ? new DateTime($exp) : new DateTime();
+            $dtexp = $exp ? new \DateTime($exp) : new \DateTime();
             if ($dt <= $dtexp) {
                 $success = true;
             }
@@ -124,7 +128,7 @@ class Authenticator
     }
 
     public function revokeToken() {
-        $dt = new DateTime;
+        $dt = new \DateTime;
         $this->user->setTokenExpiryDate($dt->format('d-m-Y H:i:s'));
     }
 

@@ -3,7 +3,7 @@
 require_once 'vendor/vst/autoload.php';
 
 //init variables & environment
-$start = new DateTime();
+$testStart = new \DateTime();
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -15,7 +15,7 @@ error_reporting(E_ALL);
 echo('<h1>Sync all</h1>');
 echo('Perform a sync all, then get stored activities');
 $sync = new Vst\Model\Sync;
-$sync->syncAll();
+$sync->manualSyncAll();
 $activities = $sync->getAllStoredActivities();
 
 foreach ($activities as $act) {
@@ -35,8 +35,8 @@ echo_pre($activities,'events');
 /**
  * Summary
  */
-$end = new DateTime();
-$diff = date_diff($end, $start);
+$testEnd = new \DateTime();
+$diff = date_diff($testEnd, $testStart);
 echo('<h1>Summary</h1>');
 echo('Total runtime: ' . $diff->format('%H:%I:%S') . ' (h:m:s)');
 br();br();

@@ -1,38 +1,60 @@
 <?php
 
-Namespace Controller;
+Namespace Vst\Controller;
+
+Use Vst\Controller\Database;
 
 Class Log extends Database {
     private $session;
     private $lastId;
-    private $refId = NULL;
+    private $subId;
 
     public function __construct()
     {
-        parent::construct();
+        parent::__construct();
+
+        $this->subId = NULL;
 
         //Init other controllers
         $this->session = new Session;
     }
 
-    public function addEvent($trigger, $message) {
-        return $this->addEntry($trigger, 'Event', $message);
+    public function addEvent($activity, $message) {
+        return $this->addEntry($activity, 'Event', $message);
     }
 
-    public function addWarning($trigger, $message) {
-        return $this->addEntry($trigger, 'Warning', $message);
+    public function addWarning($activity, $message) {
+        return $this->addEntry($activity, 'Warning', $message);
     }
 
-    public function addError($trigger, $message) {
-        return $this->addEntry($trigger, 'Error', $message);
+    public function addError($activity, $message) {
+        return $this->addEntry($activity, 'Error', $message);
     }
 
+    public function addApiCall($activity, $message) {
+        return $this->addEntry($activity, 'API-call', $message);
+    }
+
+    /**
+     * Linking of events to other events
+     * Global linking uses the session setting parameter
+     * Sub linking uses the local variable in this class
+     * - Use with caution, can only be used for one log instance
+     */
     public function startLinking() {
-        $this->refId = $this->lastId;
+        $this->session->setLogRefId($this->lastId);
+    }
+
+    public function startSubLinking() {
+        $this->subId = $this->lastId;
     }
 
     public function stopLinking() {
-        $htis->refId = NULL;
+        $this->session->setLogRefId(NULL);
+    }
+
+    public function stopSubLinking() {
+        $this->subId = NULL;
     }
 
     /**
@@ -59,11 +81,11 @@ Class Log extends Database {
      */
     private function queryApiCalls($from, $to=null, $userid=null) {
         //Init parameters
-        if (!isset($to)) $to = new DateTime();
+        if (!isset($to)) $to = new \DateTime();
 
         //Convert dt variables to sql timestamps
-        $sqlStart = strtotime($from->format('d-m-Y H:i:s'));
-        $sqlEnd = strtotime($to->format('d-m-Y H:i:s'));
+        $sqlStart = $from->format('Y-m-d H:i:s');
+        $sqlEnd = $to->format('Y-m-d H:i:s');
 
         //Query results
         $sql = "SELECT *
@@ -79,7 +101,7 @@ Class Log extends Database {
             parent::bufferParams($sqlStart, $sqlEnd);
         }
         parent::query($sql);
-        return parent::getAllRows();
+        return parent::getRows();
     }
 
     /**
@@ -88,7 +110,7 @@ Class Log extends Database {
      */
     public function getSyncRuns($from, $to=null) {
         $userid = $this->session->getUserID();
-        return querySyncRuns($from, $to, $userid);
+        return $this->querySyncRuns($from, $to, $userid);
     }
 
     /**
@@ -96,7 +118,7 @@ Class Log extends Database {
      * Do not pass the userid to the query function
      */
     public function getAllSyncRuns($from, $to=null) {
-        return querySyncRuns($from, $to);
+        return $this->querySyncRuns($from, $to);
     }
 
     /**
@@ -104,27 +126,27 @@ Class Log extends Database {
      * If the userid is passed then also filter on user_id
      * If no userid is passed then do not filter on user_id
      */
-    public function querySyncRuns($from, $to=null, $userid=null) {
+    private function querySyncRuns($from, $to=null, $userid=null) {
         //Init parameters
-        if (!isset($to)) $to = new DateTime();
+        if (!isset($to)) $to = new \DateTime();
 
         //Convert dt variables to sql timestamps
-        $sqlStart = strtotime($from->format('d-m-Y H:i:s'));
-        $sqlEnd = strtotime($to->format('d-m-Y H:i:s'));
+        $sqlStart = $from->format('Y-m-d H:i:s');
+        $sqlEnd = $to->format('Y-m-d H:i:s');
 
         //Query results
         $sql = "SELECT
                     s.*,
                     e.timestamp as `timestamp_end`,
                     e.message as `message_end`,
-                    duration = e.timestamp - s.timestamp
+                    TIMESTAMPDIFF(SECOND, s.timestamp, e.timestamp) as `duration_sec`
                 FROM `log` s
                 LEFT JOIN (
-                    SELECT `timestamp`
+                    SELECT `timestamp`,`message`,`ref_log_id`
                     FROM `log`
-                    WHERE `trigger` = 'Scheduled sync' AND `message` = `Sync end`
-                ) e ON s.ref_id = e.id
-                WHERE `timestamp` > (?) AND `timestamp` <= (?) AND `trigger` = 'Scheduled sync' AND `message` = 'Sync start'";
+                    WHERE (`activity` = 'Scheduled sync' OR `activity` = 'Manual sync') AND `message` = 'Sync end'
+                ) e ON s.id = e.ref_log_id
+                WHERE s.`timestamp` >= (?) AND s.`timestamp` <= (?) AND (s.`activity` = 'Scheduled sync' OR s.`activity` = 'Manual sync')  AND s.`message` = 'Sync start'";
         if(!empty($userid)) {
             //Apend the user_id to the where clause
             $sql .= " AND `user_id` = (?)";
@@ -132,26 +154,28 @@ Class Log extends Database {
             parent::bufferParams($sqlStart, $sqlEnd, $userid);
         } else {
             //Buffer the parameters without user id
-            parent::bufferParams($sqlStart, $sqlEnd, $userid);
+            parent::bufferParams($sqlStart, $sqlEnd);
         }
         parent::query($sql);
-        return parent::getAllRows();
+        return parent::getRows();
     }
 
-    private function addEntry($trigger, $category, $message) {
+    private function addEntry($activity, $category, $message) {
         $userid = $this->session->getUserID();
-        $sql = "INSERT INTO `log` (`user_id`, `trigger`, `category`, `message`, `ref_id`)
-        VALUES (?),(?),(?),(?),(?)";
-        parent::bufferParams($userid, $trigger, $category, $message, $this->refId);
-
+        $refid = (!empty($this->subId) ? $this->subId : $this->session->getLogRefId());
+        $sql = "INSERT INTO `log` (`user_id`, `activity`, `category`, `message`, `ref_log_id`)
+                VALUES (?,?,?,?,?)";
+        parent::bufferParams($userid, $activity, $category, $message, $refid);
         parent::query($sql);
         if (parent::getQueryOk()) {
             $sql = "SELECT MAX(id) as `id_max`
-                    FROM `log`"
+                    FROM `log`";
             parent::query($sql);
             $this->lastId = parent::getOne('id_max');
+            $this->session->addDebug('Executed log query, last ID = ' . $this->lastId);
             return true;
         } else {
+            $this->session->addDebug('Executed log query but failed');
             return false;
         }
     }

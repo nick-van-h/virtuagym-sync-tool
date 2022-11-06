@@ -7,12 +7,15 @@ use Vst\Controller\Session;
 use Vst\Controller\VGDB;
 use Vst\Controller\VGAPI;
 use Vst\Controller\Calendar;
+use Vst\Controller\Log;
 
 
 class Sync {
     private $vgapi;
     private $vgdb;
     private $calendar;
+    private $log;
+    private $session;
 
     public function __construct() {
         /**
@@ -22,6 +25,7 @@ class Sync {
         $this->crypt = new Crypt;
         $this->session = new Session;
         $this->vgdb = new VGDB;
+        $this->log = new Log;
 
         /**
          * Get api key, decrypted username and decrypted password
@@ -65,20 +69,23 @@ class Sync {
     public function getLastVgMessage() {
         return $this->vgapi->getLastStatusMessage();
     }
+    public function getLastVgCode() {
+        return $this->vgapi->getLastStatusCode();
+    }
 
     public function manualSyncAll() {
-        $this->log->addEvent($this->session->getUserID(), 'Manual sync', 'Sync start');
+        $this->log->addEvent('Manual sync', 'Sync start');
         $this->log->startLinking();
         $this->syncAll();
-        $this->log->addEvent($this->session->getUserID(), 'Manual sync', 'Sync end');
+        $this->log->addEvent('Manual sync', 'Sync end');
         $this->log->stopLinking();
     }
 
     public function scheduledSyncAll() {
-        $this->log->addEvent($this->session->getUserID(), 'Scheduled sync', 'Sync start');
+        $this->log->addEvent('Scheduled sync', 'Sync start');
         $this->log->startLinking();
         $this->syncAll();
-        $this->log->addEvent($this->session->getUserID(), 'Scheduled sync', 'Sync end');
+        $this->log->addEvent('Scheduled sync', 'Sync end');
         $this->log->stopLinking();
     }
     
@@ -104,8 +111,8 @@ class Sync {
         $this->vgdb->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
 
         //Store last sync date
-        $dt = new DateTime();
-        $this->user->setLastSync($dt->format(d-m-Y H:i:s));
+        $dt = new \DateTime();
+        $this->user->setLastSync($dt->format('d-m-Y H:i:s'));
         
         /**
          * Update calendar with latest activities
@@ -124,9 +131,9 @@ class Sync {
     }
 
     private function getDates() {
-        $dt = new DateTime(date('Y-m-1'));
+        $dt = new \DateTime(date('Y-m-1'));
         $earliest = $dt->modify('-1 month')->format('Y-m-d') . ' 00:00:00';
-        $dtMax = new DateTime(date("Y-m-d H:i:s", $this->vgdb->getLatestActivityTimestamp()));
+        $dtMax = new \DateTime(date("Y-m-d H:i:s", $this->vgdb->getLatestActivityTimestamp()));
         $dtArr = [];
         while($dt <= $dtMax) {
             $dtArr[] = $dt->format("Y/m");
