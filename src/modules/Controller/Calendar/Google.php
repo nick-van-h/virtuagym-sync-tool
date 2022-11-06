@@ -20,7 +20,6 @@ Class Google implements CalendarInterface {
         $this->client = new \Google\Client();
         $this->client->setAuthConfig($oauth);
         $this->client->setScopes(Google_Service_Calendar::CALENDAR);
-        //$this->client->setDeveloperKey($conf['google_api_key']);
 
         //Init calendar service
         $this->cal = new \Google\Service\Calendar($this->client);

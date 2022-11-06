@@ -126,8 +126,20 @@ body {
     line-height: 1.5rem;
 }
 
-body.LOCALHOST {
-    border: 2px dashed #c48308bf;
+.dev-indicator {
+    text-align: center;
+    height: 0;
+
+    border-top: 2px dashed #c48308bf;
+    width: 83%;
+    margin-left: auto;
+    margin-right: auto;
+    transform: translateY(-37px);
+    padding-top: 17px;
+    margin-bottom: -19px;
+    color: #b17608fc;
+    font-size: x-large;
+    font-weight: bold;
 }
 
 /**
