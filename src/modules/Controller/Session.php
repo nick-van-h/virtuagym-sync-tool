@@ -108,6 +108,27 @@ class Session {
     }
 
     /**
+     * Log linking
+     */
+    public function setLogRefId($id)
+    {
+        $this->set('log_ref_id', $id);
+    }
+    public function getLogRefId()
+    {
+        $refId = $this->get('log_ref_id');
+        /**
+         * If no ref ID is set (NULL) then get() returns false
+         * However we want to use the actual NULL value instead of false
+         */
+        if($refId) {
+            return $refId;
+        } else {
+            return NULL;
+        }
+    }
+
+    /**
      * Status
      */
     public function setStatus($status, $code, $value) {

@@ -97,6 +97,17 @@ class Users extends Database {
     }
 
     /**
+     * Last Virtuagym Sync
+     */
+    public function setLastSync($dt) {
+        $this->setSetting('virtuagym_last_sync', $dt);
+    }
+    public function getLastSync($dt) {
+        $dt = $this->getSetting('virtuagym_last_sync');
+        return $dt;
+    }
+
+    /**
      * Token expiry date
      */
     function getTokenExpiryDate() {
@@ -201,7 +212,7 @@ class Users extends Database {
             parent::bufferParams($value_str, $value_int, $type, $setting_name, $userid);
         } else {
             $sql = "INSERT INTO settings (`user_id`, `setting_name`, `value_str`, `value_int`, `type`)
-                    VALUES (?),(?),(?),(?),(?)";
+                    VALUES (?,?,?,?,?)";
             parent::bufferParams($userid, $setting_name, $value_str, $value_int, $type);
         }
         parent::query($sql);

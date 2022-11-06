@@ -3,7 +3,7 @@
 require_once 'vendor/vst/autoload.php';
 
 //init variables & environment
-$start = new DateTime();
+$testStart = new \DateTime();
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -136,8 +136,8 @@ echo('Restore role, result: ' . $user->getRole());br();
 /**
  * Summary
  */
-$end = new DateTime();
-$diff = date_diff($end, $start);
+$testEnd = new \DateTime();
+$diff = date_diff($testEnd, $testStart);
 echo('<h1>Summary</h1>');
 echo('Total runtime: ' . $diff->format('%H:%I:%S') . ' (h:m:s)');
 br();br();

@@ -11,11 +11,11 @@
 
 $sync = new Vst\Model\Sync;
 $activities = $sync->getAllStoredActivities();
-$dt = new DateTime();
-$ldt = new DateTime();
+$dt = new \DateTime();
+$ldt = new \DateTime();
 
 foreach ($activities as $act) {
-    $edt = new DateTime(date("d-m-Y H:i", $act['event_start']));
+    $edt = new \DateTime(date("d-m-Y H:i", $act['event_start']));
     echo '<div class="training-entry' . (($edt < $dt) ? ' past' : '') . ($act['cancelled'] ? ' cancelled' : '') . (!$act['joined'] ? ' not-joined' : '') . '">';
         echo '<div class="dow">' . date("D", $act['event_start']) . '</div>';
         echo '<div class="dt">';
