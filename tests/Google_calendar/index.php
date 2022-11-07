@@ -15,7 +15,7 @@ error_reporting(E_ALL);
 echo('<h1>Test</h1>');
 
 //Instantiate factory
-$cal = Vst\Controller\Calendar::getProvider('Google','dummy');
+$cal = Vst\Controller\CalendarFactory::getProvider('Google','dummy');
 echo('Calendar class created via static provider');br();
 
 //Set up the connection

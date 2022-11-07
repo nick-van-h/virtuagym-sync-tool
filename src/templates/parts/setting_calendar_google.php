@@ -1,5 +1,5 @@
 <div class="row row--align box-xs">
-    <span>Connected account:</span><span>{Testuser}</span>
+    <span>Connected account:</span><span>{foobar}</span>
 </div>
 <div class="row row--align box-xs">
     <button>Connect/Switch</button>

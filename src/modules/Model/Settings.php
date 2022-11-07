@@ -2,7 +2,7 @@
 
 namespace Vst\Model;
 
-use Vst\Controller\Users;
+use Vst\Controller\User;
 use Vst\Controller\Session;
 use Vst\Controller\Log;
 
@@ -53,11 +53,11 @@ class Settings {
         return $this->crypt->getDecryptedMessage($this->user->getVirtuagymPasswordEnc());
     }
 
-    public function getCalendarProvider() {
+    public function getCalendarProvider($provider) {
 
     }
 
-    public function setCalendarProvider() {
+    public function setCalendarProvider($provider, $credentials) {
 
     }
 

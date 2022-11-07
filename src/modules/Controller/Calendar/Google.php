@@ -8,7 +8,6 @@ use Google\Service\Calendar as Google_Service_Calendar;
 
 Class Google implements CalendarInterface {
     private $client;
-    private $credentials;
     private $cal;
 
     public function __construct($credentials) {
@@ -20,11 +19,10 @@ Class Google implements CalendarInterface {
         $this->client = new \Google\Client();
         $this->client->setAuthConfig($oauth);
         $this->client->setScopes(Google_Service_Calendar::CALENDAR);
+        $this->client->refreshToken($credentials['refresh_token']);
 
         //Init calendar service
         $this->cal = new \Google\Service\Calendar($this->client);
-
-        $this->credentials = $credentials;
         
     }
 
@@ -33,32 +31,16 @@ Class Google implements CalendarInterface {
         /**
          * Get the current access token from the client
          * If there is not a valid access token then the returned value will be empty
+         * If an access token is returned then check if it is still valid
          */
         $accessToken = $this->client->getAccessToken();
-        if(empty($accessToken)) {
-            //Set refresh token and get new access token
-            $refreshToken = $_SESSION['refresh_token'];
-            $this->client->refreshToken($refreshToken);
-            $accessToken = $this->client->getAccessToken();
-        } 
-        
-        /**
-         * Check if the access token is set (again, after possible setting refresh token)
-         * If it's empty then the refresh token is invalid
-         * If an access token is returned then check if it is still valid
-         * If not, get a new access token via refresh token and check if access token is set (again, to check if refresh token is valid)
-         */
-        if (!empty($accessToken)) {
+        if(!empty($accessToken)) {
             //TODO: Test for token expired via https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=xxx
             return true;
         } else {
             //The entered refresh token is invalid
             return false;
         }
-    }
-    public function setupCalendarProvider()
-    {
-
     }
     
     public function getCalendars()
@@ -81,4 +63,9 @@ Class Google implements CalendarInterface {
     {}
     public function getAppointment()
     {}
+
+    /**
+     * Speciic Google calendar class functions
+     */
+    
 }

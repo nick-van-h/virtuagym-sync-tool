@@ -7,7 +7,7 @@ namespace Vst\Controller;
 /**
  * Static calendar factory
  */
-class Calendar {
+class CalendarFactory {
     public static function getProvider($provider, $credentials)
     {
         $className = __NAMESPACE__.'\Calendar\\'.ucfirst($provider);

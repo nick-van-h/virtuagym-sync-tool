@@ -3,7 +3,7 @@
 namespace Vst\Model;
 
 use Vst\Controller\Session;
-use Vst\Controller\Users;
+use Vst\Controller\User;
 use Vst\Controller\Log;
 
 class Authenticator

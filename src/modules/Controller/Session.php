@@ -129,6 +129,18 @@ class Session {
     }
 
     /**
+     * Redirect URL
+     */
+    public function setRedirectUrl($url)
+    {
+        $this->set('redirect_url', $url);
+    }
+    public function getRedirectUrl()
+    {
+        return $this->get('redirect_url');
+    }
+
+    /**
      * Status
      */
     public function setStatus($status, $code, $value) {

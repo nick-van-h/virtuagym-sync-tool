@@ -63,7 +63,7 @@ function setFormStatusMessage(target, message) {
 $(document).ready(function () {
     $.ajax({
         type: "POST",
-        url: rootPath + "../../interfaces/web/getGoogleOauthClientID.php",
+        url: rootPath + "../../interfaces/web/getGoogleOauthClientDetails.php",
         //data: data,
         beforeSend: function () { },
         success: function (response) {
@@ -83,7 +83,7 @@ $(document).ready(function () {
                 scope: 'https://www.googleapis.com/auth/calendar.readonly',
                 ux_mode: 'redirect',
                 redirect_uri: data["payload"]["redirect_uri"],
-                state: "initial",
+                state: data["payload"]["state_guid"],
                 access_type: "offline"
             });
 

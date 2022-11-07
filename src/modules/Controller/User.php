@@ -5,7 +5,7 @@ namespace Vst\Controller;
 use Vst\Controller\Session;
 use Vst\Controller\Database;
 
-class Users extends Database {
+class User extends Database {
     private $session;
 
     function __construct() {
@@ -133,8 +133,28 @@ class Users extends Database {
      * Calendar credentials
      */
     function getCalendarCredentials() {
-        //TODO: Implement
-        return false;
+        $cal = $this->getCalendarProvider();
+        $cred = [];
+        switch($cal) {
+            case 'Google':
+                $cred['access_token'] = $this->getSetting('google_access_token');
+                $cred['refresh_token'] = $this->getSetting('google_refresh_token');
+                break;
+            default:
+                break;
+        }
+        return $cred;
+    }
+    function setCalendarCredentials($cred) {
+        $cal = $this->getCalendarProvider();
+        switch($cal) {
+            case 'Google':
+                $this->setSetting('google_access_token', $cred['access_token']);
+                $this->setSetting('google_refresh_token', $cred['refresh_token']);
+                break;
+            default:
+                break;
+        }
     }
 
     /**

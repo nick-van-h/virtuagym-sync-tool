@@ -1,6 +1,6 @@
 <?php
 $settings = new Vst\Model\Settings;
-$user = new Vst\Controller\Users;
+$user = new Vst\Controller\User;
 $crypt = new Vst\Model\Crypt;
 
 ?>

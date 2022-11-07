@@ -24,7 +24,6 @@ interface CalendarInterface {
      *   -> Setting up the calendar should return true/false on success/fail & use session->setStatus to pass message
      */
     public function testConnection();
-    public function setupCalendarProvider();
 
     /**
      * After setting up the calendar provider the available calendars are to be retrieved
