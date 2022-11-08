@@ -42,7 +42,7 @@ $crypt = new Vst\Model\Crypt;
         </div>
         <div id="calendar-settings">
             <!-- Calendar specific content goes here -->
-            <?php include __DIR__ . '/parts/setting_calendar_google.php'; ?>
+            <?php get_vw_settings_calendar(); ?>
         </div>
     </fieldset>
 </form>

@@ -120,7 +120,7 @@ function set_error_reporting() {
  * @param  int $length
  * @return string
  */
-function guidv4($)
+function guidv4()
 {
     // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
     $data = random_bytes(16);

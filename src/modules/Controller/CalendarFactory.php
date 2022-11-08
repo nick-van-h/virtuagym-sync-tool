@@ -13,7 +13,7 @@ class CalendarFactory {
         $className = __NAMESPACE__.'\Calendar\\'.ucfirst($provider);
 
         if (!class_exists($className)) {
-            throw new \InvalidArgumentException('Specified provider ' . $provider . ' does not exist');
+            throw new \InvalidArgumentException('Specified provider ' . (!empty($provider) ? $provider : '<null>') . ' does not exist');
         }
 
         return new $className($credentials);

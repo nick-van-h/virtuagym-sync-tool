@@ -21,11 +21,11 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     $payload['client_id'] = $oauth->web->client_id;
 
     //Get the redirect uri
-    $payload['redirect_uri'] = public_base_url() . '/interfaces/web/settings_Google_loginCallback.php'; //TODO: Update cloud
+    $payload['redirect_uri'] = public_base_url() . '/interfaces/web/callbackGoogleLogin.php'; //TODO: Update cloud
 
     //Generate & store a guid
     $guid = guidv4();
-    $session->setStatus('guid','Redundancy',$guid);
+    $session->setStatus('state_guid','Redundancy',$guid);
     $payload['state_guid'] = $guid;
 
     //Incorporate the payload and return the result

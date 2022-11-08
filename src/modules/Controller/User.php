@@ -136,9 +136,12 @@ class User extends Database {
         $cal = $this->getCalendarProvider();
         $cred = [];
         switch($cal) {
-            case 'Google':
-                $cred['access_token'] = $this->getSetting('google_access_token');
-                $cred['refresh_token'] = $this->getSetting('google_refresh_token');
+            case PROVIDER_GOOGLE:
+                $cred['access_token'] = $this->getSettingValue('google_access_token');
+                $cred['refresh_token'] = $this->getSettingValue('google_refresh_token');
+                $cred['calendar_account'] = $this->getSettingValue('calendar_account');
+                $cred['target_agenda_name'] = $this->getSettingValue('target_agenda_name');
+                $cred['target_agenda_id'] = $this->getSettingValue('target_agenda_id');
                 break;
             default:
                 break;
@@ -148,9 +151,11 @@ class User extends Database {
     function setCalendarCredentials($cred) {
         $cal = $this->getCalendarProvider();
         switch($cal) {
-            case 'Google':
+            case PROVIDER_GOOGLE:
                 $this->setSetting('google_access_token', $cred['access_token']);
                 $this->setSetting('google_refresh_token', $cred['refresh_token']);
+                $this->setSetting('calendar_account', $cred['calendar_account']);
+                //Target agenda is set in a different function
                 break;
             default:
                 break;
@@ -160,12 +165,17 @@ class User extends Database {
     /**
      * Target agenda
      */
-    function getTargetAgenda() {
-        return $this->getSettingValue('target_agenda');
+    function getTargetAgendaName() {
+        return $this->getSettingValue('target_agenda_name');
+    }
+    function getTargetAgendaId() {
+        return $this->getSettingValue('target_agenda_id');
     }
 
     function setTargetAgenda($value) {
-        $this->setSetting('target_agenda', $value);
+        $split = preg_split("/[|]/",$value);
+        $this->setSetting('target_agenda_id', $split[0]);
+        $this->setSetting('target_agenda_name', $split[1]);
     }
 
     /**
@@ -202,7 +212,7 @@ class User extends Database {
                 return($row['value_int']);
             }
         } else {
-            return false;
+            return NULL;
         }
     }
 
@@ -225,7 +235,7 @@ class User extends Database {
         }
 
         //Check if the setting already exists for the user, if so we need to update, else we need to add
-        if($this->getSettingValue($setting_name)) {
+        if(!is_null($this->getSettingValue($setting_name))) {
             $sql = "UPDATE settings
                     SET value_str=(?), value_int=(?), type=(?)
                     WHERE setting_name=(?) AND user_id = (?)";

@@ -6,7 +6,7 @@ use Vst\Controller\User;
 use Vst\Controller\Session;
 use Vst\Controller\VGDB;
 use Vst\Controller\VGAPI;
-use Vst\Controller\Calendar;
+use Vst\Controller\CalendarFactory;
 use Vst\Controller\Log;
 
 
@@ -21,7 +21,7 @@ class Sync {
         /**
          * Init generic controllers
          */
-        $this->user = new Users;
+        $this->user = new User;
         $this->crypt = new Crypt;
         $this->session = new Session;
         $this->vgdb = new VGDB;
@@ -43,9 +43,10 @@ class Sync {
          * Init calendar
          */
         $provider = $this->user->getCalendarProvider();
-        $credentials = $this->user->getCalendarCredentials();
-
-        $this->calendar = new Calendar($provider, $credentials);
+        if($provider) {
+            $credentials = $this->user->getCalendarCredentials();
+            $this->calendar = CalendarFactory::getProvider($provider, $credentials);
+        }
 
     }
 

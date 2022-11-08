@@ -193,7 +193,7 @@ class Session {
         if ($this->isVarSet($variable)) {
             return $_SESSION[$variable];
         } else {
-            return false;
+            return null;
         }
     }
 

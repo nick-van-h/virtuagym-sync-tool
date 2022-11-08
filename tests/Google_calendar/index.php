@@ -14,25 +14,73 @@ error_reporting(E_ALL);
  */
 echo('<h1>Test</h1>');
 
-//Instantiate factory
-$cal = Vst\Controller\CalendarFactory::getProvider('Google','dummy');
-echo('Calendar class created via static provider');br();
+//Set redirect URL
+$session = new Vst\Controller\Session;
+$session->setRedirectUrl(public_base_url() . '/tests.php?test=Google_calendar');
+
+//init classes
+$user = new Vst\Controller\User;
 
 //Set up the connection
 echo('<button id="test-google-connect">Authorize with Google</button>');br();
 
-echo('Access token: ' . $_SESSION['access_token']);br();
-echo('refresh token: ' . $_SESSION['refresh_token']);br();
-
-//Test the connection
-if(!empty($_SESSION['refresh_token'])) {
-    echo('Connection status: ' . ($cal->testConnection() ? 'OK' : 'NOK'));
-
+//Instantiate factory
+$provider = $user->getCalendarProvider();
+if($provider == PROVIDER_GOOGLE) {
+    $credentials = $user->getCalendarCredentials();
+    $cal = Vst\Controller\CalendarFactory::getProvider($provider,$credentials);
+    echo('Calendar class created via static provider');br();
+} else {
+    echo('Calendar credentials not set in database');br();
 }
 
-//Get calendars if connection is OK
+
+//Test the connection
 if ($cal->testConnection()) {
-    echo_pre($cal->getCalendars(),'calendars');
+    //Get agenda & selected target agenda
+    $agds = [];
+    foreach($cal->getAgendas() as $agd) {
+        $agds[] = $agd['name'];
+    }
+    echo_pre($agds,'agendas');
+
+    echo('<h2>Appointments before adding event</h1>');
+
+    foreach($cal->getAppointment() as $apt) {
+        echo_pre(array(
+            'etag' => $apt['etag'],
+            'start_time' => $apt['start']['dateTime'],
+            'end_time' => $apt['end']['dateTime']
+        ),$apt['summary']);
+    }
+
+    echo('<h2>Appointments after adding event</h1>');
+    //Insert appointment
+    $cal->addAppointment();
+
+    //Retrieve appointments
+    foreach($cal->getAppointment() as $apt) {
+        echo_pre(array(
+            'etag' => $apt['etag'],
+            'start_time' => $apt['start']['dateTime'],
+            'end_time' => $apt['end']['dateTime']
+        ),$apt['summary']);
+    }
+
+    echo('<h2>Appointments after removing event</h1>');
+    //Remove appointment
+    $cal->removeAppointment();
+
+    //Retrieve appointments
+    foreach($cal->getAppointment() as $apt) {
+        echo_pre(array(
+            'etag' => $apt['etag'],
+            'start_time' => $apt['start']['dateTime'],
+            'end_time' => $apt['end']['dateTime']
+        ),$apt['summary']);
+    }
+} else {
+    echo('Unable to connect to calendar provider');
 }
 
 

@@ -3,6 +3,7 @@ var rootPath = ''; // Will contain the path to your file
 
 
 $(document).ready(function () {
+    //Set the root path of the project based on the script src path
     $('script').each(function () {
         var $script = $(this);
 

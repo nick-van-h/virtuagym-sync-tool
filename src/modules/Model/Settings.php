@@ -13,7 +13,7 @@ class Settings {
     private $log;
 
     public function __construct() {
-        $this->user = new Users;
+        $this->user = new User;
         $this->session = new Session;
         $this->crypt = new Crypt;
         $this->log = new Log;
@@ -61,16 +61,21 @@ class Settings {
 
     }
 
-    public function getTargetAgenda() {
-
+    public function getTargetAgendaName() {
+        return $this->user->getTargetAgendaName();
     }
 
-    public function setTargetAgenda() {
-
+    public function setTargetAgenda($agenda) {
+        $this->user->setTargetAgenda($agenda);
     }
 
     public function getVirtuagymMessage() {
         return $this->session->getAndClearStatus('virtuagym');
     }
+
+    public function getCalendarMessage() {
+        return $this->session->getAndClearStatus('Google-login');
+    }
+    
     
 }

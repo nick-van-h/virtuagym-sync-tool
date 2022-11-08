@@ -24,6 +24,7 @@ interface CalendarInterface {
      *   -> Setting up the calendar should return true/false on success/fail & use session->setStatus to pass message
      */
     public function testConnection();
+    public function getAccount();
 
     /**
      * After setting up the calendar provider the available calendars are to be retrieved
@@ -32,8 +33,8 @@ interface CalendarInterface {
      * -> Getting the calendars should return an array of calendars or null if empty
      * -> Testing the calendar should return true/false on success/fail & use session->setStatus to pass message
      */
-    public function getCalendars();
-    public function testCalendar();
+    public function getAgendas();
+    public function testAgenda();
 
     /**
      * Altering the calendar can be done in three ways;
@@ -54,12 +55,12 @@ interface CalendarInterface {
     // 
     // public function testConnection()
     // {}
-    // public function setupCalendarProvider()
+    // public function getAccount()
     // {}
     // 
-    // public function getCalendars()
+    // public function getAgendas()
     // {}
-    // public function testCalendar()
+    // public function testAgenda()
     // {}
     //
     // public function addAppointment()

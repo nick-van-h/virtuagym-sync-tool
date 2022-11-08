@@ -70,3 +70,47 @@ Google\Service\Calendar\CalendarList Object
         )
 )
 ```
+
+
+Events
+
+```
+Array
+(
+    [0] => Google\Service\Calendar\Event Object
+        (
+            [colorId] => 
+            [created] => 2022-10-13T13:38:06.000Z
+            [description] => 
+            [etag] => "xxx"
+            [eventType] => default
+            [iCalUID] => 123xy@google.com
+            [id] => 123xy
+            [kind] => calendar#event
+            [location] => xxx
+            [recurrence] => 
+            [recurringEventId] => 
+            [sequence] => 1
+            [status] => confirmed
+            [summary] => xxx
+            [transparency] => transparent
+            [updated] => 2022-11-07T11:29:05.624Z
+            [visibility] => 
+            [creator] => Google\Service\Calendar\EventCreator Object=
+                    [displayName] => 
+                    [email] => xxx
+            [organizer] => Google\Service\Calendar\EventOrganizer Object
+                    [displayName] => 
+                    [email] => xxx
+            [start] => Google\Service\Calendar\EventDateTime Object
+                    [date] => 
+                    [dateTime] => 2022-11-07T15:00:00+01:00
+                    [timeZone] => Europe/Amsterdam
+            [end] => Google\Service\Calendar\EventDateTime Object
+                    [date] => 
+                    [dateTime] => 2022-11-07T15:30:00+01:00
+                    [timeZone] => Europe/Amsterdam
+            [reminders] => Google\Service\Calendar\EventReminders Object
+        )
+)
+```

@@ -78,6 +78,11 @@ function get_vw_settings()
     include(BASE_PATH . '/src/templates/settings.php');
 }
 
+function get_vw_settings_calendar()
+{
+    include (BASE_PATH . '/src/templates/parts/settings_calendar_google.php');
+}
+
 function get_vw_debug()
 {
     include(BASE_PATH . '/src/templates/debug.php');

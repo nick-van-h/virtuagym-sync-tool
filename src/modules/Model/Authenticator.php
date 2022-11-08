@@ -19,7 +19,7 @@ class Authenticator
     
     function __construct() {
         $this->session = new Session;
-        $this->user = new Users;
+        $this->user = new User;
         $this->crypt = new Crypt;
         $this->log = new Log;
     }
