@@ -1,9 +1,10 @@
-![vst-logo](web/resources/img/main_logo_small.png)
+![vst-logo](virtuagym-sync-tool/public/resources/img/main_logo_alt.png)
 
 # What is Virtuagym Sync Tool?
 VST is a server side application to enable automated one way sync of VirtuaGym activities to your personal calendar.
 
-![open-issues](https://badgen.net/github/open-issues/nick-van-h/virtuagym-sync-tool) ![open-prs](https://badgen.net/github/open-prs/nick-van-h/virtuagym-sync-tool) ![mvp](https://badgen.net/github/milestones/nick-van-h/virtuagym-sync-tool/1) ![license](https://badgen.net/github/license/nick-van-h/virtuagym-sync-tool)
+Repo summary
+![open-bugs](https://img.shields.io/github/issues/nick-van-h/virtuagym-sync-tool/bug?label=Total%20open%20bugs) ![unplanned-issues](https://img.shields.io/github/milestones/issues-open/nick-van-h/virtuagym-sync-tool/2?label=Unplanned%20issues) ![open-prs](https://badgen.net/github/open-prs/nick-van-h/virtuagym-sync-tool) ![last-commit](https://badgen.net/github/last-commit/nick-van-h/virtuagym-sync-tool) ![mvp](https://badgen.net/github/milestones/nick-van-h/virtuagym-sync-tool/1) ![license](https://badgen.net/github/license/nick-van-h/virtuagym-sync-tool)
 
 ## Documentation
 
