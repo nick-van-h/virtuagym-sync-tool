@@ -1,4 +1,4 @@
-![vst-logo](virtuagym-sync-tool/public/resources/img/main_logo_alt.png)
+![vst-logo](public/resources/img/main_logo_alt.png)
 
 # What is Virtuagym Sync Tool?
 VST is a server side application to enable automated one way sync of VirtuaGym activities to your personal calendar.
