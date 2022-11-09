@@ -46,10 +46,10 @@ interface CalendarInterface {
      * - Returned appointments are in the date range [-1mo -1day -> VGDB.lastestPlannedActivity]
      * -> Getting the appointments should return an array of appointments or null if empty & use session->setStatus to pass message
      */
-    public function addAppointment();
-    public function updateAppointment();
-    public function removeAppointment();
-    public function getAppointment();
+    public function addEvent();
+    public function updateEvent();
+    public function removeEvent();
+    public function getEvents();
 
     // Functions template
     // 
@@ -63,12 +63,12 @@ interface CalendarInterface {
     // public function testAgenda()
     // {}
     //
-    // public function addAppointment()
+    // public function addEvent()
     // {}
-    // public function updateAppointment()
+    // public function updateEvent()
     // {}
-    // public function removeAppointment()
+    // public function removeEvent()
     // {}
-    // public function getAppointment()
+    // public function getEvents()
     // {}
 }

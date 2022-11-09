@@ -94,7 +94,7 @@ Class Google implements CalendarInterface {
     public function testAgenda()
     {}
     
-    public function addAppointment()
+    public function addEvent()
     {
         //Create the event array
         $event = new Google_Service_Calendar_Event(array(
@@ -115,24 +115,65 @@ Class Google implements CalendarInterface {
         $evt = $this->cal->events->insert($this->agendaId,$event);
         $this->tmpId = $evt['id']; //Tmp store the ID
     }
-    public function updateAppointment()
+    public function updateEvent()
     {}
-    public function removeAppointment()
+    public function removeEvent()
     {
         //Remove the TMP id
         $this->cal->events->delete($this->agendaId, $this->tmpId);
     }
-    public function getAppointment()
+
+    /**
+     * Returns the events from -1month to +1month
+     */
+    public function getEvents()
     {
         //Retrieve the events on the calendar for the given parameters
+        $dt = new \DateTime();
+        ->format('Y-m-d');
+
         $optParams = array(
             'orderBy' => 'startTime',
             'singleEvents' => true,
-            'timeMin' => '2022-11-07T00:00:00+01:00',
-            'timeMax' => '2022-11-09T00:00:00+01:00'
+            'timeMin' => dtToStr($dt->modify('-1 month')->modify('-1 day')),
+            'timeMax' => dtToStr($dt->modify('+2 months')->modify('+2 days'))
         );
         $result = $this->cal->events->listEvents($this->agendaId, $optParams);
-        return $result->getItems();
+        $events = [];
+
+        //Loop through the events & pages
+        while (true) {
+            //Loop through the single events
+            foreach ($results->getItems() as $event) {
+                //Store the required event details in the array
+                $events[] = array(
+                    'all_day' =>  $event['start']['dateTime'] ? false : true; //if dateTime is passed this is not an all day event, otherwise it is
+                    'agendaId' => $this->agendaId;
+                    'summary' => $event['summary'];
+                    'start' => $event['start']['dateTime'] ? $event['start']['dateTime'] : $event['start']['date'];
+                    'end' => $event['end']['dateTime'] ? $event['end']['dateTime'] : $event['end']['date'];
+                    'id' => $event['id'];
+                    'colorId' => $event['colorId'];
+                    'description' => $event['description'];
+                    'location' => $event['location'];
+                    'recurrence' => $event['recurrence'];
+                    'recurringEventId' => $event['recurringEventId'];
+                    'reminders' => $event['reminders'];
+                    'status' => $event['status'];
+                    'visibility' => $event['visibility'];
+                );
+            }
+
+            //Get the next page token
+            $pageToken = $results->getNextPageToken();
+            if ($pageToken) {
+                $optParams = array('pageToken' => $pageToken);
+                $results = $this->cal->events->listEvents($this->agendaId, $optParams);
+            } else {
+                break;
+            }
+        }
+        return $events;
     }
 
     /**
@@ -140,9 +181,14 @@ Class Google implements CalendarInterface {
      */
 
 
-     private dttostr($dt) 
+     private dtToStr($dt) 
      {
         return $dt->format('Y-m-d') . 'T' . $dt->format('H:i:sP');
+     }
+
+     private strToDt($str)
+     {
+
      }
     
 }

@@ -44,9 +44,24 @@ if ($cal->testConnection()) {
     }
     echo_pre($agds,'agendas');
 
+    
+
+    echo('<h2>List appointments</h1>');
+    //Build the table with appointments in the selected time range
+    echo('<table><tr><th>Date</th><th>Start time</th><th>End time</th><th>Summary</th></tr>');
+    foreach($cal->getEvents() as $event) {
+
+        echo('<tr><td>' . dateformat($event['start'],'d-m-Y') . '</td><td>');
+        echo(($event['all_day'] ? '-' : dateformat($event['start'], 'H:i')) . '</td><td>');
+        echo(($event['all_day'] ? '-' : dateformat($event['end'], 'H:i')) . '</td><td>');
+        echo($event['summary'] . '</td></tr>');
+    }
+    echo('</table>');
+
+
     echo('<h2>Appointments before adding event</h1>');
 
-    foreach($cal->getAppointment() as $apt) {
+    foreach($cal->getEvents() as $apt) {
         echo_pre(array(
             'etag' => $apt['etag'],
             'start_time' => $apt['start']['dateTime'],
@@ -56,10 +71,10 @@ if ($cal->testConnection()) {
 
     echo('<h2>Appointments after adding event</h1>');
     //Insert appointment
-    $cal->addAppointment();
+    $cal->addEvent();
 
     //Retrieve appointments
-    foreach($cal->getAppointment() as $apt) {
+    foreach($cal->getEvents() as $apt) {
         echo_pre(array(
             'etag' => $apt['etag'],
             'start_time' => $apt['start']['dateTime'],
@@ -69,10 +84,10 @@ if ($cal->testConnection()) {
 
     echo('<h2>Appointments after removing event</h1>');
     //Remove appointment
-    $cal->removeAppointment();
+    $cal->removeEvent();
 
     //Retrieve appointments
-    foreach($cal->getAppointment() as $apt) {
+    foreach($cal->getEvents() as $apt) {
         echo_pre(array(
             'etag' => $apt['etag'],
             'start_time' => $apt['start']['dateTime'],
