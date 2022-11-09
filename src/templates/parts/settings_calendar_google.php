@@ -29,7 +29,7 @@ $session->setRedirectUrl(public_base_url() . '/settings.php');
             <?php
             foreach($cal->getAgendas() as $idx=>$val) {
 
-                echo('<option value="' . $val['id'] . '|' . $val['name'] . '"' . (($calSelected == $val['name']) ? ' selected' : '') . '>' . $val['name'] . '</option>');
+                echo('<option value="' . $val['id'] . '|' . $val['name'] . '|' . $val['timezone'] . '"' . (($calSelected == $val['name']) ? ' selected' : '') . '>' . $val['name'] . '</option>');
             }
             ?>
         </select></div>

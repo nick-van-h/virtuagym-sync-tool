@@ -28,7 +28,7 @@ Class Google implements CalendarInterface {
          * Do array diff towards required keys
          * If there are any missing keys counted then throw an exception and mention the missing keys
          */
-        $required = array('calendar_account', 'target_agenda_id', 'target_agenda_name','refresh_token');
+        $required = array('calendar_account', 'target_agenda_id', 'target_agenda_name','refresh_token','timezone');
         $credentialsKeys = array_keys($credentials);
         $missing = array_diff($required, $credentialsKeys);
         if (count($missing)) {
@@ -53,8 +53,8 @@ Class Google implements CalendarInterface {
 
         //Init calendar/event service
         $this->cal = new \Google\Service\Calendar($this->client);
-        $this->evt = new \Google\Service\Calendar\Events($this->client);
-        $this->service = new \Google\Service($this->client);
+        $this->cal->setTImezon(new DateTimeZone($credentials['timezone']));
+
     }
 
     public function testConnection()
@@ -84,7 +84,9 @@ Class Google implements CalendarInterface {
         $ret = [];
         foreach($cals->items as $cal) {
             $ret[] = Array('id' => $cal->id,
-                            'name' => $cal->summary);
+                            'name' => $cal->summary,
+                            'timezone' => $cal->timezone
+                        );
         }
         sort($ret);
         return $ret;
@@ -136,5 +138,11 @@ Class Google implements CalendarInterface {
     /**
      * Speciic Google calendar class functions
      */
+
+
+     private dttostr($dt) 
+     {
+        return $dt->format('Y-m-d') . 'T' . $dt->format('H:i:sP');
+     }
     
 }

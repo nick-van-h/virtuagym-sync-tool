@@ -142,6 +142,7 @@ class User extends Database {
                 $cred['calendar_account'] = $this->getSettingValue('calendar_account');
                 $cred['target_agenda_name'] = $this->getSettingValue('target_agenda_name');
                 $cred['target_agenda_id'] = $this->getSettingValue('target_agenda_id');
+                $cred['timezone'] = $this->getSettingValue('calendar_timezone');
                 break;
             default:
                 break;
@@ -155,7 +156,7 @@ class User extends Database {
                 $this->setSetting('google_access_token', $cred['access_token']);
                 $this->setSetting('google_refresh_token', $cred['refresh_token']);
                 $this->setSetting('calendar_account', $cred['calendar_account']);
-                //Target agenda is set in a different function
+                //Target agenda, ID and timezone is set in a different function
                 break;
             default:
                 break;
@@ -173,9 +174,17 @@ class User extends Database {
     }
 
     function setTargetAgenda($value) {
-        $split = preg_split("/[|]/",$value);
-        $this->setSetting('target_agenda_id', $split[0]);
-        $this->setSetting('target_agenda_name', $split[1]);
+        $cal = $this->getCalendarProvider();
+        switch($cal) {
+            case PROVIDER_GOOGLE:
+                $split = preg_split("/[|]/",$value);
+                $this->setSetting('target_agenda_id', $split[0]);
+                $this->setSetting('target_agenda_name', $split[1]);
+                $this->setSetting('calendar_timezone', $split[2]);
+                break;
+            default:
+                break;
+        }
     }
 
     /**
