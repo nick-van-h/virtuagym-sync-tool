@@ -74,11 +74,14 @@ Class EventsDB extends Database {
         return parent::getRows();
     }
 
+    /**
+     * Get a list of activities which do not have an activity:calendar link
+     */
     function getUnsyncedActivities() {
         //Prepare variables
         $userid = $this->session->getUserID();
         $dt = new \DateTime();
-        $dt->modify('-1 month');
+        $dt->modify('-1 week');
         $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
 
         //Query results
@@ -106,7 +109,8 @@ Class EventsDB extends Database {
                 FROM `activities` a
                 LEFT JOIN `act_def` ad ON a.act_id = activity_id
                 LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
-                WHERE a.user_id = (?) AND ed.event_start > (?)
+                LEFT JOIN `act_to_apt` ata ON a.act_inst_id = ata.act_inst_id
+                WHERE a.user_id = (?) AND ed.event_start > (?) AND ata.act_inst_id IS NULL AND a.`deleted` = '0'
                 ORDER BY ed.event_start DESC"; //TODO NEXT: LEFT ANTI join where act_inst_id not in act_to_cal
         parent::bufferParams($userid, $mintimestamp);
         parent::query($sql);
@@ -364,7 +368,7 @@ Class EventsDB extends Database {
 
     public function bufferAppointment($activity) {
         //Get the full list of existing activities from the server if not yet set
-        if(empty($this->curEntries)) $this->retrieveAll_calendar_id();
+        if(empty($this->curEntries)) $this->retrieveAll_appointment_id();
         
         //Add the child to the designated array based on if it exists already in the database
         if(in_array($activity->event_id, $this->curEntries)) {
@@ -374,7 +378,7 @@ Class EventsDB extends Database {
         }
     }
 
-    public function queryEvtDef() {
+    public function queryAppointments() {
         //Prepare variables
         $userid = $this->session->getUserID();
         $success = true;
@@ -405,6 +409,33 @@ Class EventsDB extends Database {
 
         //Return the query status
         return $success;
+    }
+
+    /**
+     * Appointment relations
+     */
+    function bufferRelation($actId, $evtId)
+    {
+        $this->newEntries[] = array(
+            'act_id' => $actId,
+            'evt_id' => $evtId
+        );
+    }
+    
+    function queryRelations()
+    {
+        //Add all new entries to the database
+        $userid = $this->session->getUserID();
+        $sql = "INSERT INTO `act_to_apt`(`user_id`, `act_inst_id`, `appointment_id`)
+                VALUES (?,?,?)";
+        foreach($this->newEntries as $act) {
+            echo_pre($act);
+            parent::bufferParams($userid, $act['act_id'], $act['evt_id']);
+        }
+        parent::query($sql);
+
+        //Clear the existing activities array because it is now obsolete
+        $this->clearBuffer();
     }
 
 
@@ -443,7 +474,7 @@ Class EventsDB extends Database {
         $this->curEntries = parent::getRows('event_id');
     }
     
-    private function retrieveAll_event_id() {
+    private function retrieveAll_appointment_id() {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `appointment_id`
                 FROM appointments

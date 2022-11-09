@@ -46,7 +46,7 @@ interface CalendarInterface {
      * - Returned appointments are in the date range [-1mo -1day -> EventsDB.lastestPlannedActivity]
      * -> Getting the appointments should return an array of appointments or null if empty & use session->setStatus to pass message
      */
-    public function addEvent();
+    public function addEvent($evt);
     public function updateEvent();
     public function removeEvent();
     public function getEvents();

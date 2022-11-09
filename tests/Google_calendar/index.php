@@ -20,6 +20,7 @@ $session->setRedirectUrl(public_base_url() . '/tests.php?test=Google_calendar');
 
 //init classes
 $user = new Vst\Controller\User;
+$sync = new Vst\Model\Sync;
 
 //Set up the connection
 echo('<button id="test-google-connect">Authorize with Google</button>');br();
@@ -46,54 +47,22 @@ if ($cal->testConnection()) {
 
     
 
-    echo('<h2>List appointments</h1>');
+    echo('<h2>List appointments</h2>');
     //Build the table with appointments in the selected time range
     echo('<table><tr><th>Date</th><th>Start time</th><th>End time</th><th>Summary</th></tr>');
     foreach($cal->getEvents() as $event) {
-
-        echo('<tr><td>' . dateformat($event['start'],'d-m-Y') . '</td><td>');
-        echo(($event['all_day'] ? '-' : dateformat($event['start'], 'H:i')) . '</td><td>');
-        echo(($event['all_day'] ? '-' : dateformat($event['end'], 'H:i')) . '</td><td>');
+        $dtStart = new DateTime($event['start']);
+        $dtEnd = new DateTime($event['end']);
+        echo('<tr><td>' . $dtStart->format('d-m-Y') . '</td><td>');
+        echo(($event['all_day'] ? '-' : $dtStart->format('H:i')) . '</td><td>');
+        echo(($event['all_day'] ? '-' : $dtEnd->format('H:i')) . '</td><td>');
         echo($event['summary'] . '</td></tr>');
     }
     echo('</table>');
 
+    echo('<h2>Push stored activities to calendar</h2>');
+    $sync->storedActToCal();
 
-    echo('<h2>Appointments before adding event</h1>');
-
-    foreach($cal->getEvents() as $apt) {
-        echo_pre(array(
-            'etag' => $apt['etag'],
-            'start_time' => $apt['start']['dateTime'],
-            'end_time' => $apt['end']['dateTime']
-        ),$apt['summary']);
-    }
-
-    echo('<h2>Appointments after adding event</h1>');
-    //Insert appointment
-    $cal->addEvent();
-
-    //Retrieve appointments
-    foreach($cal->getEvents() as $apt) {
-        echo_pre(array(
-            'etag' => $apt['etag'],
-            'start_time' => $apt['start']['dateTime'],
-            'end_time' => $apt['end']['dateTime']
-        ),$apt['summary']);
-    }
-
-    echo('<h2>Appointments after removing event</h1>');
-    //Remove appointment
-    $cal->removeEvent();
-
-    //Retrieve appointments
-    foreach($cal->getEvents() as $apt) {
-        echo_pre(array(
-            'etag' => $apt['etag'],
-            'start_time' => $apt['start']['dateTime'],
-            'end_time' => $apt['end']['dateTime']
-        ),$apt['summary']);
-    }
 } else {
     echo('Unable to connect to calendar provider');
 }
