@@ -4,7 +4,7 @@ namespace Vst\Controller;
 
 use Vst\Controller\User;
 use Vst\Controller\Session;
-use Vst\Controller\VGDB;
+use Vst\Controller\EventsDB;
 
 class VGAPI {
     private $username;
@@ -18,7 +18,7 @@ class VGAPI {
     private $user;
     private $crypt;
     private $session;
-    private $vgdb;
+    private $EventsDB;
     private $log;
 
     private const API_URL = 'https://api.virtuagym.com/api/v0';

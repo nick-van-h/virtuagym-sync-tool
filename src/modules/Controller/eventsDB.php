@@ -5,7 +5,7 @@ namespace Vst\Controller;
 use Vst\Controller\Database;
 use Vst\Controller\Session;
 
-Class VGDB extends Database {
+Class EventsDB extends Database {
 
     private $newEntries;
     private $dupEntries;
@@ -313,6 +313,64 @@ Class VGDB extends Database {
 
     /**
      * =============================================
+     * Appointments
+     * =============================================
+     */
+    public function storeAppointments($appointments) {
+        foreach($appointments as $appointment) {
+            $this->bufferAppointment($clubevent);
+        }
+        $this->queryAppointments();
+    }
+
+    public function bufferAppointment($activity) {
+        //Get the full list of existing activities from the server if not yet set
+        if(empty($this->curEntries)) $this->retrieveAll_calendar_id();
+        
+        //Add the child to the designated array based on if it exists already in the database
+        if(in_array($activity->event_id, $this->curEntries)) {
+            $this->dupEntries[] = $activity;
+        } else {
+            $this->newEntries[] = $activity;
+        }
+    }
+
+    public function queryEvtDef() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $success = true;
+
+        /**
+         * Update the existing activities with new values
+         */
+        $sql = "UPDATE appointments
+                SET agenda_id=(?)
+                WHERE user_id=(?) AND appointment_id=(?)";
+        foreach($this->dupEntries as $act) {
+            parent::bufferParams($act->agenda_id, $userid, $act->appointment_id);
+        }
+        parent::query($sql);
+
+        /**
+         * Insert new activities
+         */
+        $sql = "INSERT INTO `appointments`(`user_id`, `appointment_id`, `agenda_id`)
+                VALUES (?,?,?)";
+        foreach($this->newEntries as $act) {
+            parent::bufferParams($userid, $act->appointment_id, $act->agenda_id);
+        }
+        parent::query($sql);
+
+        //Clear the existing activities array because it is now obsolete
+        $this->clearBuffer();
+
+        //Return the query status
+        return $success;
+    }
+
+
+    /**
+     * =============================================
      * Private helpers
      * =============================================
      */
@@ -344,6 +402,16 @@ Class VGDB extends Database {
         parent::bufferParams($userid);
         parent::query($sql);
         $this->curEntries = parent::getRows('event_id');
+    }
+    
+    private function retrieveAll_event_id() {
+        $userid = $this->session->getUserID();
+        $sql = "SELECT DISTINCT `appointment_id`
+                FROM appointments
+                WHERE user_id = (?)";
+        parent::bufferParams($userid);
+        parent::query($sql);
+        $this->curEntries = parent::getRows('appointment_id');
     }
 
     private function clearBuffer() {

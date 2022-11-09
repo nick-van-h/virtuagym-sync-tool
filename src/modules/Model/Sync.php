@@ -4,7 +4,7 @@ namespace Vst\Model;
 
 use Vst\Controller\User;
 use Vst\Controller\Session;
-use Vst\Controller\VGDB;
+use Vst\Controller\EventsDB;
 use Vst\Controller\VGAPI;
 use Vst\Controller\CalendarFactory;
 use Vst\Controller\Log;
@@ -12,7 +12,7 @@ use Vst\Controller\Log;
 
 class Sync {
     private $vgapi;
-    private $vgdb;
+    private $EventsDB;
     private $calendar;
     private $log;
     private $session;
@@ -24,7 +24,7 @@ class Sync {
         $this->user = new User;
         $this->crypt = new Crypt;
         $this->session = new Session;
-        $this->vgdb = new VGDB;
+        $this->EventsDB = new EventsDB;
         $this->log = new Log;
 
         /**
@@ -97,7 +97,7 @@ class Sync {
         /**
          * Get raw data from VG API and store in VG database
          */
-        $this->vgdb->storeActivities($this->vgapi->getActivities());
+        $this->EventsDB->storeActivities($this->vgapi->getActivities());
         /**
          * Get the latest club id's from the recent activities call
          * Get the date range for user planned events from the recent activities call
@@ -107,9 +107,9 @@ class Sync {
         /**
          * Update the database with the user specific info & club definities
          */
-        $this->vgdb->storeClubs($clubs);
-        $this->vgdb->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
-        $this->vgdb->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
+        $this->EventsDB->storeClubs($clubs);
+        $this->EventsDB->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
+        $this->EventsDB->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
 
         //Store last sync date
         $dt = new \DateTime();
@@ -121,7 +121,7 @@ class Sync {
     }
 
     public function getAllStoredActivities() {
-        return $this->vgdb->getAllJoined();
+        return $this->EventsDB->getAllJoined();
     }
     /**
      * Return the date of the last sync
@@ -134,7 +134,7 @@ class Sync {
     private function getDates() {
         $dt = new \DateTime(date('Y-m-1'));
         $earliest = $dt->modify('-1 month')->format('Y-m-d') . ' 00:00:00';
-        $dtMax = new \DateTime(date("Y-m-d H:i:s", $this->vgdb->getLatestActivityTimestamp()));
+        $dtMax = new \DateTime(date("Y-m-d H:i:s", $this->EventsDB->getLatestActivityTimestamp()));
         $dtArr = [];
         while($dt <= $dtMax) {
             $dtArr[] = $dt->format("Y/m");
