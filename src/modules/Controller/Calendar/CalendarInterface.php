@@ -1,6 +1,6 @@
 <?php
 
-Namespace Controller\Calendar;
+Namespace Vst\Controller\Calendar;
 
 interface CalendarInterface {
     /**
@@ -24,7 +24,7 @@ interface CalendarInterface {
      *   -> Setting up the calendar should return true/false on success/fail & use session->setStatus to pass message
      */
     public function testConnection();
-    public function setupCalendarProvider();
+    public function getAccount();
 
     /**
      * After setting up the calendar provider the available calendars are to be retrieved
@@ -33,8 +33,8 @@ interface CalendarInterface {
      * -> Getting the calendars should return an array of calendars or null if empty
      * -> Testing the calendar should return true/false on success/fail & use session->setStatus to pass message
      */
-    public function getCalendars();
-    public function testCalendar();
+    public function getAgendas();
+    public function testAgenda();
 
     /**
      * Altering the calendar can be done in three ways;
@@ -43,11 +43,32 @@ interface CalendarInterface {
      * - Remove an existing appointment if an event is cancelled
      * -> Altering the calendar should return true/false on success/fail & use session->setStatus to pass message
      * Retrieving the appointments are always to be done for the selected calendar
-     * - Returned appointments are in the date range [-1mo -1day -> VGDB.lastestPlannedActivity]
+     * - Returned appointments are in the date range [-1mo -1day -> EventsDB.lastestPlannedActivity]
      * -> Getting the appointments should return an array of appointments or null if empty & use session->setStatus to pass message
      */
-    public function addAppointment();
-    public function updateAppointment();
-    public function removeAppointment();
-    public function getAppointment();
+    public function addEvent($evt);
+    public function updateEvent();
+    public function removeEvent($appointmentId);
+    public function getEvents();
+
+    // Functions template
+    // 
+    // public function testConnection()
+    // {}
+    // public function getAccount()
+    // {}
+    // 
+    // public function getAgendas()
+    // {}
+    // public function testAgenda()
+    // {}
+    //
+    // public function addEvent()
+    // {}
+    // public function updateEvent()
+    // {}
+    // public function removeEvent()
+    // {}
+    // public function getEvents()
+    // {}
 }

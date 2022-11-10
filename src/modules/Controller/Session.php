@@ -129,15 +129,32 @@ class Session {
     }
 
     /**
+     * Redirect URL
+     */
+    public function setRedirectUrl($url)
+    {
+        $this->set('redirect_url', $url);
+    }
+    public function getRedirectUrl()
+    {
+        return $this->get('redirect_url');
+    }
+
+    /**
      * Status
      */
     public function setStatus($status, $code, $value) {
+        if(!$this->isVarSet('status')) {
+            $_SESSION['status'] = [];
+        }
+        if(!$this->isArrVarSet('status', $status)) {
+            $_SESSION['status'][$status] = [];
+        }
         $_SESSION['status'][$status]['code'] = $code;
         $_SESSION['status'][$status]['message'] = $value;
     }
     public function clearStatus($status) {
-        $_SESSION['status'][$status]['code'] = '';
-        $_SESSION['status'][$status]['message'] = '';
+        $this->setStatus($status, '', '');
     }
     public function getStatus($status) {
         if ($this->isArrVarSet('status', $status)) {
@@ -181,7 +198,7 @@ class Session {
         if ($this->isVarSet($variable)) {
             return $_SESSION[$variable];
         } else {
-            return false;
+            return null;
         }
     }
 

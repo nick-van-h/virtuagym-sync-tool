@@ -2,18 +2,18 @@
 
 namespace Vst\Model;
 
-use Vst\Controller\Users;
+use Vst\Controller\User;
 use Vst\Controller\Session;
-use Vst\Controller\VGDB;
+use Vst\Controller\EventsDB;
 use Vst\Controller\VGAPI;
-use Vst\Controller\Calendar;
+use Vst\Controller\CalendarFactory;
 use Vst\Controller\Log;
 
 
 class Sync {
     private $vgapi;
-    private $vgdb;
-    private $calendar;
+    private $events;
+    private $cal;
     private $log;
     private $session;
 
@@ -21,10 +21,10 @@ class Sync {
         /**
          * Init generic controllers
          */
-        $this->user = new Users;
+        $this->user = new User;
         $this->crypt = new Crypt;
         $this->session = new Session;
-        $this->vgdb = new VGDB;
+        $this->events = new EventsDB;
         $this->log = new Log;
 
         /**
@@ -43,9 +43,10 @@ class Sync {
          * Init calendar
          */
         $provider = $this->user->getCalendarProvider();
-        $credentials = $this->user->getCalendarCredentials();
-
-        $this->calendar = new Calendar($provider, $credentials);
+        if($provider) {
+            $credentials = $this->user->getCalendarCredentials();
+            $this->cal = CalendarFactory::getProvider($provider, $credentials);
+        }
 
     }
 
@@ -88,15 +89,32 @@ class Sync {
         $this->log->addEvent('Scheduled sync', 'Sync end');
         $this->log->stopLinking();
     }
+
     
     /**
      * Sync all activities from the API to our database
      */
     private function syncAll() {
+        //Get all VG activities and store in the database
+        $this->retrieveAndStoreActivities();
+
+        //Get all calendar activities and store in the database
+        $this->retrieveAndStoreAppointments();
+
+        //Sync activities to calendar
+        $this->addNewActivitiesToCalendar();
+        $this->removeObsoleteActivitiesFromCalendar();
+
+        //Store last sync date
+        $dt = new \DateTime();
+        $this->user->setLastSync($dt->format('d-m-Y H:i:s'));
+    }
+    
+    public function retrieveAndStoreActivities() {
         /**
          * Get raw data from VG API and store in VG database
          */
-        $this->vgdb->storeActivities($this->vgapi->getActivities());
+        $this->events->storeActivities($this->vgapi->getActivities());
         /**
          * Get the latest club id's from the recent activities call
          * Get the date range for user planned events from the recent activities call
@@ -106,21 +124,47 @@ class Sync {
         /**
          * Update the database with the user specific info & club definities
          */
-        $this->vgdb->storeClubs($clubs);
-        $this->vgdb->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
-        $this->vgdb->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
-
-        //Store last sync date
-        $dt = new \DateTime();
-        $this->user->setLastSync($dt->format('d-m-Y H:i:s'));
-        
-        /**
-         * Update calendar with latest activities
-         */
+        $this->events->storeClubs($clubs);
+        $this->events->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
+        $this->events->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
     }
 
+    public function retrieveAndStoreAppointments() {
+        $this->events->storeAppointments($this->cal->getEvents());
+    }
+
+    /**
+     * Update calendar with latest activities
+     * Get an array of activities which are not synced
+     * Loop through each activity
+     * Add it to the calendar
+     * Add a relation to the act_to_cal table
+     */
+    public function addNewActivitiesToCalendar() { //TODO make private
+        $activities = $this->events->getUnsyncedActivities();
+        if(!empty($activities)) {
+            foreach($activities as $act) {
+                $evtId = $this->cal->addEvent($act);
+                $this->events->bufferRelation($act['act_inst_id'],$evtId);
+            }
+            $this->events->queryRelations();
+        }
+    }
+
+    public function removeObsoleteActivitiesFromCalendar() { //TODO make private
+        $activities = $this->events->getObsoleteActivities();
+        if(!empty($activities)) {
+            foreach($activities as $activity) {
+                $this->cal->removeEvent($activity);
+                $this->events->bufferObsoleteRelation($activity);
+            }
+            $this->events->queryRemoveRelations();
+        }
+    }
+    
+
     public function getAllStoredActivities() {
-        return $this->vgdb->getAllJoined();
+        return $this->events->getAllJoined();
     }
     /**
      * Return the date of the last sync
@@ -133,7 +177,7 @@ class Sync {
     private function getDates() {
         $dt = new \DateTime(date('Y-m-1'));
         $earliest = $dt->modify('-1 month')->format('Y-m-d') . ' 00:00:00';
-        $dtMax = new \DateTime(date("Y-m-d H:i:s", $this->vgdb->getLatestActivityTimestamp()));
+        $dtMax = new \DateTime(date("Y-m-d H:i:s", $this->events->getLatestActivityTimestamp()));
         $dtArr = [];
         while($dt <= $dtMax) {
             $dtArr[] = $dt->format("Y/m");

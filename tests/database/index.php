@@ -113,7 +113,7 @@ echo('Query ran with result: ' . $db->getStatus());
 
 
 echo('<h1>Test Users class</h1>');
-$user = new Vst\Controller\Users;
+$user = new Vst\Controller\User;
 echo('<h2>Getters</h2>');
 echo('Password hash: ' . $user->getPasswordHash());br();
 echo('User role: ' . $user->getRole());br();

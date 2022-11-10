@@ -18,5 +18,8 @@
     "minimum-stability": "dev",
     "config": {
         "vendor-dir": "vendor/vst"
+    },
+    "require": {
+        "google/apiclient": "^2.12.1"
     }
 }

@@ -67,12 +67,12 @@ class Crypt
      * @return string $message the decrypted message
      */
     function getDecryptedMessage($message_enc) {
-        $message = openssl_decrypt($message_enc, SELF::CIPHERING, $this->session->getKey(), SELF::OPTIONS, $this->encryption_iv);
+        $message = openssl_decrypt($message_enc, SELF::CIPHERING, $this->key, SELF::OPTIONS, $this->encryption_iv);
         return $message;
     }
 
     function getEncryptedMessage($message) {
-        $message_enc = openssl_encrypt($message, SELF::CIPHERING, $this->session->getKey(), SELF::OPTIONS, $this->encryption_iv);
+        $message_enc = openssl_encrypt($message, SELF::CIPHERING, $this->key, SELF::OPTIONS, $this->encryption_iv);
         return $message_enc;
     }
 

@@ -17,6 +17,12 @@ main.test {
     flex-grow: 1;
     overflow: auto;
     overflow-x: hidden;
+    padding-right: 25px;
+    padding-bottom: 25px;
+}
+
+main.test {
+    word-break: break-all;
 }
 
 .img-container.img-page-title {
@@ -86,7 +92,7 @@ header.app {
     font-weight: bolder;
     margin-left: 10px;
     margin-right: 25px;
-    flex: 0 0 70px;
+    flex: 0 0 75px;
 }
 
 .training-entry .dt {

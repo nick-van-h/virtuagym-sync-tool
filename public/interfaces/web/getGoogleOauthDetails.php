@@ -7,6 +7,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     //Process the request
     $var = (isset($_POST['var']) ? $_POST['var'] : '');
 
+    $session = new Vst\Controller\Session;
+
     //Init return values
     $payload = [];
     $resp = array(
@@ -14,7 +16,17 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
         'payload' => 'default'
     );
 
-    //Logic goes here//
+    //Get the client id from the json
+    $oauth = getGoogleOauth();
+    $payload['client_id'] = $oauth->web->client_id;
+
+    //Get the redirect uri
+    $payload['redirect_uri'] = public_base_url() . '/interfaces/web/callbackGoogleLogin.php'; //TODO: Update cloud
+
+    //Generate & store a guid
+    $guid = guidv4();
+    $session->setStatus('state_guid','Redundancy',$guid);
+    $payload['state_guid'] = $guid;
 
     //Incorporate the payload and return the result
     $resp['payload'] = $payload;

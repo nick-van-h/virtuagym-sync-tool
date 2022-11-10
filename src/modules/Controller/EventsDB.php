@@ -5,7 +5,7 @@ namespace Vst\Controller;
 use Vst\Controller\Database;
 use Vst\Controller\Session;
 
-Class VGDB extends Database {
+Class EventsDB extends Database {
 
     private $newEntries;
     private $dupEntries;
@@ -72,6 +72,72 @@ Class VGDB extends Database {
         parent::bufferParams($userid, $mintimestamp);
         parent::query($sql);
         return parent::getRows();
+    }
+
+    /**
+     * Get a list of activities which do not have an activity:calendar link
+     */
+    function getUnsyncedActivities() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $dt = new \DateTime();
+        $dt->modify('-1 week');
+        $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
+
+        //Query results
+        $sql = "SELECT DISTINCT 
+                    a.`user_id`,
+                    a.`act_inst_id`,
+                    a.`done`,
+                    a.`deleted`,
+                    a.`act_id`,
+                    a.`event_id`,
+                    a.`timestamp`,
+                    ad.`activity_id`,
+                    ad.`name`,
+                    ad.`deleted` as actdef_deleted,
+                    ad.`club_id`,
+                    ad.`duration`,
+                    ed.`event_start`,
+                    ed.`event_end`,
+                    ed.`attendees`,
+                    ed.`max_attendees`,
+                    ed.`joined`,
+                    ed.`deleted` as evtdef_deleted,
+                    ed.`cancelled`,
+                    ed.`bookable_from`
+                FROM `activities` a
+                LEFT JOIN `act_def` ad ON a.act_id = activity_id
+                LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
+                LEFT JOIN `act_to_apt` ata ON a.act_inst_id = ata.act_inst_id
+                WHERE a.user_id = (?) AND ed.event_start > (?) AND ata.act_inst_id IS NULL AND a.`deleted` = '0'
+                ORDER BY ed.event_start DESC"; //TODO NEXT: LEFT ANTI join where act_inst_id not in act_to_cal
+        parent::bufferParams($userid, $mintimestamp);
+        parent::query($sql);
+        return parent::getRows();
+    }
+
+    function getObsoleteActivities() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $dt = new \DateTime();
+        $dt->modify('-1 week');
+        $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
+
+        //Query results
+        $sql = "SELECT DISTINCT 
+                    apt.`appointment_id`
+                FROM `activities` a
+                LEFT JOIN `act_def` ad ON a.act_id = activity_id
+                LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
+                LEFT JOIN `act_to_apt` ata ON a.act_inst_id = ata.act_inst_id
+                JOIN `appointments` apt ON apt.appointment_id = ata.appointment_id
+                WHERE a.user_id = (?) AND (a.deleted = 1 OR ad.deleted = 1 OR ed.deleted = 1 OR ed.cancelled = 1)";
+        parent::bufferParams($userid);
+        parent::query($sql);
+        $res = parent::getRows('appointment_id');
+        return $res;
+
     }
 
     /**
@@ -313,6 +379,121 @@ Class VGDB extends Database {
 
     /**
      * =============================================
+     * Appointments
+     * =============================================
+     */
+    public function storeAppointments($appointments) {
+        foreach($appointments as $appointment) {
+            $this->bufferAppointment($appointment);
+        }
+        $this->queryAppointments();
+    }
+
+    public function bufferAppointment($activity) {
+        //Get the full list of existing activities from the server if not yet set
+        if(empty($this->curEntries)) $this->retrieveAll_appointment_id();
+        
+        //Add the child to the designated array based on if it exists already in the database
+        if(!empty($this->curEntries)) {
+            if(in_array($activity['id'], $this->curEntries)) {
+                $this->dupEntries[] = $activity;
+            } else {
+                $this->newEntries[] = $activity;
+            }
+        } else {
+            $this->newEntries[] = $activity;
+
+        }
+    }
+
+    public function queryAppointments() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $success = true;
+
+        /**
+         * Update the existing activities with new values
+         */
+        $sql = "UPDATE appointments
+                SET agenda_id=(?)
+                WHERE user_id=(?) AND appointment_id=(?)";
+        foreach($this->dupEntries as $act) {
+            parent::bufferParams($act['id'], $userid, $act['agendaId']);
+        }
+        parent::query($sql);
+
+
+        /**
+         * Insert new activities
+         */
+        $sql = "INSERT INTO `appointments`(`user_id`, `appointment_id`, `agenda_id`)
+                VALUES (?,?,?)";
+        foreach($this->newEntries as $act) {
+            parent::bufferParams($userid, $act['id'], $act['agendaId']);
+        }
+        parent::query($sql);
+
+        //Clear the existing activities array because it is now obsolete
+        $this->clearBuffer();
+
+        //Return the query status
+        return $success;
+    }
+
+    /**
+     * Appointment relations
+     */
+    function bufferRelation($actId, $evtId)
+    {
+        $this->newEntries[] = array(
+            'act_id' => $actId,
+            'evt_id' => $evtId
+        );
+    }
+    
+    function queryRelations()
+    {
+        //Add all new entries to the database
+        $userid = $this->session->getUserID();
+        $sql = "INSERT INTO `act_to_apt`(`user_id`, `act_inst_id`, `appointment_id`)
+                VALUES (?,?,?)";
+        foreach($this->newEntries as $act) {
+            parent::bufferParams($userid, $act['act_id'], $act['evt_id']);
+        }
+        parent::query($sql);
+
+        //Clear the existing activities array because it is now obsolete
+        $this->clearBuffer();
+    }
+
+    function bufferObsoleteRelation($evtId)
+    {
+        $this->obsEntries[] = $evtId;
+    }
+
+    function queryRemoveRelations()
+    {
+            //Remove all obsolete appointments from the database
+            $userid = $this->session->getUserID();
+            $sql = "DELETE FROM `appointments` WHERE `user_id` = (?) AND `appointment_id` = (?)";
+            foreach($this->obsEntries as $act) {
+                parent::bufferParams($userid, $act);
+            }
+            parent::query($sql);
+
+            $sql = "DELETE FROM `act_to_apt` WHERE `user_id` = (?) AND `appointment_id` = (?)";
+            foreach($this->obsEntries as $act) {
+                parent::bufferParams($userid, $act);
+            }
+            parent::query($sql);
+    
+            //Clear the existing activities array because it is now obsolete
+            $this->clearBuffer();
+    }
+
+
+    /**
+     * =============================================
      * Private helpers
      * =============================================
      */
@@ -344,6 +525,16 @@ Class VGDB extends Database {
         parent::bufferParams($userid);
         parent::query($sql);
         $this->curEntries = parent::getRows('event_id');
+    }
+    
+    private function retrieveAll_appointment_id() {
+        $userid = $this->session->getUserID();
+        $sql = "SELECT DISTINCT `appointment_id`
+                FROM appointments
+                WHERE user_id = (?)";
+        parent::bufferParams($userid);
+        parent::query($sql);
+        $this->curEntries = parent::getRows('appointment_id');
     }
 
     private function clearBuffer() {

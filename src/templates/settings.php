@@ -1,7 +1,7 @@
 <?php
-$settings = new Settings;
-$user = new Controller\Users;
-$crypt = new Crypt;
+$settings = new Vst\Model\Settings;
+$user = new Vst\Controller\User;
+$crypt = new Vst\Model\Crypt;
 
 ?>
 
@@ -27,7 +27,7 @@ $crypt = new Crypt;
         </div>
     </fieldset>
     <div class="status-message status-message--hidden">
-        <span><?php echo($settings->getVirtuagymMessage('virtuagym')); ?></span>
+        <span><?php echo($settings->getVirtuagymMessage()); ?></span>
     </div>
 </form>
 
@@ -42,6 +42,7 @@ $crypt = new Crypt;
         </div>
         <div id="calendar-settings">
             <!-- Calendar specific content goes here -->
+            <?php get_vw_settings_calendar(); ?>
         </div>
     </fieldset>
 </form>
