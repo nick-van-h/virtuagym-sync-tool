@@ -3,7 +3,7 @@
 namespace Vst\Model;
 
 use Vst\Controller\Session;
-use Vst\Controller\Users;
+use Vst\Controller\User;
 use Vst\Controller\Log;
 
 class Authenticator
@@ -19,7 +19,7 @@ class Authenticator
     
     function __construct() {
         $this->session = new Session;
-        $this->user = new Users;
+        $this->user = new User;
         $this->crypt = new Crypt;
         $this->log = new Log;
     }
@@ -84,11 +84,12 @@ class Authenticator
             //Log a succesful login
             $this->log->addEvent('Login','Login successful from ' . $browser . ' on ' . $os . ' @ ' . $ip);
         } else {
-            $this->session->setLoginStatus(self::LOGIN_INVALID_CREDENTIALS);
-            $this->session->unsetUser();
-
             //Log an unsuccesful login
             $this->log->addWarning('Login','Login attempt with invalid credentials from ' . $browser . ' on ' . $os . ' @ ' . $ip);
+
+            //Set login status failed and unset user ID
+            $this->session->setLoginStatus(self::LOGIN_INVALID_CREDENTIALS);
+            $this->session->unsetUser();
         }
     }
 

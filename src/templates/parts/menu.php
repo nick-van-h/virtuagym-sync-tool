@@ -15,6 +15,8 @@ $curPage = substr($_SERVER["SCRIPT_NAME"],strrpos($_SERVER["SCRIPT_NAME"],"/")+1
     <div class="img-container">
         <img src="<?php echo(public_base_url()); ?>/resources/img/main_logo_alt.png">
     </div>
+
+    <?php if ($_SERVER['SERVER_NAME'] == 'localhost') : ?><div class="dev-indicator">!! DEV !!</div><?php endif; ?>
     <ul>
         <a href="<?php echo(public_base_url()); ?>/app.php">
             <li class="<?php echo($curPage == 'app.php' ? 'selected' : ''); ?>">
