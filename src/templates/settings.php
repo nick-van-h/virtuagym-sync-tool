@@ -27,7 +27,7 @@ $crypt = new Vst\Model\Crypt;
         </div>
     </fieldset>
     <div class="status-message status-message--hidden">
-        <span><?php echo($settings->getVirtuagymMessage('virtuagym')); ?></span>
+        <span><?php echo($settings->getVirtuagymMessage()); ?></span>
     </div>
 </form>
 

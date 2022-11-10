@@ -84,11 +84,12 @@ class Authenticator
             //Log a succesful login
             $this->log->addEvent('Login','Login successful from ' . $browser . ' on ' . $os . ' @ ' . $ip);
         } else {
-            $this->session->setLoginStatus(self::LOGIN_INVALID_CREDENTIALS);
-            $this->session->unsetUser();
-
             //Log an unsuccesful login
             $this->log->addWarning('Login','Login attempt with invalid credentials from ' . $browser . ' on ' . $os . ' @ ' . $ip);
+
+            //Set login status failed and unset user ID
+            $this->session->setLoginStatus(self::LOGIN_INVALID_CREDENTIALS);
+            $this->session->unsetUser();
         }
     }
 

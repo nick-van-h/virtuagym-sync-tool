@@ -244,7 +244,9 @@ class User extends Database {
         }
 
         //Check if the setting already exists for the user, if so we need to update, else we need to add
-        if(!is_null($this->getSettingValue($setting_name))) {
+        $this->getSettingValue($setting_name);
+        if (parent::getOneNumrows()) {
+        //if(!is_null($this->getSettingValue($setting_name))) {
             $sql = "UPDATE settings
                     SET value_str=(?), value_int=(?), type=(?)
                     WHERE setting_name=(?) AND user_id = (?)";

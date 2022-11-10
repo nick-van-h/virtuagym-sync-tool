@@ -48,7 +48,7 @@ interface CalendarInterface {
      */
     public function addEvent($evt);
     public function updateEvent();
-    public function removeEvent();
+    public function removeEvent($appointmentId);
     public function getEvents();
 
     // Functions template

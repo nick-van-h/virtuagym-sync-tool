@@ -30,12 +30,16 @@ class Database
         if($db) {
             try {
                 //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}
-                $this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
+                //$this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
+                $this->db = new \mysqli($db['host'], $db['username'], $db['password'], $db['database']);
             } catch (Exceptiond $e) {
                 //Store the exception details as error
                 $this->setError("MySQLi Error Code: " . $e->getCode() . " | Exception Msg: " . $e->getMessage());
                 exit;
             }
+            //Turn off excessive error reporting
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
             //Set status succesful
             $this->setOk();
         } else {
@@ -141,7 +145,11 @@ class Database
         //Prepare the statement
         $query = str_replace(PHP_EOL, '', $query);
         $query = preg_replace('/\s+/', ' ', $query);
-        $this->stmt = $this->db->prepare($query);
+
+        //Prepare the statement
+        //$this->stmt = $this->db->prepare($query); //original
+        $this->stmt = $this->db->stmt_init();
+        $this->stmt->prepare($query);
 
         if(!empty($this->paramsArr)) {
             //Loop through the array of params to execute the query

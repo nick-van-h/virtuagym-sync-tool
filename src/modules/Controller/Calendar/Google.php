@@ -118,10 +118,15 @@ Class Google implements CalendarInterface {
     }
     public function updateEvent()
     {}
-    public function removeEvent()
+    public function removeEvent($appointmentId)
     {
         //Remove the TMP id
-        $this->cal->events->delete($this->agendaId, $this->tmpId);
+        try{
+            $this->cal->events->delete($this->agendaId, $appointmentId);
+        } catch (\Google\Service\Exception $e) {
+            echo('TODO: Store this output & implement proper error handling in code');
+            echo_pre($e,'error');
+        }
     }
 
     /**

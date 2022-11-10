@@ -4,8 +4,12 @@ $user = new \Vst\Controller\User;
 $credentials = $user->getCalendarCredentials();
 $calSelected = $user->getTargetAgendaName();
 //Get calendar variables
-$cal = \Vst\Controller\CalendarFactory::getProvider(PROVIDER_GOOGLE,$credentials);
-$account = $cal->getAccount();
+if(!empty($credentials)) {
+    $cal = \Vst\Controller\CalendarFactory::getProvider(PROVIDER_GOOGLE,$credentials);
+    $account = $cal->getAccount();
+} else {
+    $account = null;
+}
 
 $settings = new Vst\Model\Settings;
 $session = new Vst\Controller\Session;

@@ -98,15 +98,19 @@ class Sync {
         //Get all VG activities and store in the database
         $this->retrieveAndStoreActivities();
 
+        //Get all calendar activities and store in the database
+        $this->retrieveAndStoreAppointments();
+
+        //Sync activities to calendar
+        $this->addNewActivitiesToCalendar();
+        $this->removeObsoleteActivitiesFromCalendar();
+
         //Store last sync date
         $dt = new \DateTime();
         $this->user->setLastSync($dt->format('d-m-Y H:i:s'));
-        
-        $this->syncNewActivitiesToCalendar();
-        $this->removeObsoleteActivitiesFromCalendar();
     }
     
-    private function retrieveAndStoreActivities() {
+    public function retrieveAndStoreActivities() {
         /**
          * Get raw data from VG API and store in VG database
          */
@@ -125,6 +129,10 @@ class Sync {
         $this->events->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
     }
 
+    public function retrieveAndStoreAppointments() {
+        $this->events->storeAppointments($this->cal->getEvents());
+    }
+
     /**
      * Update calendar with latest activities
      * Get an array of activities which are not synced
@@ -132,17 +140,26 @@ class Sync {
      * Add it to the calendar
      * Add a relation to the act_to_cal table
      */
-    public function syncNewActivitiesToCalendar() { //TODO make private
+    public function addNewActivitiesToCalendar() { //TODO make private
         $activities = $this->events->getUnsyncedActivities();
-        foreach($activities as $act) {
-           $evtId = $this->cal->addEvent($act);
-           $this->events->bufferRelation($act['act_inst_id'],$evtId);
+        if(!empty($activities)) {
+            foreach($activities as $act) {
+                $evtId = $this->cal->addEvent($act);
+                $this->events->bufferRelation($act['act_inst_id'],$evtId);
+            }
+            $this->events->queryRelations();
         }
-        $this->events->queryRelations();
     }
 
     public function removeObsoleteActivitiesFromCalendar() { //TODO make private
-        //TODO implement
+        $activities = $this->events->getObsoleteActivities();
+        if(!empty($activities)) {
+            foreach($activities as $activity) {
+                $this->cal->removeEvent($activity);
+                $this->events->bufferObsoleteRelation($activity);
+            }
+            $this->events->queryRemoveRelations();
+        }
     }
     
 

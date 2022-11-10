@@ -61,7 +61,10 @@ if ($cal->testConnection()) {
     echo('</table>');
 
     echo('<h2>Push stored activities to calendar</h2>');
-    $sync->storedActToCal();
+    //$sync->retrieveAndStoreActivities(); //Only necessary if VG is updated and not synced
+    $sync->retrieveAndStoreAppointments();
+    $sync->addNewActivitiesToCalendar();
+    $sync->removeObsoleteActivitiesFromCalendar();
 
 } else {
     echo('Unable to connect to calendar provider');

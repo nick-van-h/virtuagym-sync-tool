@@ -117,6 +117,29 @@ Class EventsDB extends Database {
         return parent::getRows();
     }
 
+    function getObsoleteActivities() {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $dt = new \DateTime();
+        $dt->modify('-1 week');
+        $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
+
+        //Query results
+        $sql = "SELECT DISTINCT 
+                    apt.`appointment_id`
+                FROM `activities` a
+                LEFT JOIN `act_def` ad ON a.act_id = activity_id
+                LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
+                LEFT JOIN `act_to_apt` ata ON a.act_inst_id = ata.act_inst_id
+                JOIN `appointments` apt ON apt.appointment_id = ata.appointment_id
+                WHERE a.user_id = (?) AND (a.deleted = 1 OR ad.deleted = 1 OR ed.deleted = 1 OR ed.cancelled = 1)";
+        parent::bufferParams($userid);
+        parent::query($sql);
+        $res = parent::getRows('appointment_id');
+        return $res;
+
+    }
+
     /**
      * =============================================
      * User activities
@@ -361,7 +384,7 @@ Class EventsDB extends Database {
      */
     public function storeAppointments($appointments) {
         foreach($appointments as $appointment) {
-            $this->bufferAppointment($clubevent);
+            $this->bufferAppointment($appointment);
         }
         $this->queryAppointments();
     }
@@ -371,10 +394,15 @@ Class EventsDB extends Database {
         if(empty($this->curEntries)) $this->retrieveAll_appointment_id();
         
         //Add the child to the designated array based on if it exists already in the database
-        if(in_array($activity->event_id, $this->curEntries)) {
-            $this->dupEntries[] = $activity;
+        if(!empty($this->curEntries)) {
+            if(in_array($activity['id'], $this->curEntries)) {
+                $this->dupEntries[] = $activity;
+            } else {
+                $this->newEntries[] = $activity;
+            }
         } else {
             $this->newEntries[] = $activity;
+
         }
     }
 
@@ -390,9 +418,10 @@ Class EventsDB extends Database {
                 SET agenda_id=(?)
                 WHERE user_id=(?) AND appointment_id=(?)";
         foreach($this->dupEntries as $act) {
-            parent::bufferParams($act->agenda_id, $userid, $act->appointment_id);
+            parent::bufferParams($act['id'], $userid, $act['agendaId']);
         }
         parent::query($sql);
+
 
         /**
          * Insert new activities
@@ -400,7 +429,7 @@ Class EventsDB extends Database {
         $sql = "INSERT INTO `appointments`(`user_id`, `appointment_id`, `agenda_id`)
                 VALUES (?,?,?)";
         foreach($this->newEntries as $act) {
-            parent::bufferParams($userid, $act->appointment_id, $act->agenda_id);
+            parent::bufferParams($userid, $act['id'], $act['agendaId']);
         }
         parent::query($sql);
 
@@ -429,13 +458,37 @@ Class EventsDB extends Database {
         $sql = "INSERT INTO `act_to_apt`(`user_id`, `act_inst_id`, `appointment_id`)
                 VALUES (?,?,?)";
         foreach($this->newEntries as $act) {
-            echo_pre($act);
             parent::bufferParams($userid, $act['act_id'], $act['evt_id']);
         }
         parent::query($sql);
 
         //Clear the existing activities array because it is now obsolete
         $this->clearBuffer();
+    }
+
+    function bufferObsoleteRelation($evtId)
+    {
+        $this->obsEntries[] = $evtId;
+    }
+
+    function queryRemoveRelations()
+    {
+            //Remove all obsolete appointments from the database
+            $userid = $this->session->getUserID();
+            $sql = "DELETE FROM `appointments` WHERE `user_id` = (?) AND `appointment_id` = (?)";
+            foreach($this->obsEntries as $act) {
+                parent::bufferParams($userid, $act);
+            }
+            parent::query($sql);
+
+            $sql = "DELETE FROM `act_to_apt` WHERE `user_id` = (?) AND `appointment_id` = (?)";
+            foreach($this->obsEntries as $act) {
+                parent::bufferParams($userid, $act);
+            }
+            parent::query($sql);
+    
+            //Clear the existing activities array because it is now obsolete
+            $this->clearBuffer();
     }
 
 
