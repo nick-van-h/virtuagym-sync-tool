@@ -4,8 +4,11 @@
 VST is a server side application to enable automated one way sync of VirtuaGym activities to your personal calendar.
 
 *Repo summary*
-
-![open-bugs](https://img.shields.io/github/issues-raw/nick-van-h/virtuagym-sync-tool/bug?label=Open%20bugs) ![unplanned-issues](https://img.shields.io/github/milestones/issues-open/nick-van-h/virtuagym-sync-tool/2?label=Unplanned%20issues) ![open-prs](https://badgen.net/github/open-prs/nick-van-h/virtuagym-sync-tool) ![last-commit](https://badgen.net/github/last-commit/nick-van-h/virtuagym-sync-tool/main) ![mvp](https://badgen.net/github/milestones/nick-van-h/virtuagym-sync-tool/1) ![release2](https://badgen.net/github/milestones/nick-van-h/virtuagym-sync-tool/3) ![license](https://badgen.net/github/license/nick-van-h/virtuagym-sync-tool)
+|        |        |
+|--------|--------|
+| Status | ![open-bugs](https://img.shields.io/github/issues-raw/nick-van-h/virtuagym-sync-tool/Cat.:Bug?color=orange&label=Open%20bugs) ![help-needed](https://img.shields.io/github/issues-raw/nick-van-h/virtuagym-sync-tool/!needHelp?color=red&label=Help%20needed) ![open-prs](https://badgen.net/github/open-prs/nick-van-h/virtuagym-sync-tool) ![last-commit](https://badgen.net/github/last-commit/nick-van-h/virtuagym-sync-tool/main) |
+| Progress | ![mvp](https://badgen.net/github/milestones/nick-van-h/virtuagym-sync-tool/1?color=purple) ![release2](https://badgen.net/github/milestones/nick-van-h/virtuagym-sync-tool/3?color=purple) ![unplanned-issues](https://img.shields.io/github/milestones/issues-open/nick-van-h/virtuagym-sync-tool/2?color=black&label=Unplanned%20issues) |
+| License | ![license](https://badgen.net/github/license/nick-van-h/virtuagym-sync-tool) |
 
 ## Documentation
 
