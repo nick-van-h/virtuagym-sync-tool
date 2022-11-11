@@ -99,6 +99,37 @@ function setFormStatusMessage(target, message) {
 }
 
 
+
+$(function () {
+    $("#manual-sync").click(function (ev) {
+        ev.preventDefault() // cancel form submission
+
+        //Show the loader
+        $(".dynamic-loader").addClass('loading');
+
+        //Do the AJAX request
+        $.ajax({
+            type: "POST",
+            url: rootPath + "../../interfaces/web/doManualSync.php",
+            beforeSend: function () { },
+            success: function (response) {
+                //Parse the received data
+                try {
+                    var data = JSON.parse(response);
+                } catch {
+                    console.log("Unable to parse JSON data: ");
+                    console.log(response);
+                    return;
+                }
+
+                //Reload the page
+                window.location.reload(false);
+            },
+        });
+    });
+});
+
+
 /**
  * Calendar set-up
  */

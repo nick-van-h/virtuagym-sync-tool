@@ -54,7 +54,7 @@ class Sync {
      * Test connections
      */
     public function testVgConnection($username = NULL, $password = NULL) {
-        return $this->vgapi->testConnection($username = NULL, $password = NULL);
+        return $this->vgapi->testConnection($username, $password);
     }
 
     public function getVgName($username = NULL, $password = NULL) {
@@ -65,6 +65,10 @@ class Sync {
         } else {
             return false;
         }
+    }
+
+    public function testCalendarConnection() {
+        return $this->cal->testConnection();
     }
 
     public function getLastVgMessage() {
@@ -163,15 +167,15 @@ class Sync {
     }
     
 
-    public function getAllStoredActivities() {
-        return $this->events->getAllJoined();
+    public function getAllStoredActivities($asc) {
+        return $this->events->getAllJoined($asc);
     }
     /**
      * Return the date of the last sync
      */
     function getLastSyncDate() {
-        //TODO: Implement
-        return 'Way too long ago';
+        $sync = $this->user->getLastSync();
+        return $sync;
     }
 
     private function getDates() {

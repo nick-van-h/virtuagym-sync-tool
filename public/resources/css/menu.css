@@ -8,6 +8,7 @@ nav.app {
     left: -240px;
     height: 100%;
     transition: all .5s ease;
+    max-width: 240px;
 
     background-color: var(--background-menu);
 }

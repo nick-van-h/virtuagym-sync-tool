@@ -122,3 +122,11 @@ header.app {
     margin-left: 15px;
     width: 100%;
 }
+
+/**
+* Home
+*/
+
+.status-summary {
+    max-width: 500px;
+}

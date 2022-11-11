@@ -35,12 +35,27 @@ Class EventsDB extends Database {
         return parent::getOne('timestamp');
     }
 
-    function getAllJoined() {
+    function getAllJoined($asc = null) {
         //Prepare variables
         $userid = $this->session->getUserID();
         $dt = new \DateTime();
         $dt->modify('-1 month');
         $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
+
+        //Determine sort, default = DESC
+        $ascdesc = ORDER_DESC;
+        if(isset($asc) && !empty($asc)) {
+            switch($asc) {
+                case ORDER_ASC:
+                    $ascdesc = ORDER_ASC;
+                    break;
+                case ORDER_DESC:
+                    $ascdesc = ORDER_DESC;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         //Query results
         $sql = "SELECT DISTINCT 
@@ -67,8 +82,12 @@ Class EventsDB extends Database {
                 FROM `activities` a
                 LEFT JOIN `act_def` ad ON a.act_id = activity_id
                 LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
-                WHERE a.user_id = (?) AND ed.event_start > (?)
-                ORDER BY ed.event_start DESC";
+                WHERE a.user_id = (?) AND ed.event_start > (?)";
+        if ($ascdesc == ORDER_ASC) {
+            $sql .= "ORDER BY ed.event_start ASC";
+        } else {
+            $sql .= "ORDER BY ed.event_start DESC";
+        }
         parent::bufferParams($userid, $mintimestamp);
         parent::query($sql);
         return parent::getRows();

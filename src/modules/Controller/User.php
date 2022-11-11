@@ -102,8 +102,8 @@ class User extends Database {
     public function setLastSync($dt) {
         $this->setSetting('virtuagym_last_sync', $dt);
     }
-    public function getLastSync($dt) {
-        $dt = $this->getSetting('virtuagym_last_sync');
+    public function getLastSync() {
+        $dt = $this->getSettingValue('virtuagym_last_sync');
         return $dt;
     }
 
