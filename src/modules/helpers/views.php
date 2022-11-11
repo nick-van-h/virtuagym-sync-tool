@@ -97,3 +97,8 @@ function get_vw_invalid_token()
 {
     include(BASE_PATH . '/src/templates/invalid_token.php');
 }
+
+function get_vw_loader()
+{
+    include(BASE_PATH . '/src/templates/parts/spinner_loading.php');
+}

@@ -60,10 +60,14 @@ Class Google implements CalendarInterface {
     public function testConnection()
     {
         /**
+         * First check if an agenda is set, if no agenda is set then the setup is not complete
          * Get the current access token from the client
          * If there is not a valid access token then the returned value will be empty
          * If an access token is returned then check if it is still valid
          */
+        if (!(isset($this->agenda) && !(empty($this->agenda)))) {
+            return false;
+        }
         $accessToken = $this->client->getAccessToken();
         if(!empty($accessToken)) {
             //TODO: Test for token expired via https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=xxx
@@ -124,8 +128,12 @@ Class Google implements CalendarInterface {
         try{
             $this->cal->events->delete($this->agendaId, $appointmentId);
         } catch (\Google\Service\Exception $e) {
-            echo('TODO: Store this output & implement proper error handling in code');
-            echo_pre($e,'error');
+            $msg = $e->getMessage();
+            //If the event is already removed from the calendar it is no problem, all other exceptions need to be addressed though
+            if($msg != 'Resource has been deleted') {
+                echo('TODO: Store this output & implement proper error handling in code');
+                echo_pre($e,'error');
+            }
         }
     }
 
