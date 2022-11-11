@@ -10,6 +10,8 @@ nav.app {
     transition: all .5s ease;
     max-width: 240px;
 
+    z-index: 100;
+
     background-color: var(--background-menu);
 }
 
@@ -84,7 +86,7 @@ label #cancel {
     color: var(--text);
     border-radius: 5px;
     border: 1px solid #262626;
-    margin: 15px 30px;
+    margin: 15px 20px;
     font-size: 29px;
     background: #262626;
     height: 45px;
@@ -92,6 +94,7 @@ label #cancel {
     text-align: center;
     line-height: 45px;
     transition: all .5s ease;
+    z-index: 100;
 }
 
 label #cancel {

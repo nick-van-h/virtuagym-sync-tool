@@ -141,7 +141,7 @@ form.settings {
 }
 
 form.settings fieldset {
-    width: 600px;
+    max-width: 600px;
 }
 
 form.settings .status-message {
