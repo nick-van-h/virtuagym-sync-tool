@@ -6,7 +6,8 @@ use Vst\Controller\User;
 use Vst\Controller\Session;
 use Vst\Controller\EventsDB;
 
-class VGAPI {
+class VGAPI
+{
     private $username;
     private $password;
     private $apiKey;
@@ -14,7 +15,7 @@ class VGAPI {
     private $statuscode;
     private $statusmessage;
     private $data;
-    
+
     private $user;
     private $crypt;
     private $session;
@@ -25,7 +26,8 @@ class VGAPI {
     private const STATUS_OK = '200';
     private const EXCEED_REQUESTS = 'Too many API requests.';
 
-    public function __construct($apikey, $username, $password){
+    public function __construct($apikey, $username, $password)
+    {
         //Set the config parameters
         $this->apiKey = $apikey;
         $this->username = $username;
@@ -38,23 +40,28 @@ class VGAPI {
     /**
      * Generic interfaces
      */
-    public function getLastStatusCode() {
+    public function getLastStatusCode()
+    {
         return $this->statuscode;
     }
-    public function getLastStatusMessage() {
+    public function getLastStatusMessage()
+    {
         return $this->statusmessage;
     }
-    public function getLastResultCount() {
+    public function getLastResultCount()
+    {
         return $this->resultcount;
     }
-    public function getLastData() {
+    public function getLastData()
+    {
         return $this->data;
     }
 
     /**
      * Test if the connection and credentials are working properly
      */
-    public function testConnection($username = '', $password = '') {
+    public function testConnection($username = '', $password = '')
+    {
         if (!empty($username)) $this->username = $username;
         if (!empty($password)) $this->password = $password;
         $this->log->addEvent('VirtuaGym', 'Testing credentials');
@@ -69,7 +76,8 @@ class VGAPI {
     /**
      * Specific calls
      */
-    public function getActivities() {
+    public function getActivities()
+    {
         //Init data array to be returned by the function
         $data = [];
 
@@ -80,15 +88,18 @@ class VGAPI {
         //Store all activities less than one month old in the data array
         $dt = new \DateTime();
         $earliest = strtotime($dt->modify('-1 month')->modify('-1 day')->format('Y-m-d') . ' 00:00:00');
-        foreach($this->data as $activity) {
-            if($activity->timestamp >= $earliest) $data[] = $activity;
+        if (isset($this->data) && !empty($this->data)) {
+            foreach ($this->data as $activity) {
+                if ($activity->timestamp >= $earliest) $data[] = $activity;
+            }
         }
 
         //Return the final data array
         return $data;
     }
 
-    public function getClubIds() {
+    public function getClubIds()
+    {
         //Init data array to be returned by the function
         $data = [];
 
@@ -105,12 +116,13 @@ class VGAPI {
         return $data;
     }
 
-    public function getActivityDefinitions($clubs) {
+    public function getActivityDefinitions($clubs)
+    {
         //Init data array to be returned by the function
         $data = [];
 
         //Loop through clubs
-        foreach($clubs as $club) {
+        foreach ($clubs as $club) {
             //Make the call to get the activities for that club
             $path = 'club/' . $club . '/activity/definition';
             $this->call($path);
@@ -125,13 +137,14 @@ class VGAPI {
         return $data;
     }
 
-    public function getEventDefinitions($clubs, $dates) {
+    public function getEventDefinitions($clubs, $dates)
+    {
         //Init data array to be returned by the function
         $data = [];
 
         //Loop through clubs, then loop through the date range
-        foreach($clubs as $club) {
-            foreach($dates as $dt) {
+        foreach ($clubs as $club) {
+            foreach ($dates as $dt) {
                 //Make the call to get the club events for that month
                 $path = 'club/' . $club . '/event/' . $dt;
                 $this->call($path);
@@ -151,16 +164,18 @@ class VGAPI {
     /**
      * Returns true if the call status is OK and there is at least one result row returned
      */
-    private function hasResults() {
+    private function hasResults()
+    {
         return $this->statuscode == self::STATUS_OK && $this->resultcount;
     }
 
     /**
      * Generic caller
      */
-    private function call($path) {
+    private function call($path)
+    {
         $url = self::API_URL . '/' . $path . '?api_key=' . $this->apiKey;
-        $this->log->addApiCall('VirtuaGym', 'Requested '. self::API_URL . '/' . $path);
+        $this->log->addApiCall('VirtuaGym', 'Requested ' . self::API_URL . '/' . $path);
         try {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -169,17 +184,15 @@ class VGAPI {
             $reply = curl_exec($ch);
             curl_close($ch);
         } catch (Exception $e) {
-            echo('Exit with message: ' . $e->getMessage());
+            echo ('Exit with message: ' . $e->getMessage());
             $this->log->addWarning('API-call', 'Call to ' . self::API_URL . '/' . $path . ' failed with message: ' . $e->getMessage());
         }
         $result = json_decode($reply);
         $this->statuscode = $result->statuscode;
         $this->statusmessage = $result->statusmessage;
         $this->resultcount = $result->result_count;
-        if($this->resultcount) {
+        if ($this->resultcount) {
             $this->data = $result->result;
         }
     }
-
-
 }
