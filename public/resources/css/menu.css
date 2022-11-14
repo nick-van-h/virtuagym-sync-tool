@@ -7,7 +7,7 @@ nav.app {
     flex: 0 0 240px;
     left: -240px;
     height: 100%;
-    transition: all .5s ease;
+    transition: all 0.5s ease;
     max-width: 240px;
 
     z-index: 100;
@@ -93,7 +93,7 @@ label #cancel {
     width: 45px;
     text-align: center;
     line-height: 45px;
-    transition: all .5s ease;
+    transition: all 0.5s ease;
     z-index: 100;
 }
 
@@ -118,7 +118,7 @@ label #cancel {
     visibility: visible;
 }
 
-@media(min-width : 860px) {
+@media (min-width: 860px) {
     nav.app {
         position: relative;
         left: 0;

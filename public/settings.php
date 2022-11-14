@@ -19,10 +19,11 @@ get_vw_head_end();
 
 //Site content
 get_vw_nav();
-echo('<div class="app_outer">');
+get_vw_changelog();
+echo ('<div class="app_outer">');
 get_vw_app_header();
 get_vw_settings();
-echo('</div>');
+echo ('</div>');
 
 //Foot
 get_vw_foot();

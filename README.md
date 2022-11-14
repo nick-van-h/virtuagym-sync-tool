@@ -1,10 +1,11 @@
 ![vst-logo](https://cdn.rawgit.com/nick-van-h/virtuagym-sync-tool/master/public/resources/img/main_logo_alt.png)
 
 # What is Virtuagym Sync Tool?
+
 VST is a server side application to enable automated one way sync of VirtuaGym activities to your personal calendar.
 
-*Repo summary*
-|        |        |
+_Repo summary_
+| | |
 |--------|--------|
 | Status | ![open-bugs](https://img.shields.io/github/issues-raw/nick-van-h/virtuagym-sync-tool/Cat.:Bug?color=orange&label=Open%20bugs) ![help-needed](https://img.shields.io/github/issues-raw/nick-van-h/virtuagym-sync-tool/!needHelp?color=red&label=Help%20needed) ![open-prs](https://badgen.net/github/open-prs/nick-van-h/virtuagym-sync-tool) ![last-commit](https://badgen.net/github/last-commit/nick-van-h/virtuagym-sync-tool/main) |
 | Progress | ![mvp](https://badgen.net/github/milestones/nick-van-h/virtuagym-sync-tool/1?color=purple) ![release2](https://badgen.net/github/milestones/nick-van-h/virtuagym-sync-tool/3?color=purple) ![unplanned-issues](https://img.shields.io/github/milestones/issues-open/nick-van-h/virtuagym-sync-tool/2?color=black&label=Unplanned%20issues) |
@@ -12,7 +13,7 @@ VST is a server side application to enable automated one way sync of VirtuaGym a
 
 ## Documentation
 
-Head over to the [docs](docs) folder where the basic project set-up is explained.
+Head over to the [docs](docs) folder where the basic project set-up is explained. The user-friendly changelog can be found under [config/changelog.json](config/changelog.json)
 
 ## Contributing
 
@@ -31,7 +32,6 @@ Color palettes:
 [Logo](https://colorkit.co/color-palette-generator/0F1F29-5291a2-196f54/)
 [Green scale](https://colorkit.co/color-palette-generator/fcfcfc-51846c-175c3b-0c2e1e/)
 [Blue scale](https://colorkit.co/color-palette-generator/1a5d90-227cbf-5191a2-196f54/)
-
 
 Reference palettes:
 [Black scale](https://colorkit.co/color-palette-generator/00010D-202326-35373a-494b4d-6d6e6f-d7d7d9-e3e4e6-fcfcfc/)

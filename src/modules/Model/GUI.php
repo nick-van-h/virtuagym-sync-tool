@@ -2,47 +2,50 @@
 
 namespace Vst\Model;
 
-class GUI {
-    private $changeLog;
+class GUI
+{
+    private $changelog;
 
-    public __construct() {
+    public function __construct()
+    {
         $this->changelog = getChangelog();
     }
-    
-    
-    function getChangelog($lastVisitedVersion) {
+
+
+    function getChangelog($lastVisitedVersion = null)
+    {
         $changelog = '';
 
-        foreach($this->changelog as $version) {
-            //Release summary
-            $changelog .= $version . ' (' . $version->released . ')/n';
-        }
-        $input = fopen(README, 'r');
-        $lastVersion = null;
+        foreach ($this->changelog as $version => $change) {
+            if (($version > $lastVisitedVersion || is_null($lastVisitedVersion)) && $version != CHANGELOG_VERSION_UPCOMING) {
+                //Version + date & summary
+                $changelog .= '<h2>' . $version . ' (' . $change->released . ')</h2>';
+                $changelog .= '<p>' . $change->summary . '<p>';
 
-        while (!feof($input)) {
-            $line = fgets($input);
-
-            /**
-             * Check if current line item contains a version number
-             * If version is last visited version don't look any further
-             */
-            if (pgreg_match('/[' . CHANGELOG_VERSION_START . ']/', $input)) {
-                $lastVersion = $curVersion;
-                $curVersion = preg_match('/[%]/', $input);
-            }
-            if ($curVersion ==$lastVisitedVersion) break;
-
-            /**
-             * Add the line item to the changelog summary
-             */
-            if (!isnull($lastVersion) && $lastVersion <> CHANGELOG_VERSION_UPCOMING) {
-                $changelog .= $line . '/n';
+                //Sum changes for that version
+                foreach ($change as $key => $val) {
+                    if (is_array($val)) {
+                        $changelog .= '<h3>' . ucfirst($key) . '</h3>';
+                        $changelog .= '<ul>';
+                        foreach ($val as $item) {
+                            $changelog .= '<li>' . $item . '</li>';
+                        }
+                        $changelog .= '</ul>';
+                    }
+                }
             }
         }
+        return $changelog;
+    }
 
-        //Close the file
-
-        return $changelog
+    function getLatestReleasedVersion()
+    {
+        $latestVersion = '1.0.0';
+        foreach ($this->changelog as $version => $change) {
+            if ($version != CHANGELOG_VERSION_UPCOMING) {
+                $latestVersion = ($version > $latestVersion) ? $version : $latestVersion;
+            }
+        }
+        return $latestVersion;
     }
 }

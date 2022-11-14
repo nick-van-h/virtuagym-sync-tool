@@ -11,9 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
 const BASE_PATH = __DIR__ . '/..';
 
 //Changelog
-const CHANGELOG_FILE = BASE_PATH . '/config/CHANGELOG.md';
-const CHANGELOG_VERSION_START = '## [';
-const CHANGELOG_VERSION_END = ']';
+const CHANGELOG_FILE = BASE_PATH . '/config/changelog.json';
 const CHANGELOG_VERSION_UPCOMING = 'Upcoming';
 
 //Providers must match Vst\ControllerCalendar\ class name

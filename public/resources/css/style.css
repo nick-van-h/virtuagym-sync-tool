@@ -14,6 +14,7 @@
     --background-table: #0d1a22;
     --background-table-alt: #0F1F29;
     --background-table-accent: #0a151b;
+    --background-modal-outer: #00000080;
 
     --border: #5191a2;
     --text: #dfe1e2;
@@ -84,23 +85,23 @@ h2 {
 }
 
 h3 {
-    font-size: 1.17em;
+    font-size: 1.35em;
     line-height: 1.8rem;
     margin-top: 0.6rem;
 }
 
 h4 {
-    font-size: 1.12em;
+    font-size: 1.2em;
     line-height: 1.7rem;
     margin-top: 0.5rem;
 }
 
 h5 {
-    font-size: 0.83em;
+    font-size: 1.1em;
 }
 
 h6 {
-    font-size: 0.75em;
+    font-size: 1em;
 }
 
 a,

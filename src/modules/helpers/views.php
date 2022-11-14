@@ -6,9 +6,9 @@
  * =========================
  */
 
- /**
-  * Document layout
-  */
+/**
+ * Document layout
+ */
 
 function get_vw_head_start()
 {
@@ -80,7 +80,7 @@ function get_vw_settings()
 
 function get_vw_settings_calendar()
 {
-    include (BASE_PATH . '/src/templates/parts/settings_calendar_google.php');
+    include(BASE_PATH . '/src/templates/parts/settings_calendar_google.php');
 }
 
 function get_vw_debug()
@@ -88,7 +88,7 @@ function get_vw_debug()
     include(BASE_PATH . '/src/templates/debug.php');
 }
 
-function get_vw_pw_reset() 
+function get_vw_pw_reset()
 {
     include(BASE_PATH . '/src/templates/pwreset.php');
 }
@@ -101,4 +101,9 @@ function get_vw_invalid_token()
 function get_vw_loader()
 {
     include(BASE_PATH . '/src/templates/parts/spinner_loading.php');
+}
+
+function get_vw_changelog()
+{
+    include(BASE_PATH . '/src/templates/parts/changelog.php');
 }
