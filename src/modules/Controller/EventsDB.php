@@ -332,7 +332,7 @@ class EventsDB extends Database
          */
         $sql = "UPDATE evt_def
                 SET activity_id=(?), event_start=(?), event_end=(?), attendees=(?), max_attendees=(?), joined=(?), deleted=(?), cancelled=(?), bookable_from=(?)
-                WHERE AND event_id=(?)";
+                WHERE event_id=(?)";
         foreach ($this->dupEntries as $act) {
             parent::bufferParams($act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp, $act->event_id);
         }
@@ -549,9 +549,7 @@ class EventsDB extends Database
     {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `activity_id`
-                FROM act_def
-                WHERE user_id = (?)";
-        parent::bufferParams($userid);
+                FROM act_def";
         parent::query($sql);
         $this->curEntries = parent::getRows('activity_id');
     }
@@ -560,9 +558,7 @@ class EventsDB extends Database
     {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `event_id`
-                FROM evt_def
-                WHERE user_id = (?)";
-        parent::bufferParams($userid);
+                FROM evt_def";
         parent::query($sql);
         $this->curEntries = parent::getRows('event_id');
     }

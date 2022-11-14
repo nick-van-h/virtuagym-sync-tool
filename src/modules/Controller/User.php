@@ -241,6 +241,19 @@ class User extends Database
     }
 
     /**
+     * Get userid of user with earliest last sync date (i.e. who had the most time between syncs)
+     */
+    function getAllUserIds_orderedByLastSync()
+    {
+        $sql = "SELECT `user_id`, `setting_name`
+                FROM settings
+                WHERE `setting_name` = 'virtuagym_last_sync'
+                ORDER BY `value_str` ASC";
+        parent::query($sql);
+        return (parent::getRows('user_id'));
+    }
+
+    /**
      * Generic private functions for getting & setting settings
      */
     private function getSettingValue($setting_name)

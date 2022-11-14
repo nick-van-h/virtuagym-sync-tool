@@ -2,10 +2,16 @@
     "Upcoming": {
         "released": "Not yet released",
         "summary": "These functionalities are currently being developed",
+        "allowed-categories": [
+            "added", "changed", "deprecated", "removed", "fixed", "security"
+        ],
         "added": [
             "Changelog",
             "Manual sync button on homepage",
             "Connection status summary on homepage"
+        ],
+        "fixed": [
+            "Enable AutoSync for all users"
         ]
     },
     "1.0.0": {
