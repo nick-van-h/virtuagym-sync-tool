@@ -1,0 +1,15 @@
+{
+    "1.0.0": {
+        "Released": ["2022-11-10"],
+        "Summary": [
+            "Initial release with basic sync functionality"
+        ],
+        "Added": [
+            "Basic GUI",
+            "Read VirtuaGym events",
+            "Set up Google calendar as calendar provider",
+            "Add new events to the calendar",
+            "Remove cancelled events from the calendar"
+        ]
+    }
+}

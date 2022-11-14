@@ -188,6 +188,16 @@ class User extends Database {
     }
 
     /**
+     * Last visited version
+     */
+    function getLastVisitedVersion() {
+        $this->getSettingValue('last_visited_version');
+    }
+    function setLastVisitedVersion($version) {
+        $this->setSetting('last_visited_version', $version);
+    }
+
+    /**
      * Specific: get username from password reset token
      */
     function getUsernameFromToken($token) {
