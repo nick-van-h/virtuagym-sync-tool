@@ -5,7 +5,8 @@ namespace Vst\Controller;
 use Vst\Controller\Database;
 use Vst\Controller\Session;
 
-Class EventsDB extends Database {
+class EventsDB extends Database
+{
 
     private $newEntries;
     private $dupEntries;
@@ -13,7 +14,8 @@ Class EventsDB extends Database {
 
     private $session;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->clearBuffer();
 
@@ -25,7 +27,8 @@ Class EventsDB extends Database {
      * Generic getters
      * =============================================
      */
-    public function getLatestActivityTimestamp() {
+    public function getLatestActivityTimestamp()
+    {
         $userid = $this->session->getUserID();
         $sql = "SELECT MAX(`timestamp`) as `timestamp`
                 FROM activities
@@ -35,7 +38,8 @@ Class EventsDB extends Database {
         return parent::getOne('timestamp');
     }
 
-    function getAllJoined($asc = null) {
+    function getAllJoined($asc = null)
+    {
         //Prepare variables
         $userid = $this->session->getUserID();
         $dt = new \DateTime();
@@ -44,8 +48,8 @@ Class EventsDB extends Database {
 
         //Determine sort, default = DESC
         $ascdesc = ORDER_DESC;
-        if(isset($asc) && !empty($asc)) {
-            switch($asc) {
+        if (isset($asc) && !empty($asc)) {
+            switch ($asc) {
                 case ORDER_ASC:
                     $ascdesc = ORDER_ASC;
                     break;
@@ -96,7 +100,8 @@ Class EventsDB extends Database {
     /**
      * Get a list of activities which do not have an activity:calendar link
      */
-    function getUnsyncedActivities() {
+    function getUnsyncedActivities()
+    {
         //Prepare variables
         $userid = $this->session->getUserID();
         $dt = new \DateTime();
@@ -136,7 +141,8 @@ Class EventsDB extends Database {
         return parent::getRows();
     }
 
-    function getObsoleteActivities() {
+    function getObsoleteActivities()
+    {
         //Prepare variables
         $userid = $this->session->getUserID();
         $dt = new \DateTime();
@@ -156,7 +162,6 @@ Class EventsDB extends Database {
         parent::query($sql);
         $res = parent::getRows('appointment_id');
         return $res;
-
     }
 
     /**
@@ -164,27 +169,30 @@ Class EventsDB extends Database {
      * User activities
      * =============================================
      */
-    public function storeActivities($activities) {
-        foreach($activities as $activity) {
+    public function storeActivities($activities)
+    {
+        foreach ($activities as $activity) {
             $this->bufferActivity($activity);
         }
         //Query the buffer to the database
         $this->queryActivities();
     }
 
-    public function bufferActivity($activity) {
+    public function bufferActivity($activity)
+    {
         //Get the full list of existing activities from the server if not yet set
-        if(empty($this->curEntries)) $this->retrieveAll_act_inst_id();
+        if (empty($this->curEntries)) $this->retrieveAll_act_inst_id();
 
         //Add the child to the designated array based on if it exists already in the database
-        if(in_array($activity->act_inst_id, $this->curEntries)) {
+        if (in_array($activity->act_inst_id, $this->curEntries)) {
             $this->dupEntries[] = $activity;
         } else {
             $this->newEntries[] = $activity;
         }
     }
 
-    public function queryActivities() {
+    public function queryActivities()
+    {
         //Prepare variables
         $userid = $this->session->getUserID();
         $success = true;
@@ -195,7 +203,7 @@ Class EventsDB extends Database {
         $sql = "UPDATE activities
                 SET done=(?), deleted=(?), act_id=(?), event_id=(?), timestamp=(?)
                 WHERE user_id=(?) AND act_inst_id=(?)";
-        foreach($this->dupEntries as $act) {
+        foreach ($this->dupEntries as $act) {
             parent::bufferParams($act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp, $userid, $act->act_inst_id);
         }
         parent::query($sql);
@@ -206,7 +214,7 @@ Class EventsDB extends Database {
          */
         $sql = "INSERT INTO activities (`user_id`, `act_inst_id`, `done`, `deleted`, `act_id`, `event_id`, `timestamp`)
                 VALUES (?,?,?,?,?,?,?)";
-        foreach($this->newEntries as $act) {
+        foreach ($this->newEntries as $act) {
             parent::bufferParams($userid, $act->act_inst_id, $act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp);
         }
         parent::query($sql);
@@ -224,9 +232,10 @@ Class EventsDB extends Database {
      * Activity definitions
      * =============================================
      */
-    public function storeActivityDefinitions($activities) {
-        foreach($activities as $clubactivities) {
-            foreach($clubactivities as $clubactivity) {
+    public function storeActivityDefinitions($activities)
+    {
+        foreach ($activities as $clubactivities) {
+            foreach ($clubactivities as $clubactivity) {
                 $this->bufferActDef($clubactivity);
             }
         }
@@ -234,19 +243,21 @@ Class EventsDB extends Database {
         $this->queryActDef();
     }
 
-    public function bufferActDef($activity) {
+    public function bufferActDef($activity)
+    {
         //Get the full list of existing activities from the server if not yet set
-        if(empty($this->curEntries)) $this->retrieveAll_activity_id();
+        if (empty($this->curEntries)) $this->retrieveAll_activity_id();
 
         //Add the child to the designated array based on if it exists already in the database
-        if(in_array($activity->id, $this->curEntries)) {
+        if (in_array($activity->id, $this->curEntries)) {
             $this->dupEntries[] = $activity;
         } else {
             $this->newEntries[] = $activity;
         }
     }
 
-    public function queryActDef() {
+    public function queryActDef()
+    {
         //Prepare variables
         $userid = $this->session->getUserID();
         $success = true;
@@ -256,21 +267,21 @@ Class EventsDB extends Database {
          */
         $sql = "UPDATE act_def
                 SET `name`=(?), `deleted`=(?), `club_id`=(?), `duration`=(?)
-                WHERE `user_id`=(?) AND `activity_id`=(?)";
+                WHERE `activity_id`=(?)";
         $stmt = $this->db->prepare($sql);
-        foreach($this->dupEntries as $act) {
-            parent::bufferParams($act->name, $act->deleted, $act->club_id, $act->duration, $userid, $act->id);
+        foreach ($this->dupEntries as $act) {
+            parent::bufferParams($act->name, $act->deleted, $act->club_id, $act->duration, $act->id);
         }
         parent::query($sql);
 
         /**
          * Insert new activities
          */
-        $sql = "INSERT INTO act_def (`user_id`, `activity_id`, `name`, `deleted`, `club_id`, `duration`)
-                VALUES (?,?,?,?,?,?)";
+        $sql = "INSERT INTO act_def (`activity_id`, `name`, `deleted`, `club_id`, `duration`)
+                VALUES (?,?,?,?,?)";
         $stmt = $this->db->prepare($sql);
-        foreach($this->newEntries as $act) {
-            parent::bufferParams($userid, $act->activity_id, $act->name, $act->deleted, $act->club_id, $act->duration);
+        foreach ($this->newEntries as $act) {
+            parent::bufferParams($act->activity_id, $act->name, $act->deleted, $act->club_id, $act->duration);
         }
         parent::query($sql);
 
@@ -287,28 +298,31 @@ Class EventsDB extends Database {
      * Event definitions
      * =============================================
      */
-    public function storeEventDefinitions($events) {
-        foreach($events as $clubevents) {
-            foreach($clubevents as $clubevent) {
+    public function storeEventDefinitions($events)
+    {
+        foreach ($events as $clubevents) {
+            foreach ($clubevents as $clubevent) {
                 $this->bufferEvtDef($clubevent);
             }
         }
         $this->queryEvtDef();
     }
 
-    public function bufferEvtDef($activity) {
+    public function bufferEvtDef($activity)
+    {
         //Get the full list of existing activities from the server if not yet set
-        if(empty($this->curEntries)) $this->retrieveAll_event_id();
-        
+        if (empty($this->curEntries)) $this->retrieveAll_event_id();
+
         //Add the child to the designated array based on if it exists already in the database
-        if(in_array($activity->event_id, $this->curEntries)) {
+        if (in_array($activity->event_id, $this->curEntries)) {
             $this->dupEntries[] = $activity;
         } else {
             $this->newEntries[] = $activity;
         }
     }
 
-    public function queryEvtDef() {
+    public function queryEvtDef()
+    {
         //Prepare variables
         $userid = $this->session->getUserID();
         $success = true;
@@ -318,19 +332,19 @@ Class EventsDB extends Database {
          */
         $sql = "UPDATE evt_def
                 SET activity_id=(?), event_start=(?), event_end=(?), attendees=(?), max_attendees=(?), joined=(?), deleted=(?), cancelled=(?), bookable_from=(?)
-                WHERE user_id=(?) AND event_id=(?)";
-        foreach($this->dupEntries as $act) {
-            parent::bufferParams($act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp, $userid, $act->event_id);
+                WHERE AND event_id=(?)";
+        foreach ($this->dupEntries as $act) {
+            parent::bufferParams($act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp, $act->event_id);
         }
         parent::query($sql);
 
         /**
          * Insert new activities
          */
-        $sql = "INSERT INTO `evt_def`(`user_id`, `event_id`, `activity_id`, `event_start`, `event_end`, `attendees`, `max_attendees`, `joined`, `deleted`, `cancelled`, `bookable_from`)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-        foreach($this->newEntries as $act) {
-            parent::bufferParams($userid, $act->event_id, $act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp);
+        $sql = "INSERT INTO `evt_def`(`event_id`, `activity_id`, `event_start`, `event_end`, `attendees`, `max_attendees`, `joined`, `deleted`, `cancelled`, `bookable_from`)
+                VALUES (?,?,?,?,?,?,?,?,?,?)";
+        foreach ($this->newEntries as $act) {
+            parent::bufferParams($act->event_id, $act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp);
         }
         parent::query($sql);
 
@@ -340,14 +354,15 @@ Class EventsDB extends Database {
         //Return the query status
         return $success;
     }
-    
+
 
     /**
      * =============================================
      * Clubs
      * =============================================
      */
-    function storeClubs($clubs) {
+    function storeClubs($clubs)
+    {
         //Generic variables
         $userid = $this->session->getUserID();
 
@@ -355,38 +370,39 @@ Class EventsDB extends Database {
         $curClubs = $this->getClubs();
         $obsClubs = [];
         $newClubs = [];
-        if(!empty($curClubs) && $curClubs) {
-            foreach($clubs as $club) {
-                if(!in_array($club, $curClubs)) {
+        if (!empty($curClubs) && $curClubs) {
+            foreach ($clubs as $club) {
+                if (!in_array($club, $curClubs)) {
                     $newClubs[] = $club;
                 }
             }
-            foreach($curClubs as $club) {
-                if(!in_array($club, $clubs)) {
+            foreach ($curClubs as $club) {
+                if (!in_array($club, $clubs)) {
                     $obsClubs[] = $club;
                 }
             }
         } else {
             $newClubs = $clubs;
         }
-        
+
         //Store new clubs
         $sql = "INSERT INTO clubs (`user_id`, `club_id`)
                 VALUES (?,?)";
-        foreach($newClubs as $club) {
+        foreach ($newClubs as $club) {
             parent::bufferParams($userid, $club);
         }
         parent::query($sql);
 
         //Delete obsolete clubs
         $sql = "DELETE FROM `clubs` WHERE `user_id`=(?) AND `club_id`=(?)";
-        foreach($obsClubs as $club) {
+        foreach ($obsClubs as $club) {
             parent::bufferParams($userid, $club);
         }
         parent::query($sql);
     }
 
-    function getClubs() {
+    function getClubs()
+    {
         $userid = $this->session->getUserID();
         $sql = "SELECT club_id
                 FROM clubs
@@ -401,31 +417,33 @@ Class EventsDB extends Database {
      * Appointments
      * =============================================
      */
-    public function storeAppointments($appointments) {
-        foreach($appointments as $appointment) {
+    public function storeAppointments($appointments)
+    {
+        foreach ($appointments as $appointment) {
             $this->bufferAppointment($appointment);
         }
         $this->queryAppointments();
     }
 
-    public function bufferAppointment($activity) {
+    public function bufferAppointment($activity)
+    {
         //Get the full list of existing activities from the server if not yet set
-        if(empty($this->curEntries)) $this->retrieveAll_appointment_id();
-        
+        if (empty($this->curEntries)) $this->retrieveAll_appointment_id();
+
         //Add the child to the designated array based on if it exists already in the database
-        if(!empty($this->curEntries)) {
-            if(in_array($activity['id'], $this->curEntries)) {
+        if (!empty($this->curEntries)) {
+            if (in_array($activity['id'], $this->curEntries)) {
                 $this->dupEntries[] = $activity;
             } else {
                 $this->newEntries[] = $activity;
             }
         } else {
             $this->newEntries[] = $activity;
-
         }
     }
 
-    public function queryAppointments() {
+    public function queryAppointments()
+    {
         //Prepare variables
         $userid = $this->session->getUserID();
         $success = true;
@@ -436,7 +454,7 @@ Class EventsDB extends Database {
         $sql = "UPDATE appointments
                 SET agenda_id=(?)
                 WHERE user_id=(?) AND appointment_id=(?)";
-        foreach($this->dupEntries as $act) {
+        foreach ($this->dupEntries as $act) {
             parent::bufferParams($act['id'], $userid, $act['agendaId']);
         }
         parent::query($sql);
@@ -447,7 +465,7 @@ Class EventsDB extends Database {
          */
         $sql = "INSERT INTO `appointments`(`user_id`, `appointment_id`, `agenda_id`)
                 VALUES (?,?,?)";
-        foreach($this->newEntries as $act) {
+        foreach ($this->newEntries as $act) {
             parent::bufferParams($userid, $act['id'], $act['agendaId']);
         }
         parent::query($sql);
@@ -469,14 +487,14 @@ Class EventsDB extends Database {
             'evt_id' => $evtId
         );
     }
-    
+
     function queryRelations()
     {
         //Add all new entries to the database
         $userid = $this->session->getUserID();
         $sql = "INSERT INTO `act_to_apt`(`user_id`, `act_inst_id`, `appointment_id`)
                 VALUES (?,?,?)";
-        foreach($this->newEntries as $act) {
+        foreach ($this->newEntries as $act) {
             parent::bufferParams($userid, $act['act_id'], $act['evt_id']);
         }
         parent::query($sql);
@@ -492,22 +510,22 @@ Class EventsDB extends Database {
 
     function queryRemoveRelations()
     {
-            //Remove all obsolete appointments from the database
-            $userid = $this->session->getUserID();
-            $sql = "DELETE FROM `appointments` WHERE `user_id` = (?) AND `appointment_id` = (?)";
-            foreach($this->obsEntries as $act) {
-                parent::bufferParams($userid, $act);
-            }
-            parent::query($sql);
+        //Remove all obsolete appointments from the database
+        $userid = $this->session->getUserID();
+        $sql = "DELETE FROM `appointments` WHERE `user_id` = (?) AND `appointment_id` = (?)";
+        foreach ($this->obsEntries as $act) {
+            parent::bufferParams($userid, $act);
+        }
+        parent::query($sql);
 
-            $sql = "DELETE FROM `act_to_apt` WHERE `user_id` = (?) AND `appointment_id` = (?)";
-            foreach($this->obsEntries as $act) {
-                parent::bufferParams($userid, $act);
-            }
-            parent::query($sql);
-    
-            //Clear the existing activities array because it is now obsolete
-            $this->clearBuffer();
+        $sql = "DELETE FROM `act_to_apt` WHERE `user_id` = (?) AND `appointment_id` = (?)";
+        foreach ($this->obsEntries as $act) {
+            parent::bufferParams($userid, $act);
+        }
+        parent::query($sql);
+
+        //Clear the existing activities array because it is now obsolete
+        $this->clearBuffer();
     }
 
 
@@ -516,7 +534,8 @@ Class EventsDB extends Database {
      * Private helpers
      * =============================================
      */
-    private function retrieveAll_act_inst_id() {
+    private function retrieveAll_act_inst_id()
+    {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `act_inst_id`
                 FROM activities
@@ -526,7 +545,8 @@ Class EventsDB extends Database {
         $this->curEntries = parent::getRows('act_inst_id');
     }
 
-    private function retrieveAll_activity_id() {
+    private function retrieveAll_activity_id()
+    {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `activity_id`
                 FROM act_def
@@ -536,7 +556,8 @@ Class EventsDB extends Database {
         $this->curEntries = parent::getRows('activity_id');
     }
 
-    private function retrieveAll_event_id() {
+    private function retrieveAll_event_id()
+    {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `event_id`
                 FROM evt_def
@@ -545,8 +566,9 @@ Class EventsDB extends Database {
         parent::query($sql);
         $this->curEntries = parent::getRows('event_id');
     }
-    
-    private function retrieveAll_appointment_id() {
+
+    private function retrieveAll_appointment_id()
+    {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `appointment_id`
                 FROM appointments
@@ -556,7 +578,8 @@ Class EventsDB extends Database {
         $this->curEntries = parent::getRows('appointment_id');
     }
 
-    private function clearBuffer() {
+    private function clearBuffer()
+    {
         $this->newEntries = [];
         $this->dupEntries = [];
         $this->curEntries = [];
