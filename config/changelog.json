@@ -1,0 +1,22 @@
+{
+    "Upcoming": {
+        "released": "Not yet released",
+        "summary": "These functionalities are currently being developed",
+        "added": [
+            "Changelog",
+            "Manual sync button on homepage",
+            "Connection status summary on homepage"
+        ]
+    },
+    "1.0.0": {
+        "released": "2022-11-10",
+        "summary": "Initial release with basic sync functionality",
+        "added": [
+            "Basic GUI",
+            "Read VirtuaGym activities",
+            "Google Calendar as calendar provider",
+            "Add new activities to the calendar",
+            "Remove cancelled activities from the calendar"
+        ]
+    }
+}

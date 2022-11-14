@@ -82,6 +82,17 @@ function getGoogleOauth()
     }
 }
 
+function getChangelog()
+{
+    $file = getFile(CHANGELOG_FILE);
+    if($file) {
+        return json_decode(file_get_contents($file));
+    } else {
+        throw new Exception('Unable to read config file', 100);
+        return false;
+    }
+}
+
 /**
  * Echos a newline
  */

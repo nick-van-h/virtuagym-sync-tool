@@ -41,6 +41,12 @@ $(function () {
 });
 
 $(function () {
+    $(".modal-close").click(function () {
+        $(this).closest(".modal-outer").remove();
+    });
+});
+
+$(function () {
     $("#settings-calendar button").click(function (ev) {
         ev.preventDefault() // cancel form submission
         //Get form data

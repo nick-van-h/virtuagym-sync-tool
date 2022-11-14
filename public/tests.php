@@ -34,6 +34,7 @@ get_vw_head_end();
 
 //Build the content
 get_vw_nav();
+get_vw_changelog();
 echo ('<main class="test">');
 echo ('<div class="img-container img-page-title">');
 echo ('<img src="' . public_base_url() . '/resources/img/title_tests.png">');
@@ -43,24 +44,24 @@ echo ('</div>');
  * If a test case was passed and the test case exists then load the test case content
  * Else load the main index content
  */
-if ($test && in_array($test,$files)) {
+if ($test && in_array($test, $files)) {
     require_once $path . $test . '/index.php';
 } else {
     //Main content
-    echo('<h1>Test cases</h1>');
+    echo ('<h1>Test cases</h1>');
     echo ('<ul class="list-of-tests">');
     foreach ($files as $file) {
-        if (is_dir($path . $file) && !preg_match("/(0_)/",$path . $file)) {
+        if (is_dir($path . $file) && !preg_match("/(0_)/", $path . $file)) {
             echo ('<li><a href="?test=' . $file . '">' . $file . '</a></li>');
         }
     }
     echo ('</ul>');
 
 
-    echo('<h2>Other</h2>');
+    echo ('<h2>Other</h2>');
     echo ('<ul class="list-of-tests">');
     foreach ($files as $file) {
-        if (is_dir($path . $file) && preg_match("/(0_)/",$path . $file)) {
+        if (is_dir($path . $file) && preg_match("/(0_)/", $path . $file)) {
             echo ('<li><a href="?test=' . $file . '">' . $file . '</a></li>');
         }
     }
@@ -68,5 +69,5 @@ if ($test && in_array($test,$files)) {
 }
 
 //Foot
-echo("</main>");
+echo ("</main>");
 get_vw_foot();

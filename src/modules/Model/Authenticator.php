@@ -6,6 +6,8 @@ use Vst\Controller\Session;
 use Vst\Controller\User;
 use Vst\Controller\Log;
 
+use Vst\Model\GUI;
+
 class Authenticator
 {
     //Session login statusses
@@ -16,37 +18,41 @@ class Authenticator
     private $user;
     private $session;
     private $log;
-    
-    function __construct() {
+
+    function __construct()
+    {
         $this->session = new Session;
         $this->user = new User;
         $this->crypt = new Crypt;
         $this->log = new Log;
     }
 
-    function createNewUser($username, $password) {
+    function createNewUser($username, $password)
+    {
         //To be implemented
     }
 
-    function resetPassword($password) {
+    function resetPassword($password)
+    {
         $pwhash = password_hash($password, PASSWORD_DEFAULT);
         if ($this->user->setPasswordHash($pwhash)) {
-            $this->session->setStatus('login-status','Success','New password has been set, you can now log in with your new password.');
+            $this->session->setStatus('login-status', 'Success', 'New password has been set, you can now log in with your new password.');
         } else {
-            $this->session->setStatus('login-status','Warning','Error during password reset, please try again.');
+            $this->session->setStatus('login-status', 'Warning', 'Error during password reset, please try again.');
         }
     }
     /**
      * Try to login a user with a specific username & password
      */
-    public function loginUser($username, $password) {
+    public function loginUser($username, $password)
+    {
         //Set username & ID, get stored password hash for compare
         $this->session->setUsername($username);
         $this->session->setUserID($this->user->getID());
         $pwhash = $this->user->getPasswordHash();
 
         //Get user origin info
-        if(!empty($_SERVER['HTTP_CIENT_IP'])) {
+        if (!empty($_SERVER['HTTP_CIENT_IP'])) {
             $ip = $_SERVER['HTTP_CIENT_IP'];
         } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -54,12 +60,12 @@ class Authenticator
             $ip = $_SERVER['REMOTE_ADDR'];
         }
         $client = $_SERVER['HTTP_USER_AGENT'];
-        $os = explode(";",$client)[1];
-        $exp = explode(" ",$client);
+        $os = explode(";", $client)[1];
+        $exp = explode(" ", $client);
         $browser = end($exp);
 
         //Validate the user's password with the hash
-        if(password_verify($password, $pwhash)) {
+        if (password_verify($password, $pwhash)) {
             //Store the status and role of the user
             $this->session->setLoginStatus(self::LOGIN_LOGGEDIN);
             $this->session->setUserRole($this->user->getRole());
@@ -70,9 +76,9 @@ class Authenticator
              * Get the encrypted key
              * Store the encrypted key in the database
              */
-           
+
             $key_enc = $this->user->getKeyEnc();
-            if(!$key_enc) {
+            if (!$key_enc) {
                 $this->crypt->generateAndSetInitialKey();
                 $key_enc = $this->crypt->getEncryptedKey();
 
@@ -82,10 +88,10 @@ class Authenticator
             }
 
             //Log a succesful login
-            $this->log->addEvent('Login','Login successful from ' . $browser . ' on ' . $os . ' @ ' . $ip);
+            $this->log->addEvent('Login', 'Login successful from ' . $browser . ' on ' . $os . ' @ ' . $ip);
         } else {
             //Log an unsuccesful login
-            $this->log->addWarning('Login','Login attempt with invalid credentials from ' . $browser . ' on ' . $os . ' @ ' . $ip);
+            $this->log->addWarning('Login', 'Login attempt with invalid credentials from ' . $browser . ' on ' . $os . ' @ ' . $ip);
 
             //Set login status failed and unset user ID
             $this->session->setLoginStatus(self::LOGIN_INVALID_CREDENTIALS);
@@ -93,12 +99,14 @@ class Authenticator
         }
     }
 
-    public function userIsLoggedIn() {
+    public function userIsLoggedIn()
+    {
         return ($this->session->getLoginStatus() == self::LOGIN_LOGGEDIN);
     }
 
-    public function getLoginMessage() {
-        if($this->session->getLoginStatus() == self::LOGIN_INVALID_CREDENTIALS) {
+    public function getLoginMessage()
+    {
+        if ($this->session->getLoginStatus() == self::LOGIN_INVALID_CREDENTIALS) {
             $this->session->unsetLoginStatus();
             return ('Invalid username or password');
         } else {
@@ -106,18 +114,21 @@ class Authenticator
         }
     }
 
-    public function userIsAdmin() {
-        return $this->userIsLoggedIn() && $this->session->getUserRole() =='admin';
+    public function userIsAdmin()
+    {
+        return $this->userIsLoggedIn() && $this->session->getUserRole() == 'admin';
     }
 
-    public function userIsDev() {
-        return $this->userIsLoggedIn() && $this->session->getUserRole() =='dev';
+    public function userIsDev()
+    {
+        return $this->userIsLoggedIn() && $this->session->getUserRole() == 'dev';
     }
 
-    public function validateToken($token) {
+    public function validateToken($token)
+    {
         $success = false;
         $this->session->setUsername($this->user->getUsernameFromToken($token));
-        if($this->session->getUsername()) {
+        if ($this->session->getUsername()) {
             $dt = new \DateTime;
             $exp = $this->user->getTokenExpiryDate();
             $dtexp = $exp ? new \DateTime($exp) : new \DateTime();
@@ -128,7 +139,8 @@ class Authenticator
         return $success;
     }
 
-    public function revokeToken() {
+    public function revokeToken()
+    {
         $dt = new \DateTime;
         $this->user->setTokenExpiryDate($dt->format('d-m-Y H:i:s'));
     }

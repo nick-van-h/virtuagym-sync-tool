@@ -5,10 +5,12 @@ namespace Vst\Controller;
 use Vst\Controller\Session;
 use Vst\Controller\Database;
 
-class User extends Database {
+class User extends Database
+{
     private $session;
 
-    function __construct() {
+    function __construct()
+    {
         parent::__construct();
         $this->session = new Session;
     }
@@ -18,7 +20,8 @@ class User extends Database {
      * 
      * @return string password_hash
      */
-    function getPasswordHash() {
+    function getPasswordHash()
+    {
         $userid = $this->session->getUserID();
         $sql = "SELECT `password_hash` 
                 FROM users 
@@ -31,7 +34,8 @@ class User extends Database {
     /**
      * Update the password hash for the logged in user
      */
-    function setPasswordHash($pwhash) {
+    function setPasswordHash($pwhash)
+    {
         $userid = $this->session->getUserID();
         $sql = "UPDATE users 
                 SET `password_hash`=(?)
@@ -44,17 +48,20 @@ class User extends Database {
     /**
      * User role
      */
-    function setRole($role) {
+    function setRole($role)
+    {
         $this->setSetting('user_role', $role);
     }
-    function getRole() {
-        return($this->getSettingValue('user_role'));
+    function getRole()
+    {
+        return ($this->getSettingValue('user_role'));
     }
 
     /**
      * ID
      */
-    function getID() {
+    function getID()
+    {
         $username = $this->session->getUsername();
         $sql = "SELECT `id`
                 FROM users
@@ -67,42 +74,50 @@ class User extends Database {
     /**
      * Key (encrypted)
      */
-    function setKeyEnc($key_enc) {
+    function setKeyEnc($key_enc)
+    {
         $this->setSetting('key_enc', $key_enc);
     }
-    function getKeyEnc() {
+    function getKeyEnc()
+    {
         $result = $this->getSettingValue('key_enc');
-        return($result);
+        return ($result);
     }
 
     /**
      * VirtuaGym username (enc)
      */
-    function setVirtuagymUsernameEnc($vg_username_enc) {
+    function setVirtuagymUsernameEnc($vg_username_enc)
+    {
         $this->setSetting('virtuagym_username_enc', $vg_username_enc);
     }
-    function getVirtuagymUsernameEnc() {
-        return($this->getSettingValue('virtuagym_username_enc'));
+    function getVirtuagymUsernameEnc()
+    {
+        return ($this->getSettingValue('virtuagym_username_enc'));
     }
 
     /**
      * VirtuaGym password (enc)
      */
-    function setVirtuagymPasswordEnc($vg_password_enc) {
+    function setVirtuagymPasswordEnc($vg_password_enc)
+    {
         $this->setSetting('virtuagym_password_enc', $vg_password_enc);
     }
-    function getVirtuagymPasswordEnc() {
+    function getVirtuagymPasswordEnc()
+    {
         $pw_enc = $this->getSettingValue('virtuagym_password_enc');
-        return($pw_enc);
+        return ($pw_enc);
     }
 
     /**
      * Last Virtuagym Sync
      */
-    public function setLastSync($dt) {
+    public function setLastSync($dt)
+    {
         $this->setSetting('virtuagym_last_sync', $dt);
     }
-    public function getLastSync() {
+    public function getLastSync()
+    {
         $dt = $this->getSettingValue('virtuagym_last_sync');
         return $dt;
     }
@@ -110,32 +125,37 @@ class User extends Database {
     /**
      * Token expiry date
      */
-    function getTokenExpiryDate() {
+    function getTokenExpiryDate()
+    {
         return $this->getSettingValue('token_expiry_date');
     }
 
-    function setTokenExpiryDate($value) {
+    function setTokenExpiryDate($value)
+    {
         $this->setSetting('token_expiry_date', $value);
     }
 
     /**
      * Calendar provider
      */
-    function getCalendarProvider() {
+    function getCalendarProvider()
+    {
         return $this->getSettingValue('calendar_provider');
     }
 
-    function setCalendarProvider($value) {
+    function setCalendarProvider($value)
+    {
         $this->setSetting('calendar_provider', $value);
     }
 
     /**
      * Calendar credentials
      */
-    function getCalendarCredentials() {
+    function getCalendarCredentials()
+    {
         $cal = $this->getCalendarProvider();
         $cred = [];
-        switch($cal) {
+        switch ($cal) {
             case PROVIDER_GOOGLE:
                 $cred['access_token'] = $this->getSettingValue('google_access_token');
                 $cred['refresh_token'] = $this->getSettingValue('google_refresh_token');
@@ -149,9 +169,10 @@ class User extends Database {
         }
         return $cred;
     }
-    function setCalendarCredentials($cred) {
+    function setCalendarCredentials($cred)
+    {
         $cal = $this->getCalendarProvider();
-        switch($cal) {
+        switch ($cal) {
             case PROVIDER_GOOGLE:
                 $this->setSetting('google_access_token', $cred['access_token']);
                 $this->setSetting('google_refresh_token', $cred['refresh_token']);
@@ -166,18 +187,21 @@ class User extends Database {
     /**
      * Target agenda
      */
-    function getTargetAgendaName() {
+    function getTargetAgendaName()
+    {
         return $this->getSettingValue('target_agenda_name');
     }
-    function getTargetAgendaId() {
+    function getTargetAgendaId()
+    {
         return $this->getSettingValue('target_agenda_id');
     }
 
-    function setTargetAgenda($value) {
+    function setTargetAgenda($value)
+    {
         $cal = $this->getCalendarProvider();
-        switch($cal) {
+        switch ($cal) {
             case PROVIDER_GOOGLE:
-                $split = preg_split("/[|]/",$value);
+                $split = preg_split("/[|]/", $value);
                 $this->setSetting('target_agenda_id', $split[0]);
                 $this->setSetting('target_agenda_name', $split[1]);
                 $this->setSetting('calendar_timezone', $split[2]);
@@ -188,9 +212,22 @@ class User extends Database {
     }
 
     /**
+     * Last visited version
+     */
+    function getLastVisitedVersion()
+    {
+        return $this->getSettingValue('last_visited_version');
+    }
+    function setLastVisitedVersion($version)
+    {
+        $this->setSetting('last_visited_version', $version);
+    }
+
+    /**
      * Specific: get username from password reset token
      */
-    function getUsernameFromToken($token) {
+    function getUsernameFromToken($token)
+    {
         $sql = "SELECT `username`
                 FROM users u
                 RIGHT OUTER JOIN (
@@ -206,19 +243,20 @@ class User extends Database {
     /**
      * Generic private functions for getting & setting settings
      */
-    private function getSettingValue($setting_name) {
+    private function getSettingValue($setting_name)
+    {
         $userid = $this->session->getUserID();
         $sql = "SELECT `value_str`, `value_int`, `type`
                 FROM settings
                 WHERE `user_id` = (?) AND `setting_name` = (?)";
-        parent::bufferParams($userid,$setting_name);
+        parent::bufferParams($userid, $setting_name);
         parent::query($sql);
-        if(parent::getOneNumrows()) {
+        if (parent::getOneNumrows()) {
             $row = parent::getOne();
-            if($row['type'] == 'str') {
-                return($row['value_str']);
+            if ($row['type'] == 'str') {
+                return ($row['value_str']);
             } else {
-                return($row['value_int']);
+                return ($row['value_int']);
             }
         } else {
             return NULL;
@@ -228,12 +266,13 @@ class User extends Database {
     /**
      * Add a user setting to the table
      */
-    private function setSetting($setting_name, $setting_value) {
+    private function setSetting($setting_name, $setting_value)
+    {
         //Prepare variables to be insterted
         $userid = $this->session->getUserID();
         $type = '';
         $sql = '';
-        if(!is_int($setting_value)) {
+        if (!is_int($setting_value)) {
             $value_str = $setting_value;
             $value_int = '{i}NULL';
             $type = 'str';
@@ -246,7 +285,7 @@ class User extends Database {
         //Check if the setting already exists for the user, if so we need to update, else we need to add
         $this->getSettingValue($setting_name);
         if (parent::getOneNumrows()) {
-        //if(!is_null($this->getSettingValue($setting_name))) {
+            //if(!is_null($this->getSettingValue($setting_name))) {
             $sql = "UPDATE settings
                     SET value_str=(?), value_int=(?), type=(?)
                     WHERE setting_name=(?) AND user_id = (?)";
