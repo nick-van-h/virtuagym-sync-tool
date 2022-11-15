@@ -87,10 +87,10 @@ class Settings extends Database
     /**
      * VirtuaGym credentials
      */
-    updateVirtuagymCredentials($username, $password)
+    function updateVirtuagymCredentials($username, $password)
     {
         $success = true;
-        
+
         //Update user
         $username_enc = $this->crypt->getEncryptedMessage($username);
         $this->settings->setVirtuagymUsernameEnc($username_enc);
@@ -101,14 +101,16 @@ class Settings extends Database
         $this->settings->setVirtuagymPasswordEnc($password_enc);
         $success &= $this->settings->getQueryOk();
 
-        return $success
+        return $success;
     }
-    
-    public function getVirtuagymUsername() {
+
+    public function getVirtuagymUsername()
+    {
         return $this->crypt->getDecryptedMessage($this->getVirtuagymUsernameEnc());
     }
 
-    public function getVirtuagymPassword() {
+    public function getVirtuagymPassword()
+    {
         return $this->crypt->getDecryptedMessage($this->getVirtuagymPasswordEnc());
     }
 
