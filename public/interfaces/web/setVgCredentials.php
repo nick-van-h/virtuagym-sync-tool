@@ -9,7 +9,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     $password = (isset($_POST['password']) ? $_POST['password'] : '');
     $action = (isset($_POST['action']) ? $_POST['action'] : '');
 
-    $settings = new Vst\Model\Settings;
+    $settings = new Vst\Model\UserSettings;
     $sync = new Vst\Model\Sync;
 
     //Init return values
@@ -30,7 +30,12 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
             }
             break;
         default:
-            $settings->updateVirtuagymCredentials($username, $password);
+            if($settings->updateVirtuagymCredentials($username, $password)) {
+                $this->session->setStatus('virtuagym','Success','Credentials updated succesfully');
+                $this->log->addEvent('Settings','Updated VirtuaGym credentials');
+            } else {
+                $this->session->setStatus('virtuagym','Warning','Error while updating credentials: ' . $settings->getStatusMessage());
+            }
             $payload['statusmessage'] = $settings->getVirtuagymMessage();
             break;
     }

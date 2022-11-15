@@ -8,7 +8,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     $agenda = (isset($_POST['agenda']) ? $_POST['agenda'] : '');
     $action = (isset($_POST['action']) ? $_POST['action'] : '');
 
-    $settings = new Vst\Model\Settings;
+    $settings = new Vst\Controller\Settings;
 
     //Init return values
     $payload = [];

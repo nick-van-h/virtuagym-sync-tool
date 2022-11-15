@@ -12,7 +12,7 @@ $state = (isset($_GET['state']) ? $_GET['state'] : false);
 
 //Init classes
 $session = new Vst\Controller\Session;
-$user = new Vst\Controller\User;
+$settings = new Vst\Controller\Settings;
 $crypt = new Vst\Model\Crypt;
 
 //Init a client so that we can exchange tokens and retrieve additional info
@@ -56,9 +56,9 @@ if($code && $state == $session->getStatus('state_guid')) {
             'access_token' => $crypt->getEncryptedMessage($response['access_token']),
             'calendar_account' => $token_data['email']
         );
-        $user->setCalendarCredentials($cred);
-        $user->setCalendarProvider(PROVIDER_GOOGLE);
-        $user->setTargetAgenda('');
+        $settings->setCalendarCredentials($cred);
+        $settings->setCalendarProvider(PROVIDER_GOOGLE);
+        $settings->setTargetAgenda('');
         
         $session->setStatus('Google-login','Success','Login credentials validated');
     }

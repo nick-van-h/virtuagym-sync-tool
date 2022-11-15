@@ -2,7 +2,7 @@
 
 namespace Vst\Model;
 
-use Vst\Controller\User;
+use Vst\Controller\Settings;
 use Vst\Controller\Session;
 use Vst\Controller\EventsDB;
 use Vst\Controller\VGAPI;
@@ -23,7 +23,7 @@ class Sync
         /**
          * Init generic controllers
          */
-        $this->user = new User;
+        $this->settings = new Settings;
         $this->crypt = new Crypt;
         $this->session = new Session;
         $this->events = new EventsDB;
@@ -35,8 +35,8 @@ class Sync
          */
         $conf = getConfig();
         $apikey = $conf['virtuagym_api_key'];
-        $username = $this->crypt->getDecryptedMessage($this->user->getVirtuagymUsernameEnc());
-        $password = $this->crypt->getDecryptedMessage($this->user->getVirtuagymPasswordEnc());
+        $username = $this->crypt->getDecryptedMessage($this->settings->getVirtuagymUsernameEnc());
+        $password = $this->crypt->getDecryptedMessage($this->settings->getVirtuagymPasswordEnc());
 
         $this->vgapi = new VGAPI($apikey, $username, $password);
 
@@ -44,9 +44,9 @@ class Sync
          * Get calendar provider and credentials
          * Init calendar
          */
-        $provider = $this->user->getCalendarProvider();
+        $provider = $this->settings->getCalendarProvider();
         if ($provider) {
-            $credentials = $this->user->getCalendarCredentials();
+            $credentials = $this->settings->getCalendarCredentials();
             $this->cal = CalendarFactory::getProvider($provider, $credentials);
         }
     }
@@ -122,7 +122,7 @@ class Sync
 
             //Store last sync date
             $dt = new \DateTime();
-            $this->user->setLastSync($dt->format('d-m-Y H:i:s'));
+            $this->settings->setLastSync($dt->format('d-m-Y H:i:s'));
         } catch (\Exception $e) {
             //TODO: Handle exceptions
         } catch (\Error $er) {
@@ -197,7 +197,7 @@ class Sync
      */
     function getLastSyncDate()
     {
-        $sync = $this->user->getLastSync();
+        $sync = $this->settings->getLastSync();
         return $sync;
     }
 

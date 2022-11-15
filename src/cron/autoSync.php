@@ -7,10 +7,10 @@ $ref = $start;
 $ref->modify('-1 hour');
 
 $session = new Vst\Controller\Session;
-$user = new Vst\Controller\User;
+$settings = new Vst\Controller\Settings;
 $log = new Vst\Controller\Log;
 
-$users = $user->getAllUserIds_orderedByLastSync();
+$users = $settings->getAllUserIds_orderedByLastSync();
 
 $maxCallsPerUser = $log->getMaxApiCallsForOneUser($ref, $start);
 

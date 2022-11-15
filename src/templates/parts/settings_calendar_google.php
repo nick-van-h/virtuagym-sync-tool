@@ -1,17 +1,16 @@
 <?php
 //Get user variables
-$user = new \Vst\Controller\User;
-$credentials = $user->getCalendarCredentials();
-$calSelected = $user->getTargetAgendaName();
+$settings = new Vst\Controller\Settings;
+$credentials = $settings->getCalendarCredentials();
+$calSelected = $settings->getTargetAgendaName();
 //Get calendar variables
 if(!empty($credentials)) {
-    $cal = \Vst\Controller\CalendarFactory::getProvider(PROVIDER_GOOGLE,$credentials);
+    $cal = Vst\Controller\CalendarFactory::getProvider(PROVIDER_GOOGLE,$credentials);
     $account = $cal->getAccount();
 } else {
     $account = null;
 }
 
-$settings = new Vst\Model\Settings;
 $session = new Vst\Controller\Session;
 $session->setRedirectUrl(public_base_url() . '/settings.php');
 //TODO NEXT: Assign click handlers to login & save calendar buttons

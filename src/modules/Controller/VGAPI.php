@@ -2,7 +2,7 @@
 
 namespace Vst\Controller;
 
-use Vst\Controller\User;
+use Vst\Controller\Settings;
 use Vst\Controller\Session;
 use Vst\Controller\EventsDB;
 

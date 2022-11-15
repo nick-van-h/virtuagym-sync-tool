@@ -1,9 +1,9 @@
 <?php
 
-$gui = new \Vst\Model\GUI;
-$user = new \Vst\Controller\User;
+$gui = new Vst\Model\GUI;
+$settings = new Vst\Controller\Settings;
 
-$lastVisited = $user->getLastVisitedVersion();
+$lastVisited = $settings->getLastVisitedVersion();
 $latestReleased = $gui->getLatestReleasedVersion();
 $changelog = $gui->getChangelog();
 if ($lastVisited < $latestReleased) : ?>
@@ -17,5 +17,5 @@ if ($lastVisited < $latestReleased) : ?>
         </div>
     </div>
 <?php
-    $user->setLastVisitedVersion($latestReleased);
+    $settings->setLastVisitedVersion($latestReleased);
 endif; ?>

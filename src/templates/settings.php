@@ -1,6 +1,6 @@
 <?php
-$settings = new Vst\Model\Settings;
-$user = new Vst\Controller\User;
+$usersettings = new Vst\Model\UserSettings;
+$settings = new Vst\Controller\Settings;
 $crypt = new Vst\Model\Crypt;
 
 ?>
@@ -15,11 +15,11 @@ $crypt = new Vst\Model\Crypt;
     <fieldset>
         <div class="row row--align box-xs">
             <label class="col-1-3" for="username">Username</label>
-            <input class="col-2-3" type="text" name="username" value="<?php echo($settings->getVirtuagymUsername()); ?>"  required/>
+            <input class="col-2-3" type="text" name="username" value="<?php echo($usersettings->getVirtuagymUsername()); ?>"  required/>
         </div>
         <div class="row row--align box-xs">
             <label class="col-1-3" for="password">Password</label>
-            <input class="col-2-3" type="password" name="password" value="<?php echo($settings->getVirtuagymPassword()); ?>" required/>
+            <input class="col-2-3" type="password" name="password" value="<?php echo($usersettings->getVirtuagymPassword()); ?>" required/>
         </div>
         <div class="row row--justify-right .row--align-right box-xs">
             <button type="submit" name="test">Test</button>
@@ -27,7 +27,7 @@ $crypt = new Vst\Model\Crypt;
         </div>
     </fieldset>
     <div class="status-message status-message--hidden">
-        <span><?php echo($settings->getVirtuagymMessage()); ?></span>
+        <span><?php echo($usersettings->getVirtuagymMessage()); ?></span>
     </div>
 </form>
 

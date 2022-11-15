@@ -5,7 +5,7 @@ namespace Vst\Controller;
 use Vst\Controller\Session;
 use Vst\Controller\Database;
 
-class User extends Database
+class Settings extends Database
 {
     private $session;
 
@@ -82,6 +82,34 @@ class User extends Database
     {
         $result = $this->getSettingValue('key_enc');
         return ($result);
+    }
+
+    /**
+     * VirtuaGym credentials
+     */
+    updateVirtuagymCredentials($username, $password)
+    {
+        $success = true;
+        
+        //Update user
+        $username_enc = $this->crypt->getEncryptedMessage($username);
+        $this->settings->setVirtuagymUsernameEnc($username_enc);
+        $success &= $this->settings->getQueryOk();
+
+        //update password
+        $password_enc = $this->crypt->getEncryptedMessage($password);
+        $this->settings->setVirtuagymPasswordEnc($password_enc);
+        $success &= $this->settings->getQueryOk();
+
+        return $success
+    }
+    
+    public function getVirtuagymUsername() {
+        return $this->crypt->getDecryptedMessage($this->getVirtuagymUsernameEnc());
+    }
+
+    public function getVirtuagymPassword() {
+        return $this->crypt->getDecryptedMessage($this->getVirtuagymPasswordEnc());
     }
 
     /**

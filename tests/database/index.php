@@ -113,24 +113,24 @@ echo('Query ran with result: ' . $db->getStatus());
 
 
 echo('<h1>Test Users class</h1>');
-$user = new Vst\Controller\User;
+$settings = new Vst\Controller\Settings;
 echo('<h2>Getters</h2>');
-echo('Password hash: ' . $user->getPasswordHash());br();
-echo('User role: ' . $user->getRole());br();
-echo('ID: ' . $user->getID());br();
-echo('Key encrypted: ' . $user->getKeyEnc());br();
-echo('Username (enc): ' . $user->getVirtuagymUsernameEnc());br();
-echo('Password (enc): ' . $user->getVirtuagymPasswordEnc());br();
-echo('Username from token (CHBS): ' . $user->getUsernameFromToken('CorrectHorseBatteryStaple'));br();
-echo('Token expiry date: ' . $user->getTokenExpiryDate());br();
+echo('Password hash: ' . $settings->getPasswordHash());br();
+echo('User role: ' . $settings->getRole());br();
+echo('ID: ' . $settings->getID());br();
+echo('Key encrypted: ' . $settings->getKeyEnc());br();
+echo('Username (enc): ' . $settings->getVirtuagymUsernameEnc());br();
+echo('Password (enc): ' . $settings->getVirtuagymPasswordEnc());br();
+echo('Username from token (CHBS): ' . $settings->getUsernameFromToken('CorrectHorseBatteryStaple'));br();
+echo('Token expiry date: ' . $settings->getTokenExpiryDate());br();
 
 echo('<h2>Update & restore</h2>');
-$org = $user->getRole();
+$org = $settings->getRole();
 echo('Original role: ' . $org);br();
-$user->setRole('dork'); 
-echo('Change role, result: ' . $user->getRole());br();
-$user->setRole($org);
-echo('Restore role, result: ' . $user->getRole());br();
+$settings->setRole('dork'); 
+echo('Change role, result: ' . $settings->getRole());br();
+$settings->setRole($org);
+echo('Restore role, result: ' . $settings->getRole());br();
 
 
 /**

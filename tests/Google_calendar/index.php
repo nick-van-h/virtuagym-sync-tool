@@ -19,16 +19,16 @@ $session = new Vst\Controller\Session;
 $session->setRedirectUrl(public_base_url() . '/tests.php?test=Google_calendar');
 
 //init classes
-$user = new Vst\Controller\User;
+$settings = new Vst\Controller\Settings;
 $sync = new Vst\Model\Sync;
 
 //Set up the connection
 echo('<button id="test-google-connect">Authorize with Google</button>');br();
 
 //Instantiate factory
-$provider = $user->getCalendarProvider();
+$provider = $settings->getCalendarProvider();
 if($provider == PROVIDER_GOOGLE) {
-    $credentials = $user->getCalendarCredentials();
+    $credentials = $settings->getCalendarCredentials();
     $cal = Vst\Controller\CalendarFactory::getProvider($provider,$credentials);
     echo('Calendar class created via static provider');br();
 } else {
