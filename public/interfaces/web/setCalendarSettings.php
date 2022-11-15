@@ -17,10 +17,11 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
         'payload' => 'default'
     );
 
-    $payload['get-cal'] = $agenda;
-    $payload['get-action'] = $action;
-    $payload['get'] = $_GET;
-    $payload['post'] = $_POST;
+    //TODO: Remove after validate
+    // $payload['get-cal'] = $agenda;
+    // $payload['get-action'] = $action;
+    // $payload['get'] = $_GET;
+    // $payload['post'] = $_POST;
     switch($action) {
         case 'save':
             $settings->setTargetAgenda($agenda);

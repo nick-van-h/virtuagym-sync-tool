@@ -1,6 +1,6 @@
 <?php
 
-$gui = new Vst\Model\GUI;
+$gui = new Vst\View\GUI;
 $settings = new Vst\Controller\Settings;
 
 $lastVisited = $settings->getLastVisitedVersion();

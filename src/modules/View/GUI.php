@@ -1,6 +1,6 @@
 <?php
 
-namespace Vst\Model;
+namespace Vst\View;
 
 class GUI
 {

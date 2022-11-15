@@ -1,6 +1,5 @@
 <?php
 //Default include autoload
-//require_once 'vendor/vst/autoload.php';
 require_once 'vendor/vst/autoload.php';
 
 //Enable error logging for dev environment
