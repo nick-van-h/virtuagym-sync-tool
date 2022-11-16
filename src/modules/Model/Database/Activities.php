@@ -5,7 +5,7 @@ namespace Vst\Controller;
 use Vst\Controller\Database;
 use Vst\Controller\Session;
 
-class EventsDB extends Database
+class Activities extends Database
 {
 
     private $newEntries;

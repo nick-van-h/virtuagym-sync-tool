@@ -4,7 +4,7 @@ namespace Vst\Model;
 
 use Vst\Controller\Settings;
 use Vst\Controller\Session;
-use Vst\Controller\EventsDB;
+use Vst\Controller\Activities;
 use Vst\Controller\VGAPI;
 use Vst\Controller\CalendarFactory;
 use Vst\Controller\Log;
@@ -13,10 +13,9 @@ use Vst\Controller\Log;
 class Sync
 {
     private $vgapi;
-    private $events;
+    private $activities;
     private $cal;
     private $log;
-    private $session;
 
     public function __construct()
     {
@@ -26,7 +25,7 @@ class Sync
         $this->settings = new Settings;
         $this->crypt = new Crypt;
         $this->session = new Session;
-        $this->events = new EventsDB;
+        $this->activities = new Activities;
         $this->log = new Log;
 
         /**
@@ -135,7 +134,7 @@ class Sync
         /**
          * Get raw data from VG API and store in VG database
          */
-        $this->events->storeActivities($this->vgapi->getActivities());
+        $this->activities->storeActivities($this->vgapi->getActivities());
         /**
          * Get the latest club id's from the recent activities call
          * Get the date range for user planned events from the recent activities call
@@ -145,15 +144,15 @@ class Sync
         /**
          * Update the database with the user specific info & club definities
          */
-        $this->events->storeClubs($clubs);
-        $this->events->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
-        $this->events->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
+        $this->activities->storeClubs($clubs);
+        $this->activities->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
+        $this->activities->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
     }
 
     public function retrieveAndStoreAppointments()
     {
         $events = $this->cal->getEvents();
-        if (!empty($events)) $this->events->storeAppointments($events);
+        if (!empty($events)) $this->activities->storeAppointments($events);
     }
 
     /**
@@ -165,32 +164,32 @@ class Sync
      */
     public function addNewActivitiesToCalendar()
     { //TODO make private
-        $activities = $this->events->getUnsyncedActivities();
+        $activities = $this->activities->getUnsyncedActivities();
         if (!empty($activities)) {
             foreach ($activities as $act) {
                 $evtId = $this->cal->addEvent($act);
-                $this->events->bufferRelation($act['act_inst_id'], $evtId);
+                $this->activities->bufferRelation($act['act_inst_id'], $evtId);
             }
-            $this->events->queryRelations();
+            $this->activities->queryRelations();
         }
     }
 
     public function removeObsoleteActivitiesFromCalendar()
     { //TODO make private
-        $activities = $this->events->getObsoleteActivities();
+        $activities = $this->activities->getObsoleteActivities();
         if (!empty($activities)) {
             foreach ($activities as $activity) {
                 $this->cal->removeEvent($activity);
-                $this->events->bufferObsoleteRelation($activity);
+                $this->activities->bufferObsoleteRelation($activity);
             }
-            $this->events->queryRemoveRelations();
+            $this->activities->queryRemoveRelations();
         }
     }
 
 
     public function getAllStoredActivities($asc)
     {
-        return $this->events->getAllJoined($asc);
+        return $this->activities->getAllJoined($asc);
     }
     /**
      * Return the date of the last sync
@@ -205,7 +204,7 @@ class Sync
     {
         $dt = new \DateTime(date('Y-m-1'));
         $earliest = $dt->modify('-1 month')->format('Y-m-d') . ' 00:00:00';
-        $dtMax = new \DateTime(date("Y-m-d H:i:s", $this->events->getLatestActivityTimestamp()));
+        $dtMax = new \DateTime(date("Y-m-d H:i:s", $this->activities->getLatestActivityTimestamp()));
         $dtArr = [];
         while ($dt <= $dtMax) {
             $dtArr[] = $dt->format("Y/m");
