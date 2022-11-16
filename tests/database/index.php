@@ -117,7 +117,6 @@ $settings = new Vst\Controller\Settings;
 echo('<h2>Getters</h2>');
 echo('Password hash: ' . $settings->getPasswordHash());br();
 echo('User role: ' . $settings->getRole());br();
-echo('ID: ' . $settings->getID());br();
 echo('Key encrypted: ' . $settings->getKeyEnc());br();
 echo('Username (enc): ' . $settings->getVirtuagymUsernameEnc());br();
 echo('Password (enc): ' . $settings->getVirtuagymPasswordEnc());br();

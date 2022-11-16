@@ -34,13 +34,13 @@ class Session {
      * Username
      */
     public function setUsername($username) {
-        $this->set('loggedin_username', $username);
+        $this->set('username', $username);
     }
     public function unsetUsername() {
-        $this->unset('loggedin_username');
+        $this->unset('username');
     }
     public function getUsername() {
-        return $this->get('loggedin_username');
+        return $this->get('username');
     }
 
     /**

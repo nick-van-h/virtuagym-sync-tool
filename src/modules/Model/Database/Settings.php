@@ -60,9 +60,8 @@ class Settings extends Database
     /**
      * ID
      */
-    function getID()
+    function getUserIdFromUsername($username)
     {
-        $username = $this->session->getUsername();
         $sql = "SELECT `id`
                 FROM users
                 WHERE `username` = (?)";
@@ -268,6 +267,10 @@ class Settings extends Database
         parent::bufferParams($token);
         parent::query($sql);
         return (parent::getOne('username'));
+    }
+    function setToken($token) {
+        //TODO IMPORTANT: Make sure token is unique before storing in database
+        $this->setSetting('password_reset_token', $token)
     }
 
     /**

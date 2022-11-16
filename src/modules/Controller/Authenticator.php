@@ -13,6 +13,8 @@ class Authenticator
     //Session login statusses
     private const LOGIN_LOGGEDIN = 1;
     private const LOGIN_INVALID_CREDENTIALS = self::LOGIN_LOGGEDIN + 1;
+    private const ROLE_ADMIN = 'admin';
+    private const ROLE_DEV = 'dev';
 
     private $crypt;
     private $settings;
@@ -29,7 +31,7 @@ class Authenticator
 
     function createNewUser($username, $password)
     {
-        //To be implemented
+        //TODO: implement
     }
 
     function resetPassword($password)
@@ -47,11 +49,10 @@ class Authenticator
     public function loginUser($username, $password)
     {
         //Set username & ID, get stored password hash for compare
-        $this->session->setUsername($username);
-        $this->session->setUserID($this->settings->getID());
+        $this->session->setUserID($this->settings->getUserIdFromUsername($username));
         $pwhash = $this->settings->getPasswordHash();
 
-        //Get user origin info
+        //Get user ip, os & browser; to be stored in the log
         if (!empty($_SERVER['HTTP_CIENT_IP'])) {
             $ip = $_SERVER['HTTP_CIENT_IP'];
         } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -69,23 +70,6 @@ class Authenticator
             //Store the status and role of the user
             $this->session->setLoginStatus(self::LOGIN_LOGGEDIN);
             $this->session->setUserRole($this->settings->getRole());
-
-            /**
-             * Check if there is an encryption key, if not;
-             * Generate a key
-             * Get the encrypted key
-             * Store the encrypted key in the database
-             */
-
-            $key_enc = $this->settings->getKeyEnc();
-            if (!$key_enc) {
-                $this->crypt->generateAndSetInitialKey();
-                $key_enc = $this->crypt->getEncryptedKey();
-
-                $this->settings->setKeyEnc($key_enc);
-            } else {
-                $this->crypt->decryptAndSetKey($key_enc);
-            }
 
             //Log a succesful login
             $this->log->addEvent('Login', 'Login successful from ' . $browser . ' on ' . $os . ' @ ' . $ip);
@@ -116,19 +100,33 @@ class Authenticator
 
     public function userIsAdmin()
     {
-        return $this->settingsIsLoggedIn() && $this->session->getUserRole() == 'admin';
+        return $this->userIsLoggedIn() && $this->session->getUserRole() == self::ROLE_ADMIN;
     }
 
     public function userIsDev()
     {
-        return $this->settingsIsLoggedIn() && $this->session->getUserRole() == 'dev';
+        return $this->userIsLoggedIn() && $this->session->getUserRole() == self::ROLE_DEV;
     }
 
     public function validateToken($token)
     {
+        //TODO: Implement chain of command
         $success = false;
-        $this->session->setUsername($this->settings->getUsernameFromToken($token));
+
+        /**
+         * Get the username belonging to that token
+         * Since the token will be spread via email (= username) we should not have to validate the username
+         */
+        $username = $this->settings->getUsernameFromToken($token);
+
+        /**
+         * Check if said username actually contains a value, if not return false
+         * Set the username in the session so it can be used in a view
+         * If so, check if the expiry date of the token is in the future
+         * If there is no expiry date returned then assume that the token is valid anyways
+         */
         if ($this->session->getUsername()) {
+            $this->session->setUsername($username);
             $dt = new \DateTime;
             $exp = $this->settings->getTokenExpiryDate();
             $dtexp = $exp ? new \DateTime($exp) : new \DateTime();
@@ -139,6 +137,10 @@ class Authenticator
         return $success;
     }
 
+    /**
+     * Revoke a token by setting the expiry date to now
+     * The next time this token will be tried to validate it will be expired already
+     */
     public function revokeToken()
     {
         $dt = new \DateTime;
