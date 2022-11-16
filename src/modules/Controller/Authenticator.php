@@ -16,7 +16,6 @@ class Authenticator
     private const ROLE_ADMIN = 'admin';
     private const ROLE_DEV = 'dev';
 
-    private $crypt;
     private $settings;
     private $session;
     private $log;
@@ -25,7 +24,6 @@ class Authenticator
     {
         $this->session = new Session;
         $this->settings = new Settings;
-        $this->crypt = new Crypt;
         $this->log = new Log;
     }
 

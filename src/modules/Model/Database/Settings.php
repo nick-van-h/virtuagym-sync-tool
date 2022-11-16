@@ -5,6 +5,9 @@ namespace Vst\Controller;
 use Vst\Controller\Session;
 use Vst\Controller\Database;
 
+/**
+ * The database class is responsible for storing encrypted & returning decrypted values
+ */
 class Settings extends Database
 {
     private $session;
@@ -71,19 +74,6 @@ class Settings extends Database
     }
 
     /**
-     * Key (encrypted)
-     */
-    function setKeyEnc($key_enc)
-    {
-        $this->setSetting('key_enc', $key_enc);
-    }
-    function getKeyEnc()
-    {
-        $result = $this->getSettingValue('key_enc');
-        return ($result);
-    }
-
-    /**
      * VirtuaGym credentials
      */
     function updateVirtuagymCredentials($username, $password)
@@ -105,16 +95,17 @@ class Settings extends Database
 
     public function getVirtuagymUsername()
     {
-        return $this->crypt->getDecryptedMessage($this->getVirtuagymUsernameEnc());
+        return $this->crypt->getDecryptedMessage($this->getSettingValue('virtuagym_username_enc'));
     }
 
     public function getVirtuagymPassword()
     {
-        return $this->crypt->getDecryptedMessage($this->getVirtuagymPasswordEnc());
+        return $this->crypt->getDecryptedMessage($this->getSettingValue('virtuagym_password_enc'));
     }
 
     /**
      * VirtuaGym username (enc)
+     * TODO: Remove class & migrate to functions above
      */
     function setVirtuagymUsernameEnc($vg_username_enc)
     {
