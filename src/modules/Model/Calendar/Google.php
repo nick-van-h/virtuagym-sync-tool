@@ -1,14 +1,15 @@
 <?php
 
-Namespace Vst\Controller\Calendar;
+namespace Vst\Model\Calendar;
 
-use Vst\Controller\Calendar\CalendarInterface;
+use Vst\Model\Calendar\CalendarInterface;
 use Google\Service\Calendar as Google_Service_Calendar;
 use Google\Service\Calendar\Event as Google_Service_Calendar_Event;
-use Vst\Model\Crypt;
+use Vst\Controller\Crypt;
 
 
-Class Google implements CalendarInterface {
+class Google implements CalendarInterface
+{
     private $client;
     private $cal;
     private $evt;
@@ -21,19 +22,20 @@ Class Google implements CalendarInterface {
 
     private $tmpId;
 
-    public function __construct($credentials) {
+    public function __construct($credentials)
+    {
         /**
          * Check if all required keys are present in the passed $credentials array
          * Get the keys of the credentials array
          * Do array diff towards required keys
          * If there are any missing keys counted then throw an exception and mention the missing keys
          */
-        $required = array('calendar_account', 'target_agenda_id', 'target_agenda_name','refresh_token','timezone');
+        $required = array('calendar_account', 'target_agenda_id', 'target_agenda_name', 'refresh_token', 'timezone');
         $credentialsKeys = array_keys($credentials);
         $missing = array_diff($required, $credentialsKeys);
         if (count($missing)) {
             //At least one key is missing, throw an exception and break initiation
-            throw new \Exception('Passed credentials array is missing following keys: ' . implode('; ',$missing));
+            throw new \Exception('Passed credentials array is missing following keys: ' . implode('; ', $missing));
         }
 
         //Set variables
@@ -54,7 +56,6 @@ Class Google implements CalendarInterface {
         //Init calendar/event service
         $this->cal = new \Google\Service\Calendar($this->client);
         $this->timezone = $credentials['timezone'];
-
     }
 
     public function testConnection()
@@ -69,7 +70,7 @@ Class Google implements CalendarInterface {
             return false;
         }
         $accessToken = $this->client->getAccessToken();
-        if(!empty($accessToken)) {
+        if (!empty($accessToken)) {
             //TODO: Test for token expired via https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=xxx
             return true;
         } else {
@@ -81,23 +82,25 @@ Class Google implements CalendarInterface {
     {
         return $this->account;
     }
-    
+
     public function getAgendas()
     {
         $cals = $this->cal->calendarList->listCalendarList();
         $ret = [];
-        foreach($cals->items as $cal) {
-            $ret[] = Array('id' => $cal->id,
-                            'name' => $cal->summary,
-                            'timezone' => $cal->timezone
-                        );
+        foreach ($cals->items as $cal) {
+            $ret[] = array(
+                'id' => $cal->id,
+                'name' => $cal->summary,
+                'timezone' => $cal->timezone
+            );
         }
         sort($ret);
         return $ret;
     }
     public function testAgenda()
-    {}
-    
+    {
+    }
+
     public function addEvent($evt)
     {
         //Create the event array
@@ -105,34 +108,36 @@ Class Google implements CalendarInterface {
             'summary' => $evt['name'] . ' (vgsync)',
             'location' => $evt['club_id'],
             'start' => array(
-              'dateTime' => $this->tsToStr($evt['event_start']),
+                'dateTime' => $this->tsToStr($evt['event_start']),
             ),
             'end' => array(
                 'dateTime' => $this->tsToStr($evt['event_end']),
             ),
         ));
-        if($this->timezone) {
+        if ($this->timezone) {
             $event['start']['timezone'] = $this->timezone;
             $event['end']['timezone'] = $this->timezone;
         }
 
         //Insert the event in the selected agenda and return the event ID
-        $evt = $this->cal->events->insert($this->agendaId,$event);
+        $evt = $this->cal->events->insert($this->agendaId, $event);
         return $evt['id'];
     }
     public function updateEvent()
-    {}
+    {
+    }
     public function removeEvent($appointmentId)
     {
         //Remove the TMP id
-        try{
+        try {
             $this->cal->events->delete($this->agendaId, $appointmentId);
         } catch (\Google\Service\Exception $e) {
             $msg = $e->getMessage();
             //If the event is already removed from the calendar it is no problem, all other exceptions need to be addressed though
-            if($msg != 'Resource has been deleted') {
-                echo('TODO: Store this output & implement proper error handling in code');
-                echo_pre($e,'error');
+            if ($msg != 'Resource has been deleted') {
+                echo ('TODO: Store this output & implement proper error handling in code');
+                echo ('ErrorMessage: ' . $e->getMessage());
+                echo ('Full error: ' . $e);
             }
         }
     }
@@ -194,24 +199,22 @@ Class Google implements CalendarInterface {
      */
 
 
-     private function dtToStr($dt) 
-     {
-        if($this->timezone) {
+    private function dtToStr($dt)
+    {
+        if ($this->timezone) {
             $dtz = new \DateTimeZone($this->timezone);
             $dt->setTimezone($this->timezone);
         }
         return $dt->format('Y-m-d') . 'T' . $dt->format('H:i:sP');
-     }
+    }
 
-     private function strToDt($str)
-     {
+    private function strToDt($str)
+    {
+    }
 
-     }
-
-     private function tsToStr($ts)
-     {
+    private function tsToStr($ts)
+    {
         $dt = new \DateTime(date("Y-m-d H:i:s", $ts));
         return $this->dtToStr($dt);
-     }
-    
+    }
 }

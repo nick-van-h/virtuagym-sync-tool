@@ -12,10 +12,10 @@ error_reporting(E_ALL);
 /**
  * Start main content
  */
-echo('<h1>Test</h1>');
+echo ('<h1>Test</h1>');
 //Init variables
-$log = new Vst\Controller\Log;
-$db = new Vst\Controller\Database;
+$log = new Vst\Model\Database\Log;
+$db = new Vst\Model\Database\Database;
 
 
 //Get start timestamp of first sync start
@@ -35,11 +35,11 @@ $db->query($sql);
 $end = new DateTime($db->getOne('timestamp'));
 
 //Query sync runs from retrieved start/end
-echo('Get first sync run summary');
+echo ('Get first sync run summary');
 echo_pre($log->getSyncRuns($start, $end));
 
 //Query api calls from retrieved start/end
-echo('Get API calls executed during said sync run');
+echo ('Get API calls executed during said sync run');
 echo_pre($log->getApiCalls($start, $end));
 
 /**
@@ -47,8 +47,8 @@ echo_pre($log->getApiCalls($start, $end));
  */
 $testEnd = new \DateTime();
 $diff = date_diff($testEnd, $testStart);
-echo('<h1>Summary</h1>');
-echo('Total runtime: ' . $diff->format('%H:%I:%S') . ' (h:m:s)');
-br();br();
-echo('--- end ---');
-
+echo ('<h1>Summary</h1>');
+echo ('Total runtime: ' . $diff->format('%H:%I:%S') . ' (h:m:s)');
+br();
+br();
+echo ('--- end ---');

@@ -1,6 +1,8 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model;
+
+use Vst\Model\Database\Log;
 
 class VGAPI
 {

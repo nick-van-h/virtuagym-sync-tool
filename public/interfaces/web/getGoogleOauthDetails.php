@@ -7,8 +7,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     //Process the request
     $var = (isset($_POST['var']) ? $_POST['var'] : '');
 
-    $session = new Vst\Controller\Session;
-    $crypt = new Vst\Model\Crypt;
+    $session = new Vst\Model\Session;
+    $crypt = new Vst\Controller\Crypt;
 
     //Init return values
     $payload = [];

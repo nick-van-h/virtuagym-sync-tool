@@ -1,12 +1,12 @@
 <?php
 
-namespace Vst\Model;
+namespace Vst\Controller;
 
-use Vst\Controller\Session;
-use Vst\Controller\Settings;
-use Vst\Controller\Log;
+use Vst\Model\Session;
+use Vst\Model\Database\Settings;
+use Vst\Model\Database\Log;
 
-use Vst\Model\GUI;
+use Vst\View\GUI;
 
 class Authenticator
 {

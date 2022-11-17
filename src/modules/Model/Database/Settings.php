@@ -1,9 +1,10 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model\Database;
 
-use Vst\Controller\Session;
-use Vst\Controller\Database;
+use Vst\Model\Session;
+use Vst\Model\Database\Database;
+use Vst\Controller\Crypt;
 
 /**
  * The database class is responsible for storing encrypted & returning decrypted values
@@ -11,11 +12,13 @@ use Vst\Controller\Database;
 class Settings extends Database
 {
     private $session;
+    private $crypt;
 
     function __construct()
     {
         parent::__construct();
         $this->session = new Session;
+        $this->crypt = new Crypt;
     }
 
     /**
@@ -259,9 +262,10 @@ class Settings extends Database
         parent::query($sql);
         return (parent::getOne('username'));
     }
-    function setToken($token) {
+    function setToken($token)
+    {
         //TODO IMPORTANT: Make sure token is unique before storing in database
-        $this->setSetting('password_reset_token', $token)
+        $this->setSetting('password_reset_token', $token);
     }
 
     /**

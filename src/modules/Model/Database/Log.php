@@ -1,8 +1,9 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model\Database;
 
-use Vst\Controller\Database;
+use Vst\Model\Database\Database;
+use Vst\Model\Session;
 
 class Log extends Database
 {

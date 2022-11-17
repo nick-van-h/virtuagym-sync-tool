@@ -5,7 +5,7 @@ require_once 'vendor/vst/autoload.php';
 //Enable error logging for dev environment
 set_error_reporting();
 
-$auth = new Vst\Model\Authenticator;
+$auth = new Vst\Controller\Authenticator;
 $auth->logoutUser();
 
 //Get the token from the URL

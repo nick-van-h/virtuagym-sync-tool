@@ -1,13 +1,13 @@
 <?php
 
-namespace Vst\Model;
+namespace Vst\Controller;
 
-use Vst\Controller\Settings;
-use Vst\Controller\Session;
-use Vst\Controller\Activities;
-use Vst\Controller\VGAPI;
-use Vst\Controller\CalendarFactory;
-use Vst\Controller\Log;
+use Vst\Model\Database\Settings;
+use Vst\Model\Session;
+use Vst\Model\Database\Activities;
+use Vst\Model\VGAPI;
+use Vst\Model\Calendar\CalendarFactory;
+use Vst\Model\Database\Log;
 
 
 class Sync

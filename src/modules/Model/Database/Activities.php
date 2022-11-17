@@ -1,9 +1,9 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model\Database;
 
-use Vst\Controller\Database;
-use Vst\Controller\Session;
+use Vst\Model\Database\Database;
+use Vst\Model\Session;
 
 class Activities extends Database
 {

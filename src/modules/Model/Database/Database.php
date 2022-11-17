@@ -1,6 +1,6 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model\Database;
 
 /**
  * Use Template Method to define basic Database behavior

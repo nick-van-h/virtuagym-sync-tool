@@ -11,9 +11,9 @@ $code = (isset($_GET['code']) ? $_GET['code'] : false);
 $state = (isset($_GET['state']) ? $_GET['state'] : false);
 
 //Init classes
-$session = new Vst\Controller\Session;
-$settings = new Vst\Controller\Settings;
-$crypt = new Vst\Model\Crypt;
+$session = new Vst\Model\Session;
+$settings = new Vst\Model\Database\Settings;
+$crypt = new Vst\Controller\Crypt;
 
 //Init a client so that we can exchange tokens and retrieve additional info
 $oauth = OAUTH_FILE;
@@ -27,7 +27,7 @@ $client->setRedirectUri(public_base_url() . '/interfaces/web/callbackGoogleLogin
  * If not set an error statuts and redirect the user
  * Redirect back to the stored enpoint, or to the public base url if none is set
  */
-if($code && $state == $session->getStatus('state_guid')) {
+if ($code && $state == $session->getStatus('state_guid')) {
     /**
      * Exchange the code for access token & ID token
      */
@@ -38,8 +38,8 @@ if($code && $state == $session->getStatus('state_guid')) {
      * If an 'error' parameter was passed then the exchange failed
      * Else the refresh/access token are to be processed
      */
-    if(!empty($response['error'])) {
-        $session->setStatus('Google-login','Error','Invalid access/refresh token call: ' . $response['error_description']);
+    if (!empty($response['error'])) {
+        $session->setStatus('Google-login', 'Error', 'Invalid access/refresh token call: ' . $response['error_description']);
     } else {
         /**
          * Valid access & refresh token received
@@ -51,7 +51,7 @@ if($code && $state == $session->getStatus('state_guid')) {
          * Store access & refresh token encrypted in settings
          * Update the status message
          */
-        $cred = Array(
+        $cred = array(
             'refresh_token' => $crypt->getEncryptedMessage($response['refresh_token']),
             'access_token' => $crypt->getEncryptedMessage($response['access_token']),
             'calendar_account' => $token_data['email']
@@ -59,12 +59,11 @@ if($code && $state == $session->getStatus('state_guid')) {
         $settings->setCalendarCredentials($cred);
         $settings->setCalendarProvider(PROVIDER_GOOGLE);
         $settings->setTargetAgenda('');
-        
-        $session->setStatus('Google-login','Success','Login credentials validated');
-    }
 
+        $session->setStatus('Google-login', 'Success', 'Login credentials validated');
+    }
 } else {
-    $session->setStatus('Google-login','Error','Invalid callback');
+    $session->setStatus('Google-login', 'Error', 'Invalid callback');
 }
 
 //Redirect the user back to the original page where they came from

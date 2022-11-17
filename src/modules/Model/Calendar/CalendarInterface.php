@@ -1,14 +1,15 @@
 <?php
 
-Namespace Vst\Controller\Calendar;
+namespace Vst\Model\Calendar;
 
-interface CalendarInterface {
+interface CalendarInterface
+{
     /**
      * When initializing the class the credentials array (provider specific) should be passed
      * Initializing the class should arrange all provider specific checks & settings
      */
     public function __construct($credentials);
-    
+
     /**
      * When setting up the calendar provider the user must be able to do two things
      * - Test the connection with the entered credentials

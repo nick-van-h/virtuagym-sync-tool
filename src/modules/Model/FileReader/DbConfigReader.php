@@ -1,6 +1,6 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model;
 
 class DbConfigReader implements FileReader
 {

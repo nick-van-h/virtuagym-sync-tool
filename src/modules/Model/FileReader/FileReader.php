@@ -1,6 +1,6 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model;
 
 /**
  * Use Strategy pattern to get specific files, each file has their own class

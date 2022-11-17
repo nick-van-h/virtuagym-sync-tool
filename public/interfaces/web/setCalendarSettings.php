@@ -8,7 +8,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     $agenda = (isset($_POST['agenda']) ? $_POST['agenda'] : '');
     $action = (isset($_POST['action']) ? $_POST['action'] : '');
 
-    $settings = new Vst\Controller\Settings;
+    $settings = new Vst\Model\Database\Settings;
 
     //Init return values
     $payload = [];
@@ -22,7 +22,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     // $payload['get-action'] = $action;
     // $payload['get'] = $_GET;
     // $payload['post'] = $_POST;
-    switch($action) {
+    switch ($action) {
         case 'save':
             $settings->setTargetAgenda($agenda);
             $payload['statusmessage'] = 'Agenda saved succesfully!';

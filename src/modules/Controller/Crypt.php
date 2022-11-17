@@ -1,8 +1,6 @@
 <?php
 
-namespace Vst\Model;
-
-use Vst\Controller\Session;
+namespace Vst\Controller;
 
 /**
  * Crypt is actually a receiver class in the Command design pattern, but we don´t have a Command class (yet)
