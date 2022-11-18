@@ -133,26 +133,11 @@ class Google implements CalendarInterface
         //Remove the TMP id
         try {
             $this->cal->events->delete($this->agendaId, $appointmentId);
+            echo ('success!!1one');
         } catch (\Google\Service\Exception $e) {
-            $msg = $e->getMessage();
-            $obj = json_decode($msg);
-            //If the event is already removed from the calendar it is no problem, all other exceptions need to be addressed though
-            $ignore = false;
-            if ($msg != self::ERROR_RESOURCE_DELETED) {
-                if (isset($obj->error) && !empty($obj->error)) {
-                    if (isset($obj->error->message) && (!empty($obj->error->message))) {
-                        if ($obj->error->message != self::ERROR_RESOURCE_DELETED) {
-                            $ignore = true;
-                        }
-                    }
-                }
-            }
-
-            if (!$ignore) {
-                echo ('TODO: Store this output & implement proper error handling in code\n');
-                echo ('ErrorMessage: ' . $e->getMessage() . '\n');
-                echo ('Full error: ' . $e . '\n');
-            }
+            echo ('TODO: Store this output & implement proper error handling in code\n');
+            echo ('ErrorMessage: ' . $e->getMessage() . '\n');
+            echo ('Full error: ' . $e . '\n');
         }
     }
 

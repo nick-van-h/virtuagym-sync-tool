@@ -115,15 +115,15 @@ class Sync
             $this->retrieveAndStoreActivities();
 
             /**
-             * With the updated activity info we can remove obsolete appointments
-             */
-            $this->removeObsoleteActivitiesFromCalendar();
-
-            /**
              * Get all calendar appointments and store in the database
              * At this point the calendar no longer contains the activities that were just removed
              */
             $this->retrieveAndStoreAppointments();
+
+            /**
+             * With the updated activity info we can remove obsolete appointments
+             */
+            $this->removeObsoleteActivitiesFromCalendar();
 
             /**
              * Now that we have the actual activities and appointments we need to clean up the relation table
@@ -183,13 +183,13 @@ class Sync
      * Get all current appointments from the calendar
      * Update the appointments table to match the calendar
      */
-    private function retrieveAndStoreAppointments()
+    public function retrieveAndStoreAppointments()
     {
         $events = $this->cal->getEvents();
         if (!empty($events)) $this->activities->storeAppointments($events);
     }
 
-    private function removeObsoleteActivitiesFromCalendar()
+    public function removeObsoleteActivitiesFromCalendar()
     {
         $appointments = $this->activities->getObsoleteAppointments();
         if (!empty($appointments)) {

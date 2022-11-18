@@ -165,7 +165,8 @@ class Activities extends Database
                 LEFT JOIN `activities` act on ata.act_inst_id = act.act_inst_id
                 LEFT JOIN `act_def` ad ON act.act_id = activity_id
                 LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
-                WHERE act.user_id = (?) AND 
+                LEFT JOIN `appointments` apt ON ata.appointment_id = apt.appointment_id
+                WHERE act.user_id = (?) AND apt.appointment_id IS NOT NULL AND
                         (act.deleted = '1' OR ad.deleted = '1' OR ed.deleted = '1' OR ed.cancelled = '1')";
         parent::bufferParams($userid);
         parent::query($sql);
