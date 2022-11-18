@@ -1,15 +1,20 @@
 {
     "Upcoming": {
+        "notes": {
+            "generic": "Omit notes child in version",
+            "allowed-categories": [
+                "added", "changed", "deprecated", "removed", "fixed", "security"
+            ]
+        },
         "released": "Not yet released",
         "summary": "These functionalities are currently being developed",
-        "allowed-categories": [
-            "added", "changed", "deprecated", "removed", "fixed", "security"
-        ],
         "added" : [
             "Nothing yet"
         ]
     },
     "1.0.1": {
+        "released": "2022-18-11",
+        "summary": "Fixed sync flow, introduced changelog, updated homepage",
         "added": [
             "Changelog",
             "Manual sync button on homepage",
