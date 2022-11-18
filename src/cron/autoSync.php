@@ -6,11 +6,11 @@ $start = new DateTime();
 $ref = $start;
 $ref->modify('-1 hour');
 
-$session = new Vst\Controller\Session;
-$user = new Vst\Controller\User;
-$log = new Vst\Controller\Log;
+$session = new Vst\Model\Session;
+$settings = new Vst\Model\Database\Settings;
+$log = new Vst\Model\Database\Log;
 
-$users = $user->getAllUserIds_orderedByLastSync();
+$users = $settings->getAllUserIds_orderedByLastSync();
 
 $maxCallsPerUser = $log->getMaxApiCallsForOneUser($ref, $start);
 
@@ -23,7 +23,7 @@ foreach ($users as $usr) {
     $session->setUserId($usr);
 
     //Sync the user
-    $sync = new Vst\Model\Sync;
+    $sync = new Vst\Controller\Sync;
     try {
         $sync->scheduledSyncAll();
     } catch (Exception $e) {

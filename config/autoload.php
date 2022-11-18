@@ -1,5 +1,5 @@
 <?php
-
+// TODO: Remove after validate
 // try {
 //     /**
 //      * Config first
@@ -13,7 +13,7 @@
 //     require_once __DIR__ . '/../controllers/Session.php';
 //     require_once __DIR__ . '/../controllers/Database.php';
 //     require_once __DIR__ . '/../controllers/Users.php';
-//     require_once __DIR__ . '/../controllers/EventsDB.php';
+//     require_once __DIR__ . '/../controllers/Activities.php';
 //     require_once __DIR__ . '/../controllers/VGAPI.php';
 //     require_once __DIR__ . '/../controllers/Calendar/CalendarInterface.php';
 //     require_once __DIR__ . '/../controllers/Calendar/Calendar_Google.php';

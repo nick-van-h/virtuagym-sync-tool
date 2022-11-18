@@ -1,13 +1,12 @@
 <?php
 //Default include autoload
-//require_once 'vendor/vst/autoload.php';
 require_once 'vendor/vst/autoload.php';
 
 //Enable error logging for dev environment
 set_error_reporting();
 
 //Check if the user is logged in
-$auth = new Vst\Model\Authenticator;
+$auth = new Vst\Controller\Authenticator;
 if (!$auth->userIsLoggedIn() && !$auth->userIsAdmin()) {
     redirectToUrl(public_base_url());
 }

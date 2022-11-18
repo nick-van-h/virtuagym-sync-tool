@@ -1,14 +1,15 @@
 <?php
 
-Namespace Vst\Controller\Calendar;
+namespace Vst\Model\Calendar;
 
-interface CalendarInterface {
+interface CalendarInterface
+{
     /**
      * When initializing the class the credentials array (provider specific) should be passed
      * Initializing the class should arrange all provider specific checks & settings
      */
     public function __construct($credentials);
-    
+
     /**
      * When setting up the calendar provider the user must be able to do two things
      * - Test the connection with the entered credentials
@@ -43,7 +44,7 @@ interface CalendarInterface {
      * - Remove an existing appointment if an event is cancelled
      * -> Altering the calendar should return true/false on success/fail & use session->setStatus to pass message
      * Retrieving the appointments are always to be done for the selected calendar
-     * - Returned appointments are in the date range [-1mo -1day -> EventsDB.lastestPlannedActivity]
+     * - Returned appointments are in the date range [-1mo -1day -> Activities.lastestPlannedActivity]
      * -> Getting the appointments should return an array of appointments or null if empty & use session->setStatus to pass message
      */
     public function addEvent($evt);

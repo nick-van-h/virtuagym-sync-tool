@@ -1,41 +1,41 @@
 <?php
 
-namespace Vst\Model;
+namespace Vst\Controller;
 
-use Vst\Controller\Session;
-use Vst\Controller\User;
-use Vst\Controller\Log;
+use Vst\Model\Session;
+use Vst\Model\Database\Settings;
+use Vst\Model\Database\Log;
 
-use Vst\Model\GUI;
+use Vst\View\GUI;
 
 class Authenticator
 {
     //Session login statusses
     private const LOGIN_LOGGEDIN = 1;
     private const LOGIN_INVALID_CREDENTIALS = self::LOGIN_LOGGEDIN + 1;
+    private const ROLE_ADMIN = 'admin';
+    private const ROLE_DEV = 'dev';
 
-    private $crypt;
-    private $user;
+    private $settings;
     private $session;
     private $log;
 
     function __construct()
     {
         $this->session = new Session;
-        $this->user = new User;
-        $this->crypt = new Crypt;
+        $this->settings = new Settings;
         $this->log = new Log;
     }
 
     function createNewUser($username, $password)
     {
-        //To be implemented
+        //TODO: implement
     }
 
     function resetPassword($password)
     {
         $pwhash = password_hash($password, PASSWORD_DEFAULT);
-        if ($this->user->setPasswordHash($pwhash)) {
+        if ($this->settings->setPasswordHash($pwhash)) {
             $this->session->setStatus('login-status', 'Success', 'New password has been set, you can now log in with your new password.');
         } else {
             $this->session->setStatus('login-status', 'Warning', 'Error during password reset, please try again.');
@@ -47,11 +47,10 @@ class Authenticator
     public function loginUser($username, $password)
     {
         //Set username & ID, get stored password hash for compare
-        $this->session->setUsername($username);
-        $this->session->setUserID($this->user->getID());
-        $pwhash = $this->user->getPasswordHash();
+        $this->session->setUserID($this->settings->getUserIdFromUsername($username));
+        $pwhash = $this->settings->getPasswordHash();
 
-        //Get user origin info
+        //Get user ip, os & browser; to be stored in the log
         if (!empty($_SERVER['HTTP_CIENT_IP'])) {
             $ip = $_SERVER['HTTP_CIENT_IP'];
         } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -68,24 +67,7 @@ class Authenticator
         if (password_verify($password, $pwhash)) {
             //Store the status and role of the user
             $this->session->setLoginStatus(self::LOGIN_LOGGEDIN);
-            $this->session->setUserRole($this->user->getRole());
-
-            /**
-             * Check if there is an encryption key, if not;
-             * Generate a key
-             * Get the encrypted key
-             * Store the encrypted key in the database
-             */
-
-            $key_enc = $this->user->getKeyEnc();
-            if (!$key_enc) {
-                $this->crypt->generateAndSetInitialKey();
-                $key_enc = $this->crypt->getEncryptedKey();
-
-                $this->user->setKeyEnc($key_enc);
-            } else {
-                $this->crypt->decryptAndSetKey($key_enc);
-            }
+            $this->session->setUserRole($this->settings->getRole());
 
             //Log a succesful login
             $this->log->addEvent('Login', 'Login successful from ' . $browser . ' on ' . $os . ' @ ' . $ip);
@@ -116,21 +98,35 @@ class Authenticator
 
     public function userIsAdmin()
     {
-        return $this->userIsLoggedIn() && $this->session->getUserRole() == 'admin';
+        return $this->userIsLoggedIn() && $this->session->getUserRole() == self::ROLE_ADMIN;
     }
 
     public function userIsDev()
     {
-        return $this->userIsLoggedIn() && $this->session->getUserRole() == 'dev';
+        return $this->userIsLoggedIn() && $this->session->getUserRole() == self::ROLE_DEV;
     }
 
     public function validateToken($token)
     {
+        //TODO: Implement chain of command
         $success = false;
-        $this->session->setUsername($this->user->getUsernameFromToken($token));
+
+        /**
+         * Get the username belonging to that token
+         * Since the token will be spread via email (= username) we should not have to validate the username
+         */
+        $username = $this->settings->getUsernameFromToken($token);
+
+        /**
+         * Check if said username actually contains a value, if not return false
+         * Set the username in the session so it can be used in a view
+         * If so, check if the expiry date of the token is in the future
+         * If there is no expiry date returned then assume that the token is valid anyways
+         */
         if ($this->session->getUsername()) {
+            $this->session->setUsername($username);
             $dt = new \DateTime;
-            $exp = $this->user->getTokenExpiryDate();
+            $exp = $this->settings->getTokenExpiryDate();
             $dtexp = $exp ? new \DateTime($exp) : new \DateTime();
             if ($dt <= $dtexp) {
                 $success = true;
@@ -139,10 +135,14 @@ class Authenticator
         return $success;
     }
 
+    /**
+     * Revoke a token by setting the expiry date to now
+     * The next time this token will be tried to validate it will be expired already
+     */
     public function revokeToken()
     {
         $dt = new \DateTime;
-        $this->user->setTokenExpiryDate($dt->format('d-m-Y H:i:s'));
+        $this->settings->setTokenExpiryDate($dt->format('d-m-Y H:i:s'));
     }
 
     /**

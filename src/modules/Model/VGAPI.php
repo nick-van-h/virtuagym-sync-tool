@@ -1,10 +1,8 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model;
 
-use Vst\Controller\User;
-use Vst\Controller\Session;
-use Vst\Controller\EventsDB;
+use Vst\Model\Database\Log;
 
 class VGAPI
 {
@@ -16,10 +14,6 @@ class VGAPI
     private $statusmessage;
     private $data;
 
-    private $user;
-    private $crypt;
-    private $session;
-    private $EventsDB;
     private $log;
 
     private const API_URL = 'https://api.virtuagym.com/api/v0';
@@ -183,7 +177,7 @@ class VGAPI
             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
             $reply = curl_exec($ch);
             curl_close($ch);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo ('Exit with message: ' . $e->getMessage());
             $this->log->addWarning('API-call', 'Call to ' . self::API_URL . '/' . $path . ' failed with message: ' . $e->getMessage());
         }

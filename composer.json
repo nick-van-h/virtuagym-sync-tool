@@ -6,7 +6,8 @@
     "autoload": {
         "psr-4": {
             "Vst\\Controller\\": "src/modules/Controller",
-            "Vst\\Model\\": "src/modules/Model"
+            "Vst\\Model\\": "src/modules/Model",
+            "Vst\\View\\": "src/modules/View"
         },
         "files": [
             "config/config.php",

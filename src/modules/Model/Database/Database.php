@@ -1,8 +1,11 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model\Database;
 
-class Database
+/**
+ * Use Template Method to define basic Database behavior
+ */
+abstract class Database
 {
     protected $db;
     private $stmt;
@@ -19,7 +22,7 @@ class Database
     private $numrows;
     private $rows;
 
-    
+
     function __construct()
     {
         $this->rows = [];
@@ -27,12 +30,12 @@ class Database
         $this->paramsArr = [];
         $this->paramTypes = [];
         $db = getConfig();
-        if($db) {
+        if ($db) {
             try {
                 //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}
                 //$this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
                 $this->db = new \mysqli($db['host'], $db['username'], $db['password'], $db['database']);
-            } catch (Exceptiond $e) {
+            } catch (\Exception $e) {
                 //Store the exception details as error
                 $this->setError("MySQLi Error Code: " . $e->getCode() . " | Exception Msg: " . $e->getMessage());
                 exit;
@@ -47,22 +50,17 @@ class Database
         }
     }
 
-    function __destruct() {
+    function __destruct()
+    {
         mysqli_close($this->db);
-    }
-
-    function debug() {
-        echo_pre($this->numrows,'numrows');
-        echo_pre($this->rows,'rows');
-        echo_pre($this->paramTypes,'paramTypes');
-        echo_pre($this->paramsArr,'paramsArr');
     }
 
     /**
      * Retrieves the last error message if any
      * @return string error_message
      */
-    function getStatus() {
+    function getStatus()
+    {
         return $this->status;
     }
 
@@ -70,7 +68,8 @@ class Database
      * Retrieves the status succesful of last query
      * @return bool query_ok
      */
-    function getQueryOk() {
+    function getQueryOk()
+    {
         return $this->query_ok;
     }
 
@@ -89,12 +88,12 @@ class Database
          * If not, just use the child array
          * Add that array to this class's params array
          */
-        if(!is_array($bindParams)) {
+        if (!is_array($bindParams)) {
             $param = array($bindParams);
         } else {
             $param = $bindParams;
         }
-        
+
 
         /**
          * Get the paramer types for each member of the bind_param
@@ -102,8 +101,8 @@ class Database
          */
         $paramTypes = '';
         foreach ($param as $key => $val) {
-            if(isset($val)) {
-                if(substr($val, 0, 3) == "{i}") {
+            if (isset($val)) {
+                if (substr($val, 0, 3) == "{i}") {
                     $paramTypes .= 'i';
                 } else {
                     $paramTypes .= $this->determineType($val);
@@ -118,8 +117,8 @@ class Database
         foreach ($param as $key => $val) {
             //Force integer if prefix is {i}
             $ss = '';
-            if(isset($val)) {
-                if(substr($val, 0, 3) == "{i}") {
+            if (isset($val)) {
+                if (substr($val, 0, 3) == "{i}") {
                     $ss = substr($val, 3);
                 } else {
                     $ss = $val;
@@ -131,7 +130,6 @@ class Database
             $param[$key] = ($ss == 'NULL' ? NULL : $ss);
         }
         $this->paramsArr[] = $param;
-
     }
 
     /**
@@ -151,9 +149,9 @@ class Database
         $this->stmt = $this->db->stmt_init();
         $this->stmt->prepare($query);
 
-        if(!empty($this->paramsArr)) {
+        if (!empty($this->paramsArr)) {
             //Loop through the array of params to execute the query
-            foreach($this->paramsArr as $key => $params) {
+            foreach ($this->paramsArr as $key => $params) {
                 $this->queryOne($query, $this->paramTypes[$key], $params);
             }
         } else {
@@ -175,9 +173,10 @@ class Database
     /**
      * Execute one single query and append the results to this class's array
      */
-    private function queryOne($query, $types = null, $params = null) {
+    private function queryOne($query, $types = null, $params = null)
+    {
         //Catch a query with paramaters (? or :) while no parameters ar bound
-        if(preg_match('/[?:]/', $query) && !(isset($params) && !empty($params))) {
+        if (preg_match('/[?:]/', $query) && !(isset($params) && !empty($params))) {
             $this->rows[] = NULL;
             return;
         }
@@ -192,8 +191,7 @@ class Database
             //Prepare the array to be used for this loop's $stmt->bind_param()
             $arr = [];
             $arr[] = $types;
-            foreach($params as $param)
-            {
+            foreach ($params as $param) {
                 $arr[] = $param;
             }
 
@@ -214,9 +212,9 @@ class Database
         //Check if any rows were returned (stmt->get_result returns false if no rows returned)
         if ($result) {
             $resArr = [];
-                while($row = $result->fetch_assoc()) {
-                    $resArr[] = $row;
-                }
+            while ($row = $result->fetch_assoc()) {
+                $resArr[] = $row;
+            }
             $this->rows[] = $resArr;
         } else {
             /**
@@ -230,16 +228,18 @@ class Database
     /**
      * Get the full array of rows for every query
      */
-    function getRowsArr() {
+    function getRowsArr()
+    {
         return $this->rows;
     }
 
     /**
      * Get all rows from the first query
      */
-    function getRows($col = null) {
-        if($this->getOneNumrows()) {
-            if(!empty($col)) {
+    function getRows($col = null)
+    {
+        if ($this->getOneNumrows()) {
+            if (!empty($col)) {
                 $rows = [];
                 foreach ($this->rows[0] as $row) {
                     $rows[] = $row[$col];
@@ -256,9 +256,10 @@ class Database
     /**
      * Get the first row from the first query
      */
-    function getOne($col = null) {
+    function getOne($col = null)
+    {
         if ($this->getOneNumrows()) {
-            if(!empty($col)) {
+            if (!empty($col)) {
                 return $this->rows[0][0][$col];
             } else {
                 return $this->rows[0][0];
@@ -271,15 +272,17 @@ class Database
     /**
      * Get the full array of affected rows per query
      */
-    function getAllNumrows() {
+    function getAllNumrows()
+    {
         return $this->numrows;
     }
 
     /**
      * Get the number of rows affected by the first query
      */
-    function getOneNumrows() {
-        if(!empty($this->numrows[0])) {
+    function getOneNumrows()
+    {
+        if (!empty($this->numrows[0])) {
             return $this->numrows[0];
         } else {
             return false;
@@ -290,7 +293,8 @@ class Database
      * Sets the status to false and set error message
      * @param string errmsg
      */
-    private function setError($errmsg) {
+    private function setError($errmsg)
+    {
         $this->status = "Failed to connect to MySQL: " . $errmsg;
         $this->query_ok = false;
     }
@@ -298,7 +302,8 @@ class Database
     /**
      * Sets the status to OK and clears error message
      */
-    private function setOk() {
+    private function setOk()
+    {
         $this->status = "All good";
         $this->query_ok = true;
     }
@@ -306,7 +311,8 @@ class Database
     /**
      * Set the status to false and reset output arrays
      */
-    private function resetResult() {
+    private function resetResult()
+    {
         $this->numrows = [];
         $this->rows = [];
         $this->query_ok = false;
@@ -316,7 +322,8 @@ class Database
     /**
      * Set the status to false and reset the input arrays
      */
-    private function setStatusInputChanged() {
+    private function setStatusInputChanged()
+    {
         $this->query_ok = false;
         $this->status = "Input parameters have changed";
     }
@@ -325,7 +332,8 @@ class Database
      * Determines the type of a variable
      * To be used for the bind_param types
      */
-    protected function determineType($val) {
+    protected function determineType($val)
+    {
         switch (gettype($val)) {
             case 'NULL':
             case 'string':
@@ -360,7 +368,7 @@ class Database
         if (strnatcmp(phpversion(), '5.3') >= 0) {
             $refs = array();
             foreach ($arr as $key => $value) {
-                $refs[$key] = & $arr[$key];
+                $refs[$key] = &$arr[$key];
             }
             return $refs;
         }

@@ -1,16 +1,17 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model\Calendar;
 
-//use Vst\Controller\Calendar\Google;
+//use Vst\Model\Calendar\Google;
 
 /**
  * Static calendar factory
  */
-class CalendarFactory {
+class CalendarFactory
+{
     public static function getProvider($provider, $credentials)
     {
-        $className = __NAMESPACE__.'\Calendar\\'.ucfirst($provider);
+        $className = __NAMESPACE__ . '\\' . ucfirst($provider);
 
         if (!class_exists($className)) {
             throw new \InvalidArgumentException('Specified provider ' . (!empty($provider) ? $provider : '<null>') . ' does not exist');

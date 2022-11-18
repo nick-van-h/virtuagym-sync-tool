@@ -15,11 +15,11 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     );
 
     //Logic goes here//
-    $sync = new Vst\Model\Sync;
+    $sync = new Vst\Controller\Sync;
     $sync->manualSyncAll();
 
     //Incorporate the payload and return the result
-    if(true) {
+    if (true) {
         $resp['success'] = true;
     }
     $resp['payload'] = $payload;

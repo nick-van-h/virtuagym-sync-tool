@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This class provides easy (un)setter, getter, isSetters & tester interfaces to the $_SESSION
  * Each block contains at least a setXXX and getXXX
@@ -9,11 +10,13 @@
  * Testers validate a value to a passed argument and @return bool $result true/false
  */
 
-namespace Vst\Controller;
+namespace Vst\Model;
 
-class Session {
+class Session
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         //Start the session if it is not yet started
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -23,7 +26,8 @@ class Session {
     /**
      * Generic unset (logout) user
      */
-    public function unsetUser() {
+    public function unsetUser()
+    {
         $this->unsetUsername();
         $this->unsetUserID();
         $this->unsetUserRole();
@@ -33,77 +37,96 @@ class Session {
     /**
      * Username
      */
-    public function setUsername($username) {
-        $this->set('loggedin_username', $username);
+    public function setUsername($username)
+    {
+        $this->set('username', $username);
     }
-    public function unsetUsername() {
-        $this->unset('loggedin_username');
+    public function unsetUsername()
+    {
+        $this->unset('username');
     }
-    public function getUsername() {
-        return $this->get('loggedin_username');
+    public function getUsername()
+    {
+        return $this->get('username');
     }
 
     /**
      * User ID
      */
-    public function setUserID($userid) {
+    public function setUserID($userid)
+    {
         $this->set('loggedin_userid', $userid);
     }
-    public function unsetUserID() {
+    public function unsetUserID()
+    {
         $this->unset('loggedin_userid');
     }
-    public function getUserID() {
+    public function getUserID()
+    {
         return $this->get('loggedin_userid');
     }
 
     /**
      * LoginStatus
      */
-    public function setLoginStatus($status) {
+    public function setLoginStatus($status)
+    {
         $this->set('loginstatus', $status);
     }
-    public function unsetLoginStatus() {
+    public function unsetLoginStatus()
+    {
         $this->unset('loginstatus');
     }
-    public function getLoginStatus() {
+    public function getLoginStatus()
+    {
         return $this->get('loginstatus');
     }
-    public function testLoginStatus($test) {
+    public function testLoginStatus($test)
+    {
         return $this->get('loginstatus') == $test;
     }
 
     /**
      * User role
      */
-    public function setUserRole($status) {
+    public function setUserRole($status)
+    {
         $this->set('user_role', $status);
     }
-    public function unsetUserRole() {
+    public function unsetUserRole()
+    {
         $this->unset('user_role');
     }
-    public function getUserRole() {
+    public function getUserRole()
+    {
         return $this->get('user_role');
     }
-    public function isUserRoleSet(){
+    public function isUserRoleSet()
+    {
         $this->isVarSet('user_role');
     }
-    public function testUserRole($test) {
+    public function testUserRole($test)
+    {
         return $this->get('user_role') == $test;
     }
 
     /**
      * Encryption key
      */
-    public function setKey($key) {
+    public function setKey($key)
+    {
         $this->set('key', $key);
     }
-    public function unsetKey() {
+    public function unsetKey()
+    {
         $this->unset('key');
     }
-    public function getKey() {
+    public function getKey()
+    {
         return $this->get('key');
     }
-    public function isKeySet() {
+    public function isKeySet()
+    {
         $this->isVarSet('key');
     }
 
@@ -121,7 +144,7 @@ class Session {
          * If no ref ID is set (NULL) then get() returns false
          * However we want to use the actual NULL value instead of false
          */
-        if($refId) {
+        if ($refId) {
             return $refId;
         } else {
             return NULL;
@@ -143,34 +166,39 @@ class Session {
     /**
      * Status
      */
-    public function setStatus($status, $code, $value) {
-        if(!$this->isVarSet('status')) {
+    public function setStatus($status, $code, $value)
+    {
+        if (!$this->isVarSet('status')) {
             $_SESSION['status'] = [];
         }
-        if(!$this->isArrVarSet('status', $status)) {
+        if (!$this->isArrVarSet('status', $status)) {
             $_SESSION['status'][$status] = [];
         }
         $_SESSION['status'][$status]['code'] = $code;
         $_SESSION['status'][$status]['message'] = $value;
     }
-    public function clearStatus($status) {
+    public function clearStatus($status)
+    {
         $this->setStatus($status, '', '');
     }
-    public function getStatus($status) {
+    public function getStatus($status)
+    {
         if ($this->isArrVarSet('status', $status)) {
             return $_SESSION['status'][$status]['message'];
         } else {
             return false;
         }
     }
-    public function getStatusCode($status) {
+    public function getStatusCode($status)
+    {
         if ($this->isArrVarSet('status', $status)) {
             return $_SESSION['status'][$status]['code'];
         } else {
             return false;
         }
     }
-    public function getAndClearStatus($status) {
+    public function getAndClearStatus($status)
+    {
         $message = $this->getStatus($status);
         $this->clearStatus($status);
         return $message;
@@ -179,22 +207,26 @@ class Session {
     /**
      * Debug
      */
-    public function addDebug($status) {
+    public function addDebug($status)
+    {
         $_SESSION['debug'][] = $status;
     }
 
     /**
      * Private helpers
      */
-    private function set($variable, $value) {
+    private function set($variable, $value)
+    {
         $_SESSION[$variable] = $value;
     }
 
-    private function unset($variable) {
+    private function unset($variable)
+    {
         unset($_SESSION[$variable]);
     }
 
-    private function get($variable) {
+    private function get($variable)
+    {
         if ($this->isVarSet($variable)) {
             return $_SESSION[$variable];
         } else {
@@ -202,12 +234,14 @@ class Session {
         }
     }
 
-    private function isVarSet($variable) {
+    private function isVarSet($variable)
+    {
         $result = isset($_SESSION[$variable]) && !empty($_SESSION[$variable]);
         return $result;
     }
 
-    private function isArrVarSet($array, $variable) {
+    private function isArrVarSet($array, $variable)
+    {
         $result = isset($_SESSION[$array][$variable]) && !empty($_SESSION[$array][$variable]);
         return $result;
     }

@@ -1,15 +1,16 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model\Database;
 
-use Vst\Controller\Database;
-use Vst\Controller\Session;
+use Vst\Model\Database\Database;
+use Vst\Model\Session;
 
-class EventsDB extends Database
+class Activities extends Database
 {
 
     private $newEntries;
     private $dupEntries;
+    private $obsEntries;
     private $curEntries;
 
     private $session;
@@ -63,13 +64,13 @@ class EventsDB extends Database
 
         //Query results
         $sql = "SELECT DISTINCT 
-                    a.`user_id`,
-                    a.`act_inst_id`,
-                    a.`done`,
-                    a.`deleted`,
-                    a.`act_id`,
-                    a.`event_id`,
-                    a.`timestamp`,
+                    act.`user_id`,
+                    act.`act_inst_id`,
+                    act.`done`,
+                    act.`deleted`,
+                    act.`act_id`,
+                    act.`event_id`,
+                    act.`timestamp`,
                     ad.`activity_id`,
                     ad.`name`,
                     ad.`deleted` as actdef_deleted,
@@ -83,10 +84,10 @@ class EventsDB extends Database
                     ed.`deleted` as evtdef_deleted,
                     ed.`cancelled`,
                     ed.`bookable_from`
-                FROM `activities` a
-                LEFT JOIN `act_def` ad ON a.act_id = activity_id
-                LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
-                WHERE a.user_id = (?) AND ed.event_start > (?)";
+                FROM `activities` act
+                LEFT JOIN `act_def` ad ON act.act_id = activity_id
+                LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
+                WHERE act.user_id = (?) AND ed.event_start > (?)";
         if ($ascdesc == ORDER_ASC) {
             $sql .= "ORDER BY ed.event_start ASC";
         } else {
@@ -98,7 +99,8 @@ class EventsDB extends Database
     }
 
     /**
-     * Get a list of activities which do not have an activity:calendar link
+     * Get a list of activities which are relevant (not cancelled/deleted)
+     * and which do not have an activity:appointment relation
      */
     function getUnsyncedActivities()
     {
@@ -108,15 +110,21 @@ class EventsDB extends Database
         $dt->modify('-1 week');
         $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
 
-        //Query results
+        /**
+         * Query results
+         * Start from activities, enrich with activity definition & event definition
+         * Join the relation activity to appointment
+         * Get all activities which are for the current user, within the current timeframe,
+         *      which are still valid (i.e. not deleted/cancelled) and do not have a relation to an appointment
+         */
         $sql = "SELECT DISTINCT 
-                    a.`user_id`,
-                    a.`act_inst_id`,
-                    a.`done`,
-                    a.`deleted`,
-                    a.`act_id`,
-                    a.`event_id`,
-                    a.`timestamp`,
+                    act.`user_id`,
+                    act.`act_inst_id`,
+                    act.`done`,
+                    act.`deleted`,
+                    act.`act_id`,
+                    act.`event_id`,
+                    act.`timestamp`,
                     ad.`activity_id`,
                     ad.`name`,
                     ad.`deleted` as actdef_deleted,
@@ -130,18 +138,19 @@ class EventsDB extends Database
                     ed.`deleted` as evtdef_deleted,
                     ed.`cancelled`,
                     ed.`bookable_from`
-                FROM `activities` a
-                LEFT JOIN `act_def` ad ON a.act_id = activity_id
-                LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
-                LEFT JOIN `act_to_apt` ata ON a.act_inst_id = ata.act_inst_id
-                WHERE a.user_id = (?) AND ed.event_start > (?) AND ata.act_inst_id IS NULL AND a.`deleted` = '0'
-                ORDER BY ed.event_start DESC"; //TODO NEXT: LEFT ANTI join where act_inst_id not in act_to_cal
+                FROM `activities` act
+                LEFT JOIN `act_def` ad ON act.act_id = activity_id
+                LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
+                LEFT JOIN `act_to_apt` ata ON act.act_inst_id = ata.act_inst_id
+                WHERE act.user_id = (?) AND ed.event_start > (?) AND ata.act_inst_id IS NULL 
+                        AND act.deleted = '0' AND ad.deleted = '0' AND ed.deleted = '0' AND ed.cancelled = '0'
+                ORDER BY ed.event_start DESC";
         parent::bufferParams($userid, $mintimestamp);
         parent::query($sql);
         return parent::getRows();
     }
 
-    function getObsoleteActivities()
+    function getObsoleteAppointments()
     {
         //Prepare variables
         $userid = $this->session->getUserID();
@@ -151,13 +160,13 @@ class EventsDB extends Database
 
         //Query results
         $sql = "SELECT DISTINCT 
-                    apt.`appointment_id`
-                FROM `activities` a
-                LEFT JOIN `act_def` ad ON a.act_id = activity_id
-                LEFT JOIN `evt_def` ed on a.event_id = ed.event_id
-                LEFT JOIN `act_to_apt` ata ON a.act_inst_id = ata.act_inst_id
-                JOIN `appointments` apt ON apt.appointment_id = ata.appointment_id
-                WHERE a.user_id = (?) AND (a.deleted = 1 OR ad.deleted = 1 OR ed.deleted = 1 OR ed.cancelled = 1)";
+                    ata.`appointment_id`
+                FROM `act_to_apt` ata
+                LEFT JOIN `activities` act on ata.act_inst_id = act.act_inst_id
+                LEFT JOIN `act_def` ad ON act.act_id = activity_id
+                LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
+                WHERE act.user_id = (?) AND 
+                        (act.deleted = '1' OR ad.deleted = '1' OR ed.deleted = '1' OR ed.cancelled = '1')";
         parent::bufferParams($userid);
         parent::query($sql);
         $res = parent::getRows('appointment_id');
@@ -422,6 +431,7 @@ class EventsDB extends Database
         foreach ($appointments as $appointment) {
             $this->bufferAppointment($appointment);
         }
+        $this->bufferObsoleteAppointments($appointments);
         $this->queryAppointments();
     }
 
@@ -442,6 +452,23 @@ class EventsDB extends Database
         }
     }
 
+    private function bufferObsoleteAppointments($appointments)
+    {
+        //Get the full list of existing activities from the server if not yet set
+        if (empty($this->curEntries)) $this->retrieveAll_appointment_id();
+
+        //Generate an array of id's of the appointments
+        if (!empty($this->curEntries)) {
+            $ids = [];
+            foreach ($appointments as $appointment) {
+                $ids[] = $appointment['id'];
+            }
+
+            //Get the id's which are in the db but no longer in the appointments
+            $this->obsEntries = array_diff($this->curEntries, $ids);
+        }
+    }
+
     public function queryAppointments()
     {
         //Prepare variables
@@ -451,24 +478,40 @@ class EventsDB extends Database
         /**
          * Update the existing activities with new values
          */
-        $sql = "UPDATE appointments
-                SET agenda_id=(?)
-                WHERE user_id=(?) AND appointment_id=(?)";
-        foreach ($this->dupEntries as $act) {
-            parent::bufferParams($act['id'], $userid, $act['agendaId']);
+        if (!empty($this->dupEntries)) {
+            $sql = "UPDATE appointments
+                    SET agenda_id=(?)
+                    WHERE user_id=(?) AND appointment_id=(?)";
+            foreach ($this->dupEntries as $act) {
+                parent::bufferParams($act['id'], $userid, $act['agendaId']);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
 
 
         /**
          * Insert new activities
          */
-        $sql = "INSERT INTO `appointments`(`user_id`, `appointment_id`, `agenda_id`)
-                VALUES (?,?,?)";
-        foreach ($this->newEntries as $act) {
-            parent::bufferParams($userid, $act['id'], $act['agendaId']);
+        if (!empty($this->newEntries)) {
+            $sql = "INSERT INTO `appointments`(`user_id`, `appointment_id`, `agenda_id`)
+                    VALUES (?,?,?)";
+            foreach ($this->newEntries as $act) {
+                parent::bufferParams($userid, $act['id'], $act['agendaId']);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
+
+        /**
+         * Remove obsolete activities
+         */
+        if (!empty($this->obsEntries)) {
+            $sql = "DELETE FROM `appointments`
+                    WHERE `user_id` = (?) AND `appointment_id` = (?)";
+            foreach ($this->obsEntries as $id) {
+                parent::bufferParams($userid, $id);
+            }
+            parent::query($sql);
+        }
 
         //Clear the existing activities array because it is now obsolete
         $this->clearBuffer();
@@ -480,6 +523,26 @@ class EventsDB extends Database
     /**
      * Appointment relations
      */
+    function cleanupRelations()
+    {
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $dt = new \DateTime();
+        $dt->modify('-1 week');
+        $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
+
+        //Remove relations where activity is cancelled
+        $sql = "DELETE ata FROM `act_to_apt` ata
+        LEFT JOIN `activities` act ON ata.act_inst_id = act.act_inst_id
+        LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
+        LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
+        LEFT JOIN `appointments` apt ON ata.appointment_id = apt.appointment_id
+        WHERE ata.user_id = (?) AND (act.deleted = '1' OR ad.deleted = '1' OR ed.deleted = '1' OR ed.cancelled = '1' OR apt.appointment_id IS NULL)";
+        parent::bufferParams($userid);
+        parent::query($sql);
+        return parent::getRows();
+    }
+
     function bufferRelation($actId, $evtId)
     {
         $this->newEntries[] = array(
@@ -567,7 +630,7 @@ class EventsDB extends Database
     {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `appointment_id`
-                FROM appointments
+                FROM `appointments`
                 WHERE user_id = (?)";
         parent::bufferParams($userid);
         parent::query($sql);
@@ -579,5 +642,6 @@ class EventsDB extends Database
         $this->newEntries = [];
         $this->dupEntries = [];
         $this->curEntries = [];
+        $this->obsEntries = [];
     }
 }

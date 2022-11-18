@@ -1,18 +1,24 @@
 <?php
 
-namespace Vst\Controller;
+namespace Vst\Model\Database;
 
-use Vst\Controller\Session;
-use Vst\Controller\Database;
+use Vst\Model\Session;
+use Vst\Model\Database\Database;
+use Vst\Controller\Crypt;
 
-class User extends Database
+/**
+ * The database class is responsible for storing encrypted & returning decrypted values
+ */
+class Settings extends Database
 {
     private $session;
+    private $crypt;
 
     function __construct()
     {
         parent::__construct();
         $this->session = new Session;
+        $this->crypt = new Crypt;
     }
 
     /**
@@ -60,9 +66,8 @@ class User extends Database
     /**
      * ID
      */
-    function getID()
+    function getUserIdFromUsername($username)
     {
-        $username = $this->session->getUsername();
         $sql = "SELECT `id`
                 FROM users
                 WHERE `username` = (?)";
@@ -72,20 +77,38 @@ class User extends Database
     }
 
     /**
-     * Key (encrypted)
+     * VirtuaGym credentials
      */
-    function setKeyEnc($key_enc)
+    function updateVirtuagymCredentials($username, $password)
     {
-        $this->setSetting('key_enc', $key_enc);
+        $success = true;
+
+        //Update user
+        $username_enc = $this->crypt->getEncryptedMessage($username);
+        $this->settings->setVirtuagymUsernameEnc($username_enc);
+        $success &= $this->settings->getQueryOk();
+
+        //update password
+        $password_enc = $this->crypt->getEncryptedMessage($password);
+        $this->settings->setVirtuagymPasswordEnc($password_enc);
+        $success &= $this->settings->getQueryOk();
+
+        return $success;
     }
-    function getKeyEnc()
+
+    public function getVirtuagymUsername()
     {
-        $result = $this->getSettingValue('key_enc');
-        return ($result);
+        return $this->crypt->getDecryptedMessage($this->getSettingValue('virtuagym_username_enc'));
+    }
+
+    public function getVirtuagymPassword()
+    {
+        return $this->crypt->getDecryptedMessage($this->getSettingValue('virtuagym_password_enc'));
     }
 
     /**
      * VirtuaGym username (enc)
+     * TODO: Remove class & migrate to functions above
      */
     function setVirtuagymUsernameEnc($vg_username_enc)
     {
@@ -238,6 +261,11 @@ class User extends Database
         parent::bufferParams($token);
         parent::query($sql);
         return (parent::getOne('username'));
+    }
+    function setToken($token)
+    {
+        //TODO IMPORTANT: Make sure token is unique before storing in database
+        $this->setSetting('password_reset_token', $token);
     }
 
     /**
