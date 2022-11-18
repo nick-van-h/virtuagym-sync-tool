@@ -22,6 +22,8 @@ class Google implements CalendarInterface
 
     private $tmpId;
 
+    private const ERROR_RESOURCE_DELETED = 'Resource has been deleted';
+
     public function __construct($credentials)
     {
         /**
@@ -133,11 +135,23 @@ class Google implements CalendarInterface
             $this->cal->events->delete($this->agendaId, $appointmentId);
         } catch (\Google\Service\Exception $e) {
             $msg = $e->getMessage();
+            $obj = json_decode($msg);
             //If the event is already removed from the calendar it is no problem, all other exceptions need to be addressed though
-            if ($msg != 'Resource has been deleted') {
-                echo ('TODO: Store this output & implement proper error handling in code');
-                echo ('ErrorMessage: ' . $e->getMessage());
-                echo ('Full error: ' . $e);
+            $ignore = false;
+            if ($msg != self::ERROR_RESOURCE_DELETED) {
+                if (isset($obj->error) && !empty($obj->error)) {
+                    if (isset($obj->error->message) && (!empty($obj->error->message))) {
+                        if ($obj->error->message != self::ERROR_RESOURCE_DELETED) {
+                            $ignore = true;
+                        }
+                    }
+                }
+            }
+
+            if (!$ignore) {
+                echo ('TODO: Store this output & implement proper error handling in code\n');
+                echo ('ErrorMessage: ' . $e->getMessage() . '\n');
+                echo ('Full error: ' . $e . '\n');
             }
         }
     }
