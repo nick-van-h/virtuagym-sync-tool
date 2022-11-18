@@ -109,26 +109,56 @@ class Sync
     {
         //TODO: Before starting sync, check if all user settings are in place to actually perform the sync
         try {
-            //Get all VG activities and store in the database
+            /**
+             * Start by getting the latest activity data from virtuagym
+             */
             $this->retrieveAndStoreActivities();
 
-            //Get all calendar activities and store in the database
+            /**
+             * With the updated activity info we can remove obsolete appointments
+             */
+            $this->removeObsoleteActivitiesFromCalendar();
+
+            /**
+             * Get all calendar appointments and store in the database
+             * At this point the calendar no longer contains the activities that were just removed
+             */
             $this->retrieveAndStoreAppointments();
 
-            //Sync activities to calendar
+            /**
+             * Now that we have the actual activities and appointments we need to clean up the relation table
+             * Example;
+             * - VG Activities: 1 (cancelled), 2, 3, 4 
+             * - Relations: 1=a, 2=b, 3=c, 4=d
+             * - Calendar appointments: b, c, ...xyz (a was removed by script, d was removed by user)
+             * Expected outcome act2apt: 2=b, 3=c;
+             * -> Remove 1=a because cancelled, remove 4=c because appointment deleted
+             */
+            $this->activities->cleanupRelations();
+
+            /**
+             * Now that the relations table is cleaned up we can update the calendar
+             * with (new) activities that do not occur in the relation table;
+             * - Add appointment to the calendar & get the ID of the appointment
+             * - Add relation to the table for this new appointment ID
+             */
             $this->addNewActivitiesToCalendar();
-            $this->removeObsoleteActivitiesFromCalendar();
 
             //Store last sync date
             $dt = new \DateTime();
             $this->settings->setLastSync($dt->format('d-m-Y H:i:s'));
         } catch (\Exception $e) {
             //TODO: Handle exceptions
+            echo ('Exception occurred in sync: ' . $e->getMessage());
         } catch (\Error $er) {
             //TODO: Handle errors
+            echo ('Exception occurred in sync: ' . $er->getMessage());
         }
     }
 
+    /**
+     * Get latest activity info from virtuagy
+     */
     public function retrieveAndStoreActivities()
     {
         /**
@@ -149,10 +179,24 @@ class Sync
         $this->activities->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
     }
 
-    public function retrieveAndStoreAppointments()
+    /**
+     * Get all current appointments from the calendar
+     * Update the appointments table to match the calendar
+     */
+    private function retrieveAndStoreAppointments()
     {
         $events = $this->cal->getEvents();
         if (!empty($events)) $this->activities->storeAppointments($events);
+    }
+
+    private function removeObsoleteActivitiesFromCalendar()
+    {
+        $appointments = $this->activities->getObsoleteAppointments();
+        if (!empty($appointments)) {
+            foreach ($appointments as $apt) {
+                $this->cal->removeEvent($apt);
+            }
+        }
     }
 
     /**
@@ -162,8 +206,8 @@ class Sync
      * Add it to the calendar
      * Add a relation to the act_to_cal table
      */
-    public function addNewActivitiesToCalendar()
-    { //TODO make private
+    private function addNewActivitiesToCalendar()
+    {
         $activities = $this->activities->getUnsyncedActivities();
         if (!empty($activities)) {
             foreach ($activities as $act) {
@@ -174,17 +218,6 @@ class Sync
         }
     }
 
-    public function removeObsoleteActivitiesFromCalendar()
-    { //TODO make private
-        $activities = $this->activities->getObsoleteActivities();
-        if (!empty($activities)) {
-            foreach ($activities as $activity) {
-                $this->cal->removeEvent($activity);
-                $this->activities->bufferObsoleteRelation($activity);
-            }
-            $this->activities->queryRemoveRelations();
-        }
-    }
 
 
     public function getAllStoredActivities($asc)
