@@ -5,13 +5,19 @@
         "allowed-categories": [
             "added", "changed", "deprecated", "removed", "fixed", "security"
         ],
+        "added" : [
+            "Nothing yet"
+        ]
+    },
+    "1.0.1": {
         "added": [
             "Changelog",
             "Manual sync button on homepage",
             "Connection status summary on homepage"
         ],
         "fixed": [
-            "Enable AutoSync for all users"
+            "Enable AutoSync for all users",
+            "Sync flow correctly updates obsolete appointments"
         ]
     },
     "1.0.0": {
