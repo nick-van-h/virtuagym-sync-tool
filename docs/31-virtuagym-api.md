@@ -1,5 +1,12 @@
+# VirtuaGym API
 
-# API call results
+## Official documentation
+
+[VirtuaGym API readme](https://github.com/virtuagym/Virtuagym-Public-API/blob/master/README.md)
+
+[VirtuaGym API Wiki](https://github.com/virtuagym/Virtuagym-Public-API/wiki)
+
+## API call results
 
 ### User profile
 
@@ -7,12 +14,12 @@
 stdClass Object
 (
     [id] => 6208394
-    [email] => nick.vh89@pm.me
-    [username] => Nick-vh
-    [username_url] => nick-vh
+    [email] => john.doe@example.com
+    [username] => John-doe
+    [username_url] => john-doe
     [length_unit] => cm
     [weight_unit] => kg
-    [user_avatar] => 
+    [user_avatar] =>
     [pro] => 1
     [language] => nl
     [activated] => 1
@@ -30,38 +37,38 @@ stdClass Object
         (
             [0] => stdClass Object
                 (
-                    [club_id] => 20556
-                    [member_id] => 8955401
+                    [club_id] => xxx
+                    [member_id] => yyyy
                     [member_pro] => 0
                 )
 
             [1] => stdClass Object
                 (
-                    [club_id] => 16389
-                    [member_id] => 34285503
+                    [club_id] => xxx
+                    [member_id] => yyyy
                     [member_pro] => 1
                 )
 
         )
 
     [content_language] => nl
-    [birthday] => 19-02-1989
-    [length] => 175
-    [weight] => 73
+    [birthday] => dd-mm-yyyy
+    [length] => xxx
+    [weight] => xx
     [country] => NL
-    [city] => Veldhoven
+    [city] => Knowhere
     [timezone] => Europe/Amsterdam
-    [firstname] => Nick
-    [lastname] => van Huijkelom
-    [name] => Nick van Huijkelom
+    [firstname] => John
+    [lastname] => Doe
+    [name] => John Doe
     [gender] => m
     [club_ids] => Array
         (
-            [0] => 20556
-            [1] => 16389
+            [0] => xxx
+            [1] => xxx
         )
 
-    [member_id] => 8955401
+    [member_id] => yyyy
     [selected_bodymetrics] => Array
         (
             [0] => weight
@@ -82,22 +89,22 @@ Array
 (
     [0] => stdClass Object
         (
-            [act_inst_id] => 2164905328
+            [act_inst_id] => xxxxxx (bigint)
             [order] => 1
             [done] => 1
             [deleted] => 0
             [timestamp_edit] => 1663693299
             [rest_after_exercise] => 30
-            [act_id] => 141108
+            [act_id] => xxx
             [kcal] => 511
-            [user_id] => 6208394
+            [user_id] => xxx
             [rpe] => 0
-            [event_id] => 1780549267-62b589fe00cda6-30585645
+            [event_id] => xx-yy-zz
             [timestamp] => 1663668000
             [distance] => 0
             [speed] => 0
             [duration] => 3600
-            [superset_with_next_act] => 
+            [superset_with_next_act] =>
         )
 )
 ```
@@ -115,8 +122,8 @@ stdClass Object
         (
             [0] => stdClass Object
                 (
-                    [event_id] => 1754855709-62b5924b036943-67919712
-                    [activity_id] => 99644
+                    [event_id] => xx-yy-zz
+                    [activity_id] => xxx
                     [schedule_id] => 1
                     [event_start] => 1662012000
                     [event_end] => 1662015600
@@ -132,12 +139,12 @@ stdClass Object
                     [hide_participants_amount] => 0
                     [only_managers_book_members] => 0
                     [bookable_from_timestamp] => 1661148000
-                    [club_id] => 16389
+                    [club_id] => xxx
                     [instructors] => Array
                         (
                         )
 
-                    [is_instructor_pic] => 
+                    [is_instructor_pic] =>
                     [service_cost] => 1
                     [service_id] => strip
                 )
@@ -158,18 +165,18 @@ stdClass Object
         (
             [0] => stdClass Object
                 (
-                    [id] => 49990
-                    [name] => WOD
-                    [url_id] => groepstraining-wod
-                    [searchfield] => WOD    Groepstraining (WOD)   
+                    [id] => xxx
+                    [name] => str
+                    [url_id] => str
+                    [searchfield] => str
                     [type] => 0
                     [difficulty] => 2
-                    [video] => 
-                    [video_female] => 
+                    [video] =>
+                    [video_female] =>
                     [img] => e06b2796a66eb89bda581660bd49077eb76e.jpg
-                    [img_female] => 
+                    [img_female] =>
                     [thumb] => 9f93ce086c1cfa4927bfb5c8e72d3e25b4c5.jpg
-                    [thumb_female] => 
+                    [thumb_female] =>
                     [icon] => 50394f91480d528de18ef4dc78c3871a9edc.jpg
                     [order] => 0
                     [pro] => 0
@@ -186,7 +193,7 @@ stdClass Object
                     [standing_animation] => 0
                     [avatar_scale] => 1
                     [deleted] => 0
-                    [club_id] => 16389
+                    [club_id] => xxx
                     [category] => strength-dynamic
                     [content_type] => 0
                     [has_distance] => 0

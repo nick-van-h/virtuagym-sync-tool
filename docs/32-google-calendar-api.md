@@ -1,21 +1,14 @@
-
 # API call results
 
 ### Reference documentation
 
-https://developers.google.com/identity/protocols/oauth2/web-server#creatingclient
-
-https://developers.google.com/identity/protocols/oauth2/web-server#httprest_3
-
 https://developers.google.com/identity/gsi/web/guides/overview
 
-https://developers.google.com/identity/protocols/oauth2/native-app#offline
+https://developers.google.com/identity/protocols/oauth2/web-server
 
 https://github.com/googleapis/google-api-php-client
 
-https://console.cloud.google.com/apis/credentials?project=virtuagym-sync-tool
-
-https://developers.google.com/identity/protocols/oauth2/web-server#authorization-errors-redirect-uri-mismatch
+https://developers.google.com/calendar/api/v3/reference
 
 ### listCalendarList
 
@@ -30,7 +23,7 @@ Google\Service\Calendar\CalendarList Object
     [itemsType:protected] => Google\Service\Calendar\CalendarListEntry
     [itemsDataType:protected] => array
     [kind] => calendar#calendarList
-    [nextPageToken] => 
+    [nextPageToken] =>
     [nextSyncToken] => xxx
     [items] => Array
         (
@@ -44,23 +37,23 @@ Google\Service\Calendar\CalendarList Object
                     [backgroundColor] => #16a765
                     [colorId] => 8
                     [conferencePropertiesType:protected] => Google\Service\Calendar\ConferenceProperties
-                    [conferencePropertiesDataType:protected] => 
+                    [conferencePropertiesDataType:protected] =>
                     [defaultRemindersType:protected] => Google\Service\Calendar\EventReminder
                     [defaultRemindersDataType:protected] => array
-                    [deleted] => 
-                    [description] => 
+                    [deleted] =>
+                    [description] =>
                     [etag] => "xxx"
                     [foregroundColor] => #000000
-                    [hidden] => 
+                    [hidden] =>
                     [id] => xxx
                     [kind] => calendar#calendarListEntry
-                    [location] => 
+                    [location] =>
                     [notificationSettingsType:protected] => Google\Service\Calendar\CalendarListEntryNotificationSettings
-                    [notificationSettingsDataType:protected] => 
+                    [notificationSettingsDataType:protected] =>
                     [primary] => 1
                     [selected] => 1
                     [summary] => xxx
-                    [summaryOverride] => 
+                    [summaryOverride] =>
                     [timeZone] => Europe/Amsterdam
                     [notificationSettings] => Google\Service\Calendar\CalendarListEntryNotificationSettings Object
                         (
@@ -71,7 +64,6 @@ Google\Service\Calendar\CalendarList Object
 )
 ```
 
-
 Events
 
 ```
@@ -79,35 +71,35 @@ Array
 (
     [0] => Google\Service\Calendar\Event Object
         (
-            [colorId] => 
+            [colorId] =>
             [created] => 2022-10-13T13:38:06.000Z
-            [description] => 
+            [description] =>
             [etag] => "xxx"
             [eventType] => default
             [iCalUID] => 123xy@google.com
             [id] => 123xy
             [kind] => calendar#event
             [location] => xxx
-            [recurrence] => 
-            [recurringEventId] => 
+            [recurrence] =>
+            [recurringEventId] =>
             [sequence] => 1
             [status] => confirmed
             [summary] => xxx
             [transparency] => transparent
             [updated] => 2022-11-07T11:29:05.624Z
-            [visibility] => 
+            [visibility] =>
             [creator] => Google\Service\Calendar\EventCreator Object=
-                    [displayName] => 
+                    [displayName] =>
                     [email] => xxx
             [organizer] => Google\Service\Calendar\EventOrganizer Object
-                    [displayName] => 
+                    [displayName] =>
                     [email] => xxx
             [start] => Google\Service\Calendar\EventDateTime Object
-                    [date] => 
+                    [date] =>
                     [dateTime] => 2022-11-07T15:00:00+01:00
                     [timeZone] => Europe/Amsterdam
             [end] => Google\Service\Calendar\EventDateTime Object
-                    [date] => 
+                    [date] =>
                     [dateTime] => 2022-11-07T15:30:00+01:00
                     [timeZone] => Europe/Amsterdam
             [reminders] => Google\Service\Calendar\EventReminders Object
