@@ -27,5 +27,6 @@ foreach ($users as $usr) {
     try {
         $sync->scheduledSyncAll();
     } catch (Exception $e) {
+        echo ("Error during sync: " . $e->getMessage() . ' in ' . $e->getTraceAsString());
     }
 }
