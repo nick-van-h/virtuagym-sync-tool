@@ -152,7 +152,14 @@ abstract class Database
         if (!empty($this->paramsArr)) {
             //Loop through the array of params to execute the query
             foreach ($this->paramsArr as $key => $params) {
-                $this->queryOne($query, $this->paramTypes[$key], $params);
+                //Execute the query
+                $res = $this->queryOne($query, $this->paramTypes[$key], $params);
+
+                //If the query ran into an error then reset and reprepare the statement
+                if (!$res) {
+                    $this->stmt->reset();
+                    $this->stmt->prepare($query);
+                }
             }
         } else {
             $this->queryOne($query);
@@ -172,6 +179,7 @@ abstract class Database
 
     /**
      * Execute one single query and append the results to this class's array
+     * @return bool succesful execution
      */
     private function queryOne($query, $types = null, $params = null)
     {
@@ -207,7 +215,7 @@ abstract class Database
         //Check for errors
         if ($this->stmt->errno != 0) {
             $this->setError($this->stmt->errno . ' - ' . $this->stmt->error);
-            return;
+            return false;
         }
         //Check if any rows were returned (stmt->get_result returns false if no rows returned)
         if ($result) {
@@ -223,6 +231,7 @@ abstract class Database
              */
             $this->rows[] = NULL;
         }
+        return true;
     }
 
     /**
