@@ -90,7 +90,7 @@ abstract class Database
      */
     function getQueryOk()
     {
-        return (isset($this->errors) && !empty($this->errors));
+        return (!isset($this->errors) || empty($this->errors));
     }
 
     /**

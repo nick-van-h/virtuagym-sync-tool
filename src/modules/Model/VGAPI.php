@@ -18,7 +18,7 @@ class VGAPI
 
     private const API_URL = 'https://api.virtuagym.com/api/v0';
     private const STATUS_OK = '200';
-    private const STATUS_UNAUTHENTICATED = '401';
+    private const STATUS_UNAUTHORIZED = '401';
     private const STATUS_ACCESS_DISABLED = '403';
     private const EXCEED_REQUESTS = 'Too many API requests.';
 
@@ -43,6 +43,10 @@ class VGAPI
     public function getLastStatusIsOk()
     {
         return $this->statuscode == self::STATUS_OK;
+    }
+    public function getLastStatusIsUnauthorized()
+    {
+        return $this->statuscode == self::STATUS_UNAUTHORIZED;
     }
     public function getLastStatusMessage()
     {
