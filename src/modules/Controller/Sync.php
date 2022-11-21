@@ -2,6 +2,7 @@
 
 namespace Vst\Controller;
 
+use Exception;
 use Vst\Model\Database\Settings;
 use Vst\Model\Session;
 use Vst\Model\Database\Activities;
@@ -16,17 +17,21 @@ class Sync
     private $activities;
     private $cal;
     private $log;
+    private $settings;
 
     public function __construct()
     {
         /**
-         * Init generic controllers
+         * Init database controllers & check if db connection can be made
+         * If no connection can be made then there is no use to continue
          */
-        $this->settings = new Settings;
-        $this->crypt = new Crypt;
-        $this->session = new Session;
-        $this->activities = new Activities;
         $this->log = new Log;
+        $this->settings = new Settings;
+        $this->activities = new Activities;
+        $this->settings = new Settings;
+        if(!$this->log->getConnectionOk() || !$this->settings->getConnectionOk() || !$this->activities->getConnectionOk() || !$this->settings->getConnectionOk()) {
+            throw new Exception("Internal server error: Unable to establish database connection(s)");
+        }
 
         /**
          * Get api key, decrypted username and decrypted password
@@ -34,8 +39,8 @@ class Sync
          */
         $conf = getConfig();
         $apikey = $conf['virtuagym_api_key'];
-        $username = $this->crypt->getDecryptedMessage($this->settings->getVirtuagymUsernameEnc());
-        $password = $this->crypt->getDecryptedMessage($this->settings->getVirtuagymPasswordEnc());
+        $username = $this->settings->getVirtuagymUsername();
+        $password = $this->settings->getVirtuagymPassword();
 
         $this->vgapi = new VGAPI($apikey, $username, $password);
 
@@ -47,6 +52,7 @@ class Sync
         if ($provider) {
             $credentials = $this->settings->getCalendarCredentials();
             $this->cal = CalendarFactory::getProvider($provider, $credentials);
+            if ($this->cal->testConnection()) throw new \Exception ("Unable to establish Calendar connection");
         }
     }
 
@@ -157,14 +163,23 @@ class Sync
     }
 
     /**
-     * Get latest activity info from virtuagy
+     * Get latest activity info from virtuagy & store in database
+     * @return bool succesful
      */
     public function retrieveAndStoreActivities()
     {
         /**
-         * Get raw data from VG API and store in VG database
+         * Get raw data from VG API 
+         * Check if first call was succesful (i.e. credentials are valid)
+         * and store in VG database
+         * If call was unsuccesful add a log entry and abort sync
          */
-        $this->activities->storeActivities($this->vgapi->getActivities());
+        $activities = $this->vgapi->getActivities();
+        if(!$this->vgapi->getLastStatusIsOk()) {
+            $this->log->addError('Sync','Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
+            return false;
+        }
+        $this->activities->storeActivities($activities);
         /**
          * Get the latest club id's from the recent activities call
          * Get the date range for user planned events from the recent activities call
@@ -177,6 +192,19 @@ class Sync
         $this->activities->storeClubs($clubs);
         $this->activities->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
         $this->activities->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
+        /**
+         * Check if all database queres were executed ok
+         */
+        if($this->activities->getQueryOk()) {
+            return true;
+        } else {
+            $dbErrors = $this->activities->getErrors();
+            foreach($dbErrors as $error)
+            {
+                $this->log->addError('Sync','Unable to store data: ' . $error);
+            }
+            return false;
+        }
     }
 
     /**

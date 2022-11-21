@@ -78,11 +78,13 @@ abstract class Database
     }
 
     /**
-     * Retrieves the array of errors
+     * Retrieves the array of errors & resets the array
      */
     function getErrors()
     {
-        return $this->errors;
+        $err = $this->errors;
+        $this->errors = [];
+        return $err;
     }
 
     /**

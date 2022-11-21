@@ -38,6 +38,10 @@ class VGAPI
     {
         return $this->statuscode;
     }
+    public function getLastStatusIsOk()
+    {
+        return $this->statuscode == self::STATUS_OK;
+    }
     public function getLastStatusMessage()
     {
         return $this->statusmessage;
@@ -178,7 +182,7 @@ class VGAPI
             $reply = curl_exec($ch);
             curl_close($ch);
         } catch (\Exception $e) {
-            echo ('Exit with message: ' . $e->getMessage());
+            echo ('API call failed with message: ' . $e->getMessage());
             $this->log->addWarning('API-call', 'Call to ' . self::API_URL . '/' . $path . ' failed with message: ' . $e->getMessage());
         }
         $result = json_decode($reply);

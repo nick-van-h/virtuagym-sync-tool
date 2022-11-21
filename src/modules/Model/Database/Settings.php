@@ -14,6 +14,9 @@ class Settings extends Database
     private $session;
     private $crypt;
 
+    private const STATUS_OK = 'OK';
+    private const STATUS_NOK = 'NOK';
+
     function __construct()
     {
         parent::__construct();
@@ -85,12 +88,12 @@ class Settings extends Database
 
         //Update user
         $username_enc = $this->crypt->getEncryptedMessage($username);
-        $this->settings->setVirtuagymUsernameEnc($username_enc);
+        $this->setSetting('virtuagym_username_enc', $username_enc);
         $success &= $this->settings->getQueryOk();
 
         //update password
         $password_enc = $this->crypt->getEncryptedMessage($password);
-        $this->settings->setVirtuagymPasswordEnc($password_enc);
+        $this->setSetting('virtuagym_password_enc', $password_enc);
         $success &= $this->settings->getQueryOk();
 
         return $success;
@@ -112,11 +115,13 @@ class Settings extends Database
      */
     function setVirtuagymUsernameEnc($vg_username_enc)
     {
-        $this->setSetting('virtuagym_username_enc', $vg_username_enc);
+        // $this->setSetting('virtuagym_username_enc', $vg_username_enc);
+        throw new \Exception("Function is depricated");
     }
     function getVirtuagymUsernameEnc()
     {
-        return ($this->getSettingValue('virtuagym_username_enc'));
+        // return ($this->getSettingValue('virtuagym_username_enc'));
+        throw new \Exception("Function is depricated");
     }
 
     /**
@@ -124,12 +129,14 @@ class Settings extends Database
      */
     function setVirtuagymPasswordEnc($vg_password_enc)
     {
-        $this->setSetting('virtuagym_password_enc', $vg_password_enc);
+        // $this->setSetting('virtuagym_password_enc', $vg_password_enc);
+        throw new \Exception("Function is depricated");
     }
     function getVirtuagymPasswordEnc()
     {
-        $pw_enc = $this->getSettingValue('virtuagym_password_enc');
-        return ($pw_enc);
+        // $pw_enc = $this->getSettingValue('virtuagym_password_enc');
+        // return ($pw_enc);
+        throw new \Exception("Function is depricated");
     }
 
     /**
@@ -143,6 +150,38 @@ class Settings extends Database
     {
         $dt = $this->getSettingValue('virtuagym_last_sync');
         return $dt;
+    }
+
+    /**
+     * Last VirtuaGym connection status
+     */
+    public function setLastVgConnectionStatusOk()
+    {
+        $this->setSetting('last_vg_conn_errors',0);
+    }
+    public function setLastVgConnectionStatusNok()
+    {
+        $this->setSetting('last_vg_conn_errors',$this->getSettingValue('last_vg_conn_errors')+1);
+    }
+    public function getLastVgConnectionStatusIsOk()
+    {
+        return $this->getSettingValue('last_vg_conn_errors') == 0;
+    }
+
+    /**
+     * Last Calendar connection status
+     */
+    public function setLastCalendarConnectionStatusOk()
+    {
+        $this->setSetting('last_cal_conn_errors',0);
+    }
+    public function setLastCalendarConnectionStatusNok()
+    {
+        $this->setSetting('last_cal_conn_errors',$this->getSettingValue('last_cal_conn_errors')+1);
+    }
+    public function getLastCalendarConnectionStatusIsOk()
+    {
+        return $this->getSettingValue('last_cal_conn_errors') == 0;
     }
 
     /**
