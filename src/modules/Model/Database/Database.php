@@ -2,6 +2,8 @@
 
 namespace Vst\Model\Database;
 
+use Vst\Exceptions\DatabaseConnectionException;
+
 /**
  * Use Template Method to define basic Database behavior
  */
@@ -40,8 +42,7 @@ abstract class Database
         //Get the config file
         $db = getConfig();
         if (!$db) {
-            $this->addError('Unable to get config file');
-            exit;
+            throw new DatabaseConnectionException('Unable to get config file');
         }
 
         //Set up the connection
@@ -51,8 +52,7 @@ abstract class Database
             $this->db = new \mysqli($db['host'], $db['username'], $db['password'], $db['database']);
         } catch (\Exception $e) {
             //Store the exception details as error
-            $this->addError('MySQLi Error Code: ' . $e->getCode() . ' | Exception Msg: ' . $e->getMessage());
-            exit;
+            throw new DatabaseConnectionException('Unable to establish database connection: ' . $e->getCode() . ' | ' . $e->getMessage());
         }
         //Turn off excessive error reporting
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -187,7 +187,7 @@ abstract class Database
 
                 //If the query ran into an error then reset and reprepare the statement
                 if (!$this->query_ok) {
-                    echo ('Query NOK, message: ' . $this->status);
+                    echo ($this->status);
                     $this->stmt->reset();
                     $this->stmt->prepare($query);
                 }
