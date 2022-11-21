@@ -10,6 +10,7 @@ use Vst\Model\VGAPI;
 use Vst\Model\Calendar\CalendarFactory;
 use Vst\Model\Database\Log;
 
+use \Vst\Exceptions\DatabaseConnectionException;
 
 class Sync
 {
@@ -25,12 +26,13 @@ class Sync
          * Init database controllers & check if db connection can be made
          * If no connection can be made then there is no use to continue
          */
-        $this->log = new Log;
-        $this->settings = new Settings;
-        $this->activities = new Activities;
-        $this->settings = new Settings;
-        if(!$this->log->getConnectionOk() || !$this->settings->getConnectionOk() || !$this->activities->getConnectionOk() || !$this->settings->getConnectionOk()) {
-            throw new Exception("Internal server error: Unable to establish database connection(s)");
+        try {
+            $this->log = new Log;
+            $this->settings = new Settings;
+            $this->activities = new Activities;
+            $this->settings = new Settings;
+        } catch (DatabaseConnectionException $e) {
+            throw new Exception("Internal server error: Unable to establish database connection: " . $e->getMessage());
         }
 
         /**
@@ -52,7 +54,7 @@ class Sync
         if ($provider) {
             $credentials = $this->settings->getCalendarCredentials();
             $this->cal = CalendarFactory::getProvider($provider, $credentials);
-            if ($this->cal->testConnection()) throw new \Exception ("Unable to establish Calendar connection");
+            if (!$this->cal->testConnection()) throw new \Exception("Unable to establish Calendar connection");
         }
     }
 
@@ -175,8 +177,8 @@ class Sync
          * If call was unsuccesful add a log entry and abort sync
          */
         $activities = $this->vgapi->getActivities();
-        if(!$this->vgapi->getLastStatusIsOk()) {
-            $this->log->addError('Sync','Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
+        if (!$this->vgapi->getLastStatusIsOk()) {
+            $this->log->addError('Sync', 'Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
             return false;
         }
         $this->activities->storeActivities($activities);
@@ -195,13 +197,12 @@ class Sync
         /**
          * Check if all database queres were executed ok
          */
-        if($this->activities->getQueryOk()) {
+        if ($this->activities->getQueryOk()) {
             return true;
         } else {
             $dbErrors = $this->activities->getErrors();
-            foreach($dbErrors as $error)
-            {
-                $this->log->addError('Sync','Unable to store data: ' . $error);
+            foreach ($dbErrors as $error) {
+                $this->log->addError('Sync', 'Unable to store data: ' . $error);
             }
             return false;
         }

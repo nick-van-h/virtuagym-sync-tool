@@ -18,6 +18,8 @@ class VGAPI
 
     private const API_URL = 'https://api.virtuagym.com/api/v0';
     private const STATUS_OK = '200';
+    private const STATUS_UNAUTHENTICATED = '401';
+    private const STATUS_ACCESS_DISABLED = '403';
     private const EXCEED_REQUESTS = 'Too many API requests.';
 
     public function __construct($apikey, $username, $password)

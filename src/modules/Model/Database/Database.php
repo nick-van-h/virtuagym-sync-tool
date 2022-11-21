@@ -13,7 +13,6 @@ abstract class Database
     private $stmt;
 
     //External status parameters
-    private $connection_ok;
     private $errors;
 
     //Internal status parameters
@@ -32,7 +31,6 @@ abstract class Database
     function __construct()
     {
         //Init variables
-        $this->connection_ok = false;
         $this->errors = [];
         $this->rows = [];
         $this->numrows = [];
@@ -59,7 +57,6 @@ abstract class Database
 
         //Set status succesful
         $this->setOk();
-        $this->connection_ok = true;
     }
 
     function __destruct()
@@ -85,15 +82,6 @@ abstract class Database
         $err = $this->errors;
         $this->errors = [];
         return $err;
-    }
-
-    /**
-     * Retrieves the status of the connection to the database
-     * @return bool connection_ok
-     */
-    function getConnectionOk()
-    {
-        return $this->connection_ok;
     }
 
     /**
@@ -218,7 +206,7 @@ abstract class Database
         //Catch a query with paramaters (? or :) while no parameters ar bound
         if (preg_match('/[?:]/', $query) && !(isset($params) && !empty($params))) {
             $this->rows[] = NULL;
-            throw new \Exception('Trying to execute a query with parameters while no parameters are bound');
+            throw new \Exception('Trying to execute a query with parameters while no parameters are bound in ' . print_r(debug_backtrace()));
             return;
         }
 
