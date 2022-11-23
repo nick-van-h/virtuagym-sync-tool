@@ -120,25 +120,53 @@ class VGAPI
         return $data;
     }
 
-    public function getActivityDefinitions($clubs)
+    public function getClubs()
     {
         //Init data array to be returned by the function
         $data = [];
 
-        //Loop through clubs
-        foreach ($clubs as $club) {
-            //Make the call to get the activities for that club
-            $path = 'club/' . $club . '/activity/definition';
-            $this->call($path);
+        //Make the call to get the club id's
+        $path = 'clubs';
+        $this->call($path);
 
-            //Store the call result in the data array
-            if ($this->hasResults()) {
-                $data[] = $this->data;
+        //Store the call result in the data array
+        if ($this->hasResults()) {
+            foreach ($this->data as $club) {
+                $data[] = array(
+                    'club_id' => $club->id,
+                    'name' => $club->name,
+                    'full_address' => $club->formatted_address,
+                    'street' => $club->street_name,
+                    'zip_code' => $club->zipcode,
+                    'city' => $club->city,
+                    'club_description' => $club->description
+
+                );
             }
         }
 
         //Return the final data array
         return $data;
+    }
+
+    public function getActivityDefinitions($clubid)
+    {
+        //Init data array to be returned by the function
+        $data = [];
+
+        //Make the call to get the activities for that club
+        $path = 'club/' . $clubid . '/activity/definition';
+        $this->call($path);
+
+        //Store the call result in the data array
+        if ($this->hasResults()) {
+            return $this->data;
+        } else {
+            return false;
+        }
+
+        //Return the final data array
+        //return $data;
     }
 
     public function getEventDefinitions($clubs, $dates)

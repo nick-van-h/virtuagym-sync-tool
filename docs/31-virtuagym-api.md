@@ -109,7 +109,7 @@ Array
 )
 ```
 
-### Gym events
+### Gym event definitions
 
 ```
 stdClass Object

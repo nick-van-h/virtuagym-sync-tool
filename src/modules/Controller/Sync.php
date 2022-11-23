@@ -26,6 +26,7 @@ class Sync
          * Init database controllers & check if db connection can be made
          * If no connection can be made then there is no use to continue
          */
+
         try {
             $this->log = new Log;
             $this->settings = new Settings;
@@ -33,6 +34,7 @@ class Sync
             $this->settings = new Settings;
         } catch (DatabaseConnectionException $e) {
             throw new Exception("Internal server error: Unable to establish database connection: " . $e->getMessage());
+
         }
 
         /**
@@ -54,6 +56,7 @@ class Sync
         if ($provider) {
             $credentials = $this->settings->getCalendarCredentials();
             $this->cal = CalendarFactory::getProvider($provider, $credentials);
+
             if (!$this->cal->testConnection()) throw new \Exception("Unable to establish Calendar connection");
         }
 
@@ -80,6 +83,7 @@ class Sync
                 $this->settings->addLastCalendarConnectionErrorCount();
                 throw new \Exception("Unable to connect to Calendar");
             }
+
         }
     }
 
@@ -211,16 +215,62 @@ class Sync
             throw new \Exception('Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
         } else {
             $this->settings->setLastVgConnectionStatusOk();
+
         }
         $this->activities->storeActivities($activities);
+
+        /**
+         * Check if there are any missing activity definitions
+         * If so, retrieve the current clubs from the database
+         * Then retrieve the activity definitions for those clubs
+         * And store it in the database
+         */
+        $missingDefinitions = $this->activities->getMissingActivityDefinitions();
+        if (isset($missingDefinitions) && !empty($missingDefinitions)) {
+            $curClubIds = $this->activities->getClubIds();
+            $this->getAndStoreActivityDefinitions($curClubIds);
+        }
+
+        /**
+         * Check for new clubs
+         * Check again if there are missing activity definitions
+         * If this is the case it means that the user added a new club (and planned at least 1 activity)
+         * Retrieve new clubs and retrieve activity definitions for those clubs
+         */
+        $missingDefinitions = $this->activities->getMissingActivityDefinitions();
+        if (isset($missingDefinitions) && !empty($missingDefinitions)) {
+            //Get clubs info and store in database
+            $clubs = $this->vgapi->getClubs();
+            $this->activities->storeClubs($clubs);
+
+
+            //Extract the ID's from the array
+            $clubIds = [];
+            foreach ($clubs as $club) {
+                $clubIds[] = $club['club_id'];
+            }
+
+            //Extract new clubs only
+            $newClubIds = array_diff($clubIds, $curClubIds);
+
+            //Loop through new clubs and get activity definitions
+            if (isset($newClubIds) && !empty($newClubIds)) {
+                $this->getAndStoreActivityDefinitions($newClubIds);
+            }
+        }
+
+
         /**
          * Get the latest club id's from the recent activities call
          * Get the date range for user planned events from the recent activities call
          */
-        $clubs = $this->vgapi->getClubIds();
+        $clubs = $this->vgapi->getClubs();
         $dates = $this->getDates();
         /**
          * Update the database with the user specific info & club definities
+         * Check if any activity definition is missing, if so;
+         * We always need to retrieve & store the activity definition
+         * There is no relation from user activity to club, so this must be done for all clubs
          */
         $this->activities->storeClubs($clubs);
         $this->activities->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
@@ -236,6 +286,14 @@ class Sync
                 $err .= $error . '\n';
             }
             throw new \Exception('Unable to store VirtuaGym data in database: ' . $err);
+        }
+    }
+
+    private function getAndStoreActivityDefinitions($clubIds)
+    {
+        foreach ($clubIds as $clubId) {
+            $activities = $this->vgapi->getActivityDefinitions($clubId);
+            $this->activities->storeActivityDefinitions($activities);
         }
     }
 
