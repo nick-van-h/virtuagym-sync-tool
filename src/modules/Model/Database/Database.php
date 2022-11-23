@@ -206,7 +206,7 @@ abstract class Database
         //Catch a query with paramaters (? or :) while no parameters ar bound
         if (preg_match('/[?:]/', $query) && !(isset($params) && !empty($params))) {
             $this->rows[] = NULL;
-            throw new \Exception('Trying to execute a query with parameters while no parameters are bound in ' . print_r(debug_backtrace()));
+            throw new \Exception('Trying to execute a query with parameters while no parameters are bound');
             return;
         }
 

@@ -34,7 +34,6 @@ class Sync
             $this->settings = new Settings;
         } catch (DatabaseConnectionException $e) {
             throw new Exception("Internal server error: Unable to establish database connection: " . $e->getMessage());
-
         }
 
         /**
@@ -83,7 +82,6 @@ class Sync
                 $this->settings->addLastCalendarConnectionErrorCount();
                 throw new \Exception("Unable to connect to Calendar");
             }
-
         }
     }
 
@@ -186,10 +184,10 @@ class Sync
             $this->settings->setLastSync($dt->format('d-m-Y H:i:s'));
         } catch (\Exception $e) {
             //TODO: Handle exceptions
-            echo ('Exception occurred in sync: ' . $e->getMessage());
+            echo ('Exception occurred in sync: ' . $e->getMessage() . ", stack trace:\n" . $e->getTraceAsString());
         } catch (\Error $er) {
             //TODO: Handle errors
-            echo ('Error occurred in sync: ' . $er->getMessage());
+            echo ('Error occurred in sync: ' . $er->getMessage() . ", stack trace:\n" . $er->getTraceAsString());
         }
     }
 
@@ -215,7 +213,6 @@ class Sync
             throw new \Exception('Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
         } else {
             $this->settings->setLastVgConnectionStatusOk();
-
         }
         $this->activities->storeActivities($activities);
 
@@ -251,7 +248,9 @@ class Sync
             }
 
             //Extract new clubs only
-            $newClubIds = array_diff($clubIds, $curClubIds);
+            if (isset($curClubIds) && !empty($curClubIds)) {
+                $newClubIds = array_diff($clubIds, $curClubIds);
+            }
 
             //Loop through new clubs and get activity definitions
             if (isset($newClubIds) && !empty($newClubIds)) {
@@ -259,22 +258,23 @@ class Sync
             }
         }
 
+        /**
+         * Get missing events
+         * Generate the club/date array
+         * Get events according to club/date array
+         * And store in the database
+         */
+        $missingEvents = $this->activities->getMissingEvents();
+        if (isset($missingEvents) && !empty($missingEvents)) {
+            $clubDates = $this->getClubDates($missingEvents);
+            foreach ($clubDates as $club => $dates) {
+                foreach ($dates as $date) {
+                    $events = $this->vgapi->getEventDefinitions($club, $date);
+                    $this->activities->storeEventDefinitions($events);
+                }
+            }
+        }
 
-        /**
-         * Get the latest club id's from the recent activities call
-         * Get the date range for user planned events from the recent activities call
-         */
-        $clubs = $this->vgapi->getClubs();
-        $dates = $this->getDates();
-        /**
-         * Update the database with the user specific info & club definities
-         * Check if any activity definition is missing, if so;
-         * We always need to retrieve & store the activity definition
-         * There is no relation from user activity to club, so this must be done for all clubs
-         */
-        $this->activities->storeClubs($clubs);
-        $this->activities->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
-        $this->activities->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
         /**
          * Check if all database queres were executed ok
          */
@@ -363,5 +363,24 @@ class Sync
             $dt->modify("+1 month");
         }
         return $dtArr;
+    }
+
+    private function getClubDates($missingEvents)
+    {
+        $clubDates = [];
+        foreach ($missingEvents as $evt) {
+            $dt = new \DateTime(date("Y-m-d H:i:s", $evt['timestamp']));
+            $ym = $dt->format("Y/m");
+            if (isset($clubDates[$evt['club_id']]) && !empty($clubDates[$evt['club_id']])) {
+                $inArr = false;
+                foreach ($clubDates[$evt['club_id']] as $date) {
+                    if ($date == $ym) $inArr = true;
+                }
+                if (!$inArr) $clubDates[$evt['club_id']][] = $ym;
+            } else {
+                $clubDates[$evt['club_id']][] = $ym;
+            }
+        }
+        return $clubDates;
     }
 }
