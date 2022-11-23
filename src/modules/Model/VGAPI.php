@@ -126,7 +126,7 @@ class VGAPI
         $data = [];
 
         //Make the call to get the club id's
-        $path = 'clubs';
+        $path = 'club';
         $this->call($path);
 
         //Store the call result in the data array
@@ -134,13 +134,12 @@ class VGAPI
             foreach ($this->data as $club) {
                 $data[] = array(
                     'club_id' => $club->id,
-                    'name' => $club->name,
-                    'full_address' => $club->formatted_address,
-                    'street' => $club->street_name,
-                    'zip_code' => $club->zipcode,
-                    'city' => $club->city,
-                    'club_description' => $club->description
-
+                    'name' => isset($club->name) ? $club->name : null,
+                    'full_address' => isset($club->formatted_address) ? $club->formatted_address : null,
+                    'street' => isset($club->street_name) ? $club->street_name : null,
+                    'zip_code' => isset($club->zipcode) ? $club->zipcode : null,
+                    'city' => isset($club->city) ? $club->city : null,
+                    'club_description' => isset($club->description) ? $club->description : null,
                 );
             }
         }
@@ -169,25 +168,25 @@ class VGAPI
         //return $data;
     }
 
-    public function getEventDefinitions($clubs, $dates)
+    public function getEventDefinitions($club, $date)
     {
         //Init data array to be returned by the function
         $data = [];
 
         //Loop through clubs, then loop through the date range
-        foreach ($clubs as $club) {
-            foreach ($dates as $dt) {
-                //Make the call to get the club events for that month
-                $path = 'club/' . $club . '/event/' . $dt;
-                $this->call($path);
+        // foreach ($clubs as $club) {
+        //     foreach ($dates as $dt) {
+        //Make the call to get the club events for that month
+        $path = 'club/' . $club . '/event/' . $date;
+        $this->call($path);
 
-                //Store the call result in the data array
-                if ($this->hasResults()) {
-                    //Append the event definition to the data array
-                    $data[] = $this->data;
-                }
-            }
+        //Store the call result in the data array
+        if ($this->hasResults()) {
+            //Append the event definition to the data array
+            $data[] = $this->data;
         }
+        //     }
+        // }
 
         //Return the final data array
         return $data;

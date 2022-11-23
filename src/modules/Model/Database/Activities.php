@@ -254,8 +254,12 @@ class Activities extends Database
         if (empty($this->curEntries)) $this->retrieveAll_act_inst_id();
 
         //Add the child to the designated array based on if it exists already in the database
-        if (in_array($activity->act_inst_id, $this->curEntries)) {
-            $this->dupEntries[] = $activity;
+        if (isset($this->curEntries) && !empty($this->curEntries)) {
+            if (in_array($activity->act_inst_id, $this->curEntries)) {
+                $this->dupEntries[] = $activity;
+            } else {
+                $this->newEntries[] = $activity;
+            }
         } else {
             $this->newEntries[] = $activity;
         }
@@ -308,11 +312,14 @@ class Activities extends Database
      */
     public function storeActivityDefinitions($activities)
     {
-        foreach ($activities as $clubactivities) {
-            foreach ($clubactivities as $clubactivity) {
-                $this->bufferActDef($clubactivity);
-            }
+        foreach ($activities as $clubactivity) {
+            $this->bufferActDef($clubactivity);
         }
+        // foreach ($activities as $clubactivities) {
+        //     foreach ($clubactivities as $clubactivity) {
+        //         $this->bufferActDef($clubactivity);
+        //     }
+        // }
         //Query the buffer to the database
         $this->queryActDef();
     }
@@ -323,8 +330,12 @@ class Activities extends Database
         if (empty($this->curEntries)) $this->retrieveAll_activity_id();
 
         //Add the child to the designated array based on if it exists already in the database
-        if (in_array($activity->id, $this->curEntries)) {
-            $this->dupEntries[] = $activity;
+        if (isset($this->curEntries) && !empty($this->curEntries)) {
+            if (in_array($activity->id, $this->curEntries)) {
+                $this->dupEntries[] = $activity;
+            } else {
+                $this->newEntries[] = $activity;
+            }
         } else {
             $this->newEntries[] = $activity;
         }
@@ -358,7 +369,7 @@ class Activities extends Database
                     VALUES (?,?,?,?,?)";
             $stmt = $this->db->prepare($sql);
             foreach ($this->newEntries as $act) {
-                parent::bufferParams($act->activity_id, $act->name, $act->deleted, $act->club_id, $act->duration);
+                parent::bufferParams($act->id, $act->name, $act->deleted, $act->club_id, $act->duration);
             }
             parent::query($sql);
         }
@@ -392,8 +403,12 @@ class Activities extends Database
         if (empty($this->curEntries)) $this->retrieveAll_event_id();
 
         //Add the child to the designated array based on if it exists already in the database
-        if (in_array($activity->event_id, $this->curEntries)) {
-            $this->dupEntries[] = $activity;
+        if (isset($this->curEntries) && !empty($this->curEntries)) {
+            if (in_array($activity->event_id, $this->curEntries)) {
+                $this->dupEntries[] = $activity;
+            } else {
+                $this->newEntries[] = $activity;
+            }
         } else {
             $this->newEntries[] = $activity;
         }
@@ -477,20 +492,22 @@ class Activities extends Database
         }
 
         //Update duplicate clubs
-        $sql = "UPDATE `clubs`
-                SET `name`=(?), `address`=(?), `street`=(?), `zip_code`=(?), `city`=(?), `club_description`=(?)
-                WHERE `user_id`=(?) AND `club_id`=(?)";
-        foreach ($dupClubs as $club) {
-            parent::bufferParams($club['name'], $club['address'], $club['street'], $club['zip_code'], $club['city'], $club['club_description'], $userid, $club['club_id']);
+        if (isset($dupClubs) && !empty($dupClubs)) {
+            $sql = "UPDATE `clubs`
+                    SET `name`=(?), `full_address`=(?), `street`=(?), `zip_code`=(?), `city`=(?), `club_description`=(?)
+                    WHERE `user_id`=(?) AND `club_id`=(?)";
+            foreach ($dupClubs as $club) {
+                parent::bufferParams($club['name'], $club['full_address'], $club['street'], $club['zip_code'], $club['city'], $club['club_description'], $userid, $club['club_id']);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
 
         //Store new clubs
         if (isset($newClubs) && !empty($newClubs)) {
-            $sql = "INSERT INTO `clubs` (`user_id`, `club_id`, `name`, `address`, `street`, `zip_code`, `city`, `club_description`)
+            $sql = "INSERT INTO `clubs` (`user_id`, `club_id`, `name`, `full_address`, `street`, `zip_code`, `city`, `club_description`)
                     VALUES (?,?,?,?,?,?,?,?)";
             foreach ($newClubs as $club) {
-                parent::bufferParams($userid, $club['club_id'], $club['name'], $club['address'], $club['street'], $club['zip_code'], $club['city'], $club['club_description']);
+                parent::bufferParams($userid, $club['club_id'], $club['name'], $club['full_address'], $club['street'], $club['zip_code'], $club['city'], $club['club_description']);
             }
             parent::query($sql);
         }
@@ -499,7 +516,7 @@ class Activities extends Database
         if (isset($obsClubs) && !empty($obsClubs)) {
             $sql = "DELETE FROM `clubs` WHERE `user_id`=(?) AND `club_id`=(?)";
             foreach ($obsClubs as $club) {
-                parent::bufferParams($userid, $club['club_id']);
+                parent::bufferParams($userid, $club);
             }
             parent::query($sql);
         }
@@ -536,7 +553,7 @@ class Activities extends Database
         if (empty($this->curEntries)) $this->retrieveAll_appointment_id();
 
         //Add the child to the designated array based on if it exists already in the database
-        if (!empty($this->curEntries)) {
+        if (isset($this->curEntries) && !empty($this->curEntries)) {
             if (in_array($activity['id'], $this->curEntries)) {
                 $this->dupEntries[] = $activity;
             } else {
@@ -553,7 +570,7 @@ class Activities extends Database
         if (empty($this->curEntries)) $this->retrieveAll_appointment_id();
 
         //Generate an array of id's of the appointments
-        if (!empty($this->curEntries)) {
+        if (isset($this->curEntries) && !empty($this->curEntries)) {
             $ids = [];
             foreach ($appointments as $appointment) {
                 $ids[] = $appointment['id'];
