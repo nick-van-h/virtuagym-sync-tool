@@ -184,10 +184,13 @@ class Sync
          * Get the latest club id's from the recent activities call
          * Get the date range for user planned events from the recent activities call
          */
-        $clubs = $this->vgapi->getClubIds();
+        $clubs = $this->vgapi->getClubs();
         $dates = $this->getDates();
         /**
          * Update the database with the user specific info & club definities
+         * Check if any activity definition is missing, if so;
+         * We always need to retrieve & store the activity definition
+         * There is no relation from user activity to club, so this must be done for all clubs
          */
         $this->activities->storeClubs($clubs);
         $this->activities->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));

@@ -85,7 +85,7 @@ class Activities extends Database
                     ed.`cancelled`,
                     ed.`bookable_from`
                 FROM `activities` act
-                LEFT JOIN `act_def` ad ON act.act_id = activity_id
+                LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
                 LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
                 WHERE act.user_id = (?) AND ed.event_start > (?)";
         if ($ascdesc == ORDER_ASC) {
@@ -139,12 +139,42 @@ class Activities extends Database
                     ed.`cancelled`,
                     ed.`bookable_from`
                 FROM `activities` act
-                LEFT JOIN `act_def` ad ON act.act_id = activity_id
+                LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
                 LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
                 LEFT JOIN `act_to_apt` ata ON act.act_inst_id = ata.act_inst_id
                 WHERE act.user_id = (?) AND ed.event_start > (?) AND ata.act_inst_id IS NULL 
                         AND act.deleted = '0' AND ad.deleted = '0' AND ed.deleted = '0' AND ed.cancelled = '0'
                 ORDER BY ed.event_start DESC";
+        parent::bufferParams($userid, $mintimestamp);
+        parent::query($sql);
+        return parent::getRows();
+    }
+
+    function getIncompleteEvents() {
+        
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $dt = new \DateTime();
+        $dt->modify('-1 week');
+        $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
+
+        /**
+         * Query results
+         * Start from activities, enrich with activity definition & event definition
+         * We are interested where there is no matching event_id from the evt_def table
+         * We need to know the day of the activity and the club it belongs to 
+         */
+        $sql = "SELECT DISTINCT 
+                    act.`user_id`,
+                    act.`act_inst_id`,
+                    act.`act_id`,
+                    act.`event_id`,
+                    act.`timestamp`
+                    ad.`club_id`,
+                FROM `activities` act
+                LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
+                LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
+                WHERE act.user_id = (?) AND act.timestamp > (?) AND ed.event_id IS NULL";
         parent::bufferParams($userid, $mintimestamp);
         parent::query($sql);
         return parent::getRows();
@@ -163,7 +193,7 @@ class Activities extends Database
                     ata.`appointment_id`
                 FROM `act_to_apt` ata
                 LEFT JOIN `activities` act on ata.act_inst_id = act.act_inst_id
-                LEFT JOIN `act_def` ad ON act.act_id = activity_id
+                LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
                 LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
                 LEFT JOIN `appointments` apt ON ata.appointment_id = apt.appointment_id
                 WHERE act.user_id = (?) AND apt.appointment_id IS NOT NULL AND
