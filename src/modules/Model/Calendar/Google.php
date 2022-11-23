@@ -6,6 +6,7 @@ use Vst\Model\Calendar\CalendarInterface;
 use Google\Service\Calendar as Google_Service_Calendar;
 use Google\Service\Calendar\Event as Google_Service_Calendar_Event;
 use Vst\Controller\Crypt;
+use Vst\Exceptions\CalendarException;
 
 
 class Google implements CalendarInterface
@@ -123,6 +124,7 @@ class Google implements CalendarInterface
 
         //Insert the event in the selected agenda and return the event ID
         $evt = $this->cal->events->insert($this->agendaId, $event);
+        if (!isset($evt['id']) || empty($evt['id'])) throw new CalendarException('Unable to create calendar appointment');
         return $evt['id'];
     }
     public function updateEvent()
@@ -133,11 +135,11 @@ class Google implements CalendarInterface
         //Remove the TMP id
         try {
             $this->cal->events->delete($this->agendaId, $appointmentId);
-            echo ('success!!1one');
         } catch (\Google\Service\Exception $e) {
             echo ('TODO: Store this output & implement proper error handling in code\n');
             echo ('ErrorMessage: ' . $e->getMessage() . '\n');
             echo ('Full error: ' . $e . '\n');
+            throw new CalendarException('Unable to delete calendar appointment');
         }
     }
 
