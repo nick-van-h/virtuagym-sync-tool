@@ -2,6 +2,8 @@
 
 namespace Vst\Model\Database;
 
+use Vst\Exceptions\DatabaseConnectionException;
+
 /**
  * Use Template Method to define basic Database behavior
  */
@@ -10,9 +12,12 @@ abstract class Database
     protected $db;
     private $stmt;
 
-    //Status parameters
-    private $query_ok;
+    //External status parameters
+    private $errors;
+
+    //Internal status parameters
     private $status;
+    private $query_ok;
 
     //Input variables
     private $paramsArr;
@@ -25,29 +30,33 @@ abstract class Database
 
     function __construct()
     {
+        //Init variables
+        $this->errors = [];
         $this->rows = [];
         $this->numrows = [];
         $this->paramsArr = [];
         $this->paramTypes = [];
-        $db = getConfig();
-        if ($db) {
-            try {
-                //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}
-                //$this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
-                $this->db = new \mysqli($db['host'], $db['username'], $db['password'], $db['database']);
-            } catch (\Exception $e) {
-                //Store the exception details as error
-                $this->setError("MySQLi Error Code: " . $e->getCode() . " | Exception Msg: " . $e->getMessage());
-                exit;
-            }
-            //Turn off excessive error reporting
-            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-            //Set status succesful
-            $this->setOk();
-        } else {
-            $this->setError('Unable to get config file');
+        //Get the config file
+        $db = getConfig();
+        if (!$db) {
+            throw new DatabaseConnectionException('Unable to get config file');
         }
+
+        //Set up the connection
+        try {
+            //Try Connect to the DB with mysqli_connect function - Params {hostname, userid, password, dbname}
+            //$this->db = mysqli_connect($db['host'], $db['username'], $db['password'], $db['database']);
+            $this->db = new \mysqli($db['host'], $db['username'], $db['password'], $db['database']);
+        } catch (\Exception $e) {
+            //Store the exception details as error
+            throw new DatabaseConnectionException('Unable to establish database connection: ' . $e->getCode() . ' | ' . $e->getMessage());
+        }
+        //Turn off excessive error reporting
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+        //Set status succesful
+        $this->setOk();
     }
 
     function __destruct()
@@ -56,21 +65,32 @@ abstract class Database
     }
 
     /**
-     * Retrieves the last error message if any
-     * @return string error_message
+     * DEPRECIATED
+     * Tmp: Throw exception so we can backtrace where it is being used
+     * TODO: Monitor & remove when no longer used
      */
     function getStatus()
     {
-        return $this->status;
+        throw new \Exception("Function is depreciated, replace with getErrors()");
+    }
+
+    /**
+     * Retrieves the array of errors & resets the array
+     */
+    function getErrors()
+    {
+        $err = $this->errors;
+        $this->errors = [];
+        return $err;
     }
 
     /**
      * Retrieves the status succesful of last query
-     * @return bool query_ok
+     * @return bool no errors occurred
      */
     function getQueryOk()
     {
-        return $this->query_ok;
+        return (!isset($this->errors) || empty($this->errors));
     }
 
     /**
@@ -102,7 +122,7 @@ abstract class Database
         $paramTypes = '';
         foreach ($param as $key => $val) {
             if (isset($val)) {
-                if (substr($val, 0, 3) == "{i}") {
+                if (substr($val, 0, 3) == '{i}') {
                     $paramTypes .= 'i';
                 } else {
                     $paramTypes .= $this->determineType($val);
@@ -118,7 +138,7 @@ abstract class Database
             //Force integer if prefix is {i}
             $ss = '';
             if (isset($val)) {
-                if (substr($val, 0, 3) == "{i}") {
+                if (substr($val, 0, 3) == '{i}') {
                     $ss = substr($val, 3);
                 } else {
                     $ss = $val;
@@ -153,10 +173,11 @@ abstract class Database
             //Loop through the array of params to execute the query
             foreach ($this->paramsArr as $key => $params) {
                 //Execute the query
-                $res = $this->queryOne($query, $this->paramTypes[$key], $params);
+                $this->queryOne($query, $this->paramTypes[$key], $params);
 
                 //If the query ran into an error then reset and reprepare the statement
-                if (!$res) {
+                if (!$this->query_ok) {
+                    echo ($this->status);
                     $this->stmt->reset();
                     $this->stmt->prepare($query);
                 }
@@ -179,13 +200,13 @@ abstract class Database
 
     /**
      * Execute one single query and append the results to this class's array
-     * @return bool succesful execution
      */
     private function queryOne($query, $types = null, $params = null)
     {
         //Catch a query with paramaters (? or :) while no parameters ar bound
         if (preg_match('/[?:]/', $query) && !(isset($params) && !empty($params))) {
             $this->rows[] = NULL;
+            throw new \Exception('Trying to execute a query with parameters while no parameters are bound');
             return;
         }
 
@@ -214,8 +235,9 @@ abstract class Database
 
         //Check for errors
         if ($this->stmt->errno != 0) {
-            $this->setError($this->stmt->errno . ' - ' . $this->stmt->error);
-            return false;
+            $this->addError($this->stmt->errno . ' - ' . $this->stmt->error);
+            $this->setNok();
+            return;
         }
         //Check if any rows were returned (stmt->get_result returns false if no rows returned)
         if ($result) {
@@ -231,7 +253,7 @@ abstract class Database
              */
             $this->rows[] = NULL;
         }
-        return true;
+        $this->setOk();
     }
 
     /**
@@ -299,13 +321,12 @@ abstract class Database
     }
 
     /**
-     * Sets the status to false and set error message
+     * Add an error to the array
      * @param string errmsg
      */
-    private function setError($errmsg)
+    private function addError($errmsg)
     {
-        $this->status = "Failed to connect to MySQL: " . $errmsg;
-        $this->query_ok = false;
+        $this->errors[] = $errmsg;
     }
 
     /**
@@ -313,8 +334,17 @@ abstract class Database
      */
     private function setOk()
     {
-        $this->status = "All good";
+        $this->status = 'All good';
         $this->query_ok = true;
+    }
+
+    /**
+     * Sets the status to OK and clears error message
+     */
+    private function setNok()
+    {
+        $this->status = 'Stmt execute returned an error';
+        $this->query_ok = false;
     }
 
     /**
@@ -325,16 +355,7 @@ abstract class Database
         $this->numrows = [];
         $this->rows = [];
         $this->query_ok = false;
-        $this->status = "Query not yet executed";
-    }
-
-    /**
-     * Set the status to false and reset the input arrays
-     */
-    private function setStatusInputChanged()
-    {
-        $this->query_ok = false;
-        $this->status = "Input parameters have changed";
+        $this->status = 'Query not yet executed';
     }
 
     /**

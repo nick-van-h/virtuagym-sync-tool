@@ -18,6 +18,8 @@ class VGAPI
 
     private const API_URL = 'https://api.virtuagym.com/api/v0';
     private const STATUS_OK = '200';
+    private const STATUS_UNAUTHORIZED = '401';
+    private const STATUS_ACCESS_DISABLED = '403';
     private const EXCEED_REQUESTS = 'Too many API requests.';
 
     public function __construct($apikey, $username, $password)
@@ -37,6 +39,14 @@ class VGAPI
     public function getLastStatusCode()
     {
         return $this->statuscode;
+    }
+    public function getLastStatusIsOk()
+    {
+        return $this->statuscode == self::STATUS_OK;
+    }
+    public function getLastStatusIsUnauthorized()
+    {
+        return $this->statuscode == self::STATUS_UNAUTHORIZED;
     }
     public function getLastStatusMessage()
     {
@@ -110,20 +120,27 @@ class VGAPI
         return $data;
     }
 
-    public function getActivityDefinitions($clubs)
+    public function getClubs()
     {
         //Init data array to be returned by the function
         $data = [];
 
-        //Loop through clubs
-        foreach ($clubs as $club) {
-            //Make the call to get the activities for that club
-            $path = 'club/' . $club . '/activity/definition';
-            $this->call($path);
+        //Make the call to get the club id's
+        $path = 'club';
+        $this->call($path);
 
-            //Store the call result in the data array
-            if ($this->hasResults()) {
-                $data[] = $this->data;
+        //Store the call result in the data array
+        if ($this->hasResults()) {
+            foreach ($this->data as $club) {
+                $data[] = array(
+                    'club_id' => $club->id,
+                    'name' => isset($club->name) ? $club->name : null,
+                    'full_address' => isset($club->formatted_address) ? $club->formatted_address : null,
+                    'street' => isset($club->street_name) ? $club->street_name : null,
+                    'zip_code' => isset($club->zipcode) ? $club->zipcode : null,
+                    'city' => isset($club->city) ? $club->city : null,
+                    'club_description' => isset($club->description) ? $club->description : null,
+                );
             }
         }
 
@@ -131,25 +148,45 @@ class VGAPI
         return $data;
     }
 
-    public function getEventDefinitions($clubs, $dates)
+    public function getActivityDefinitions($clubid)
+    {
+        //Init data array to be returned by the function
+        $data = [];
+
+        //Make the call to get the activities for that club
+        $path = 'club/' . $clubid . '/activity/definition';
+        $this->call($path);
+
+        //Store the call result in the data array
+        if ($this->hasResults()) {
+            return $this->data;
+        } else {
+            return false;
+        }
+
+        //Return the final data array
+        //return $data;
+    }
+
+    public function getEventDefinitions($club, $date)
     {
         //Init data array to be returned by the function
         $data = [];
 
         //Loop through clubs, then loop through the date range
-        foreach ($clubs as $club) {
-            foreach ($dates as $dt) {
-                //Make the call to get the club events for that month
-                $path = 'club/' . $club . '/event/' . $dt;
-                $this->call($path);
+        // foreach ($clubs as $club) {
+        //     foreach ($dates as $dt) {
+        //Make the call to get the club events for that month
+        $path = 'club/' . $club . '/event/' . $date;
+        $this->call($path);
 
-                //Store the call result in the data array
-                if ($this->hasResults()) {
-                    //Append the event definition to the data array
-                    $data[] = $this->data;
-                }
-            }
+        //Store the call result in the data array
+        if ($this->hasResults()) {
+            //Append the event definition to the data array
+            $data[] = $this->data;
         }
+        //     }
+        // }
 
         //Return the final data array
         return $data;
@@ -178,7 +215,7 @@ class VGAPI
             $reply = curl_exec($ch);
             curl_close($ch);
         } catch (\Exception $e) {
-            echo ('Exit with message: ' . $e->getMessage());
+            echo ('API call failed with message: ' . $e->getMessage());
             $this->log->addWarning('API-call', 'Call to ' . self::API_URL . '/' . $path . ' failed with message: ' . $e->getMessage());
         }
         $result = json_decode($reply);

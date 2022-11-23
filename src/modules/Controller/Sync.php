@@ -2,6 +2,7 @@
 
 namespace Vst\Controller;
 
+use Exception;
 use Vst\Model\Database\Settings;
 use Vst\Model\Session;
 use Vst\Model\Database\Activities;
@@ -9,6 +10,7 @@ use Vst\Model\VGAPI;
 use Vst\Model\Calendar\CalendarFactory;
 use Vst\Model\Database\Log;
 
+use \Vst\Exceptions\DatabaseConnectionException;
 
 class Sync
 {
@@ -16,17 +18,23 @@ class Sync
     private $activities;
     private $cal;
     private $log;
+    private $settings;
 
     public function __construct()
     {
         /**
-         * Init generic controllers
+         * Init database controllers & check if db connection can be made
+         * If no connection can be made then there is no use to continue
          */
-        $this->settings = new Settings;
-        $this->crypt = new Crypt;
-        $this->session = new Session;
-        $this->activities = new Activities;
-        $this->log = new Log;
+
+        try {
+            $this->log = new Log;
+            $this->settings = new Settings;
+            $this->activities = new Activities;
+            $this->settings = new Settings;
+        } catch (DatabaseConnectionException $e) {
+            throw new Exception("Internal server error: Unable to establish database connection: " . $e->getMessage());
+        }
 
         /**
          * Get api key, decrypted username and decrypted password
@@ -34,8 +42,8 @@ class Sync
          */
         $conf = getConfig();
         $apikey = $conf['virtuagym_api_key'];
-        $username = $this->crypt->getDecryptedMessage($this->settings->getVirtuagymUsernameEnc());
-        $password = $this->crypt->getDecryptedMessage($this->settings->getVirtuagymPasswordEnc());
+        $username = $this->settings->getVirtuagymUsername();
+        $password = $this->settings->getVirtuagymPassword();
 
         $this->vgapi = new VGAPI($apikey, $username, $password);
 
@@ -47,6 +55,33 @@ class Sync
         if ($provider) {
             $credentials = $this->settings->getCalendarCredentials();
             $this->cal = CalendarFactory::getProvider($provider, $credentials);
+
+            if (!$this->cal->testConnection()) throw new \Exception("Unable to establish Calendar connection");
+        }
+
+        /**
+         * Test if the connection to VG and calendar can be made
+         * First look at the track record in the database
+         * If an error occurred in the past try to connect now
+         * If it is ok now reset the counter
+         * If it is still nok then throw an error because we can´t sync
+         */
+        if (!$this->settings->getLastVgConnectionStatusIsOk()) {
+            if ($this->testVgConnection()) {
+                $this->settings->setLastVgConnectionStatusOk();
+            } else {
+                $this->settings->addLastVgConnectionErrorCount();
+                throw new \Exception("Unable to connect to VirtuaGym");
+            }
+        }
+
+        if (!$this->settings->getLastCalendarConnectionStatusIsOk()) {
+            if ($this->testCalendarConnection()) {
+                $this->settings->setLastCalendarConnectionStatusOk();
+            } else {
+                $this->settings->addLastCalendarConnectionErrorCount();
+                throw new \Exception("Unable to connect to Calendar");
+            }
         }
     }
 
@@ -149,34 +184,117 @@ class Sync
             $this->settings->setLastSync($dt->format('d-m-Y H:i:s'));
         } catch (\Exception $e) {
             //TODO: Handle exceptions
-            echo ('Exception occurred in sync: ' . $e->getMessage());
+            echo ('Exception occurred in sync: ' . $e->getMessage() . ", stack trace:\n" . $e->getTraceAsString());
         } catch (\Error $er) {
             //TODO: Handle errors
-            echo ('Exception occurred in sync: ' . $er->getMessage());
+            echo ('Error occurred in sync: ' . $er->getMessage() . ", stack trace:\n" . $er->getTraceAsString());
         }
     }
 
     /**
-     * Get latest activity info from virtuagy
+     * Get latest activity info from virtuagy & store in database
+     * @return bool succesful
      */
     public function retrieveAndStoreActivities()
     {
         /**
-         * Get raw data from VG API and store in VG database
+         * Get raw data from VG API 
+         * Check if first call was succesful (i.e. credentials are valid)
+         * and store in VG database
+         * If call was unsuccesful add a log entry and abort sync
          */
-        $this->activities->storeActivities($this->vgapi->getActivities());
+        $activities = $this->vgapi->getActivities();
+        if (!$this->vgapi->getLastStatusIsOk()) {
+            //Check if the reason for nOK is because of invalid credentials
+            if ($this->vgapi->getLastStatusIsUnauthorized()) {
+                $this->settings->addLastVgConnectionErrorCount();
+            }
+            $this->log->addError('Sync', 'Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
+            throw new \Exception('Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
+        } else {
+            $this->settings->setLastVgConnectionStatusOk();
+        }
+        $this->activities->storeActivities($activities);
+
         /**
-         * Get the latest club id's from the recent activities call
-         * Get the date range for user planned events from the recent activities call
+         * Check if there are any missing activity definitions
+         * If so, retrieve the current clubs from the database
+         * Then retrieve the activity definitions for those clubs
+         * And store it in the database
          */
-        $clubs = $this->vgapi->getClubIds();
-        $dates = $this->getDates();
+        $missingDefinitions = $this->activities->getMissingActivityDefinitions();
+        if (isset($missingDefinitions) && !empty($missingDefinitions)) {
+            $curClubIds = $this->activities->getClubIds();
+            $this->getAndStoreActivityDefinitions($curClubIds);
+        }
+
         /**
-         * Update the database with the user specific info & club definities
+         * Check for new clubs
+         * Check again if there are missing activity definitions
+         * If this is the case it means that the user added a new club (and planned at least 1 activity)
+         * Retrieve new clubs and retrieve activity definitions for those clubs
          */
-        $this->activities->storeClubs($clubs);
-        $this->activities->storeActivityDefinitions($this->vgapi->getActivityDefinitions($clubs));
-        $this->activities->storeEventDefinitions($this->vgapi->getEventDefinitions($clubs, $dates));
+        $missingDefinitions = $this->activities->getMissingActivityDefinitions();
+        if (isset($missingDefinitions) && !empty($missingDefinitions)) {
+            //Get clubs info and store in database
+            $clubs = $this->vgapi->getClubs();
+            $this->activities->storeClubs($clubs);
+
+
+            //Extract the ID's from the array
+            $clubIds = [];
+            foreach ($clubs as $club) {
+                $clubIds[] = $club['club_id'];
+            }
+
+            //Extract new clubs only
+            if (isset($curClubIds) && !empty($curClubIds)) {
+                $newClubIds = array_diff($clubIds, $curClubIds);
+            }
+
+            //Loop through new clubs and get activity definitions
+            if (isset($newClubIds) && !empty($newClubIds)) {
+                $this->getAndStoreActivityDefinitions($newClubIds);
+            }
+        }
+
+        /**
+         * Get missing events
+         * Generate the club/date array
+         * Get events according to club/date array
+         * And store in the database
+         */
+        $missingEvents = $this->activities->getMissingEvents();
+        if (isset($missingEvents) && !empty($missingEvents)) {
+            $clubDates = $this->getClubDates($missingEvents);
+            foreach ($clubDates as $club => $dates) {
+                foreach ($dates as $date) {
+                    $events = $this->vgapi->getEventDefinitions($club, $date);
+                    $this->activities->storeEventDefinitions($events);
+                }
+            }
+        }
+
+        /**
+         * Check if all database queres were executed ok
+         */
+        if (!$this->activities->getQueryOk()) {
+            $dbErrors = $this->activities->getErrors();
+            $err = '';
+            foreach ($dbErrors as $error) {
+                $this->log->addError('Sync', 'Unable to store data: ' . $error);
+                $err .= $error . '\n';
+            }
+            throw new \Exception('Unable to store VirtuaGym data in database: ' . $err);
+        }
+    }
+
+    private function getAndStoreActivityDefinitions($clubIds)
+    {
+        foreach ($clubIds as $clubId) {
+            $activities = $this->vgapi->getActivityDefinitions($clubId);
+            $this->activities->storeActivityDefinitions($activities);
+        }
     }
 
     /**
@@ -185,6 +303,7 @@ class Sync
      */
     public function retrieveAndStoreAppointments()
     {
+        //TODO: Test if getEvents was actually able to make an authorized call
         $events = $this->cal->getEvents();
         if (!empty($events)) $this->activities->storeAppointments($events);
     }
@@ -244,5 +363,24 @@ class Sync
             $dt->modify("+1 month");
         }
         return $dtArr;
+    }
+
+    private function getClubDates($missingEvents)
+    {
+        $clubDates = [];
+        foreach ($missingEvents as $evt) {
+            $dt = new \DateTime(date("Y-m-d H:i:s", $evt['timestamp']));
+            $ym = $dt->format("Y/m");
+            if (isset($clubDates[$evt['club_id']]) && !empty($clubDates[$evt['club_id']])) {
+                $inArr = false;
+                foreach ($clubDates[$evt['club_id']] as $date) {
+                    if ($date == $ym) $inArr = true;
+                }
+                if (!$inArr) $clubDates[$evt['club_id']][] = $ym;
+            } else {
+                $clubDates[$evt['club_id']][] = $ym;
+            }
+        }
+        return $clubDates;
     }
 }

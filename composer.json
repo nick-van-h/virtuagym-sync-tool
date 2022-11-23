@@ -5,15 +5,13 @@
     "license": "GNU General Public License v3.0",
     "autoload": {
         "psr-4": {
-            "Vst\\Controller\\": "src/modules/Controller",
-            "Vst\\Model\\": "src/modules/Model",
-            "Vst\\View\\": "src/modules/View"
+            "Vst\\": "src/modules"
         },
         "files": [
             "config/config.php",
             "config/config_specific.php",
-            "src/modules/helpers/generic.php",
-            "src/modules/helpers/views.php"
+            "src/helpers/generic.php",
+            "src/helpers/views.php"
         ]
     },
     "minimum-stability": "dev",
