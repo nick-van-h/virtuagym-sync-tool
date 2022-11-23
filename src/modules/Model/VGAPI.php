@@ -125,11 +125,11 @@ class VGAPI
 
         //Store the call result in the data array
         if ($this->hasResults()) {
-            foreach($this->data as $club) {
+            foreach ($this->data as $club) {
                 $data[] = array(
                     'club_id' => $club->id,
                     'name' => $club->name,
-                    'address' => $club->formatted_address,
+                    'full_address' => $club->formatted_address,
                     'street' => $club->street_name,
                     'zip_code' => $club->zipcode,
                     'city' => $club->city,
@@ -148,16 +148,16 @@ class VGAPI
         //Init data array to be returned by the function
         $data = [];
 
-            //Make the call to get the activities for that club
-            $path = 'club/' . $clubid . '/activity/definition';
-            $this->call($path);
+        //Make the call to get the activities for that club
+        $path = 'club/' . $clubid . '/activity/definition';
+        $this->call($path);
 
-            //Store the call result in the data array
-            if ($this->hasResults()) {
-                return $this->data;
-            } else {
-                return false;
-            }
+        //Store the call result in the data array
+        if ($this->hasResults()) {
+            return $this->data;
+        } else {
+            return false;
+        }
 
         //Return the final data array
         //return $data;

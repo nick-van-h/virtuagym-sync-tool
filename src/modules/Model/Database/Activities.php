@@ -32,8 +32,8 @@ class Activities extends Database
     {
         $userid = $this->session->getUserID();
         $sql = "SELECT MAX(`timestamp`) as `timestamp`
-                FROM activities
-                WHERE user_id = (?)";
+                FROM `activities`
+                WHERE `user_id` = (?)";
         parent::bufferParams($userid);
         parent::query($sql);
         return parent::getOne('timestamp');
@@ -73,7 +73,7 @@ class Activities extends Database
                     act.`timestamp`,
                     ad.`activity_id`,
                     ad.`name`,
-                    ad.`deleted` as actdef_deleted,
+                    ad.`deleted` as `actdef_deleted`,
                     ad.`club_id`,
                     ad.`duration`,
                     ed.`event_start`,
@@ -81,13 +81,13 @@ class Activities extends Database
                     ed.`attendees`,
                     ed.`max_attendees`,
                     ed.`joined`,
-                    ed.`deleted` as evtdef_deleted,
+                    ed.`deleted` as `evtdef_deleted`,
                     ed.`cancelled`,
                     ed.`bookable_from`
                 FROM `activities` act
-                LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
-                LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
-                WHERE act.user_id = (?) AND ed.event_start > (?)";
+                LEFT JOIN `act_def` ad ON act.`act_id` = ad.`activity_id`
+                LEFT JOIN `evt_def` ed on act.`event_id` = ed.`event_id`
+                WHERE act.`user_id` = (?) AND ed.`event_start` > (?)";
         if ($ascdesc == ORDER_ASC) {
             $sql .= "ORDER BY ed.event_start ASC";
         } else {
@@ -127,7 +127,7 @@ class Activities extends Database
                     act.`timestamp`,
                     ad.`activity_id`,
                     ad.`name`,
-                    ad.`deleted` as actdef_deleted,
+                    ad.`deleted` as `actdef_deleted`,
                     ad.`club_id`,
                     ad.`duration`,
                     ed.`event_start`,
@@ -135,23 +135,55 @@ class Activities extends Database
                     ed.`attendees`,
                     ed.`max_attendees`,
                     ed.`joined`,
-                    ed.`deleted` as evtdef_deleted,
+                    ed.`deleted` as `evtdef_deleted`,
                     ed.`cancelled`,
                     ed.`bookable_from`
                 FROM `activities` act
-                LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
-                LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
-                LEFT JOIN `act_to_apt` ata ON act.act_inst_id = ata.act_inst_id
-                WHERE act.user_id = (?) AND ed.event_start > (?) AND ata.act_inst_id IS NULL 
-                        AND act.deleted = '0' AND ad.deleted = '0' AND ed.deleted = '0' AND ed.cancelled = '0'
-                ORDER BY ed.event_start DESC";
+                LEFT JOIN `act_def` ad ON act.`act_id` = ad.`activity_id`
+                LEFT JOIN `evt_def` ed on act.`event_id` = ed.`event_id`
+                LEFT JOIN `act_to_apt` ata ON act.`act_inst_id` = ata.`act_inst_id`
+                WHERE act.`user_id` = (?) AND ed.`event_start` > (?) AND ata.`act_inst_id` IS NULL 
+                        AND act.`deleted` = '0' AND ad.`deleted` = '0' AND ed.`deleted` = '0' AND ed.`cancelled` = '0'
+                ORDER BY ed.`event_start` DESC";
         parent::bufferParams($userid, $mintimestamp);
         parent::query($sql);
         return parent::getRows();
     }
 
-    function getIncompleteEvents() {
-        
+    function getMissingEvents()
+    {
+
+        //Prepare variables
+        $userid = $this->session->getUserID();
+        $dt = new \DateTime();
+        $dt->modify('-1 week');
+        $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
+
+        /**
+         * Query results
+         * Start from activities, enrich with activity definition & event definition
+         * We are interested where there is no matching event_id from the evt_def table
+         * We need to know the day of the activity and the club it belongs to 
+         */
+        $sql = "SELECT DISTINCT 
+                    act.`user_id`,
+                    act.`act_inst_id`,
+                    act.`act_id`,
+                    act.`event_id`,
+                    act.`timestamp`,
+                    ad.`club_id`
+                FROM `activities` act
+                LEFT JOIN `act_def` ad ON act.`act_id` = ad.`activity_id`
+                LEFT JOIN `evt_def` ed on act.`event_id` = ed.`event_id`
+                WHERE act.`user_id` = (?) AND act.`timestamp` > (?) AND ed.`event_id` IS NULL";
+        parent::bufferParams($userid, $mintimestamp);
+        parent::query($sql);
+        return parent::getRows();
+    }
+
+    function getMissingActivityDefinitions()
+    {
+
         //Prepare variables
         $userid = $this->session->getUserID();
         $dt = new \DateTime();
@@ -170,11 +202,9 @@ class Activities extends Database
                     act.`act_id`,
                     act.`event_id`,
                     act.`timestamp`
-                    ad.`club_id`,
                 FROM `activities` act
-                LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
-                LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
-                WHERE act.user_id = (?) AND act.timestamp > (?) AND ed.event_id IS NULL";
+                LEFT JOIN `act_def` ad ON act.`act_id` = ad.`activity_id`
+                WHERE act.`user_id` = (?) AND act.`timestamp` > (?) AND ad.`activity_id` IS NULL";
         parent::bufferParams($userid, $mintimestamp);
         parent::query($sql);
         return parent::getRows();
@@ -192,12 +222,12 @@ class Activities extends Database
         $sql = "SELECT DISTINCT 
                     ata.`appointment_id`
                 FROM `act_to_apt` ata
-                LEFT JOIN `activities` act on ata.act_inst_id = act.act_inst_id
-                LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
-                LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
-                LEFT JOIN `appointments` apt ON ata.appointment_id = apt.appointment_id
-                WHERE act.user_id = (?) AND apt.appointment_id IS NOT NULL AND
-                        (act.deleted = '1' OR ad.deleted = '1' OR ed.deleted = '1' OR ed.cancelled = '1')";
+                LEFT JOIN `activities` act on ata.`act_inst_id` = act.`act_inst_id`
+                LEFT JOIN `act_def` ad ON act.`act_id` = ad.`activity_id`
+                LEFT JOIN `evt_def` ed on act.`event_id` = ed.`event_id`
+                LEFT JOIN `appointments` apt ON ata.`appointment_id` = apt.`appointment_id`
+                WHERE act.`user_id` = (?) AND apt.`appointment_id` IS NOT NULL AND
+                        (act.`deleted` = '1' OR ad.`deleted` = '1' OR ed.`deleted` = '1' OR ed.`cancelled` = '1')";
         parent::bufferParams($userid);
         parent::query($sql);
         $res = parent::getRows('appointment_id');
@@ -240,9 +270,9 @@ class Activities extends Database
         /**
          * Update the existing activities with new values
          */
-        $sql = "UPDATE activities
-                SET done=(?), deleted=(?), act_id=(?), event_id=(?), timestamp=(?)
-                WHERE user_id=(?) AND act_inst_id=(?)";
+        $sql = "UPDATE `activities`
+                SET `done`=(?), `deleted`=(?), `act_id`=(?), `event_id`=(?), `timestamp`=(?)
+                WHERE `user_id`=(?) AND `act_inst_id`=(?)";
         foreach ($this->dupEntries as $act) {
             parent::bufferParams($act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp, $userid, $act->act_inst_id);
         }
@@ -252,7 +282,7 @@ class Activities extends Database
         /**
          * Insert new activities
          */
-        $sql = "INSERT INTO activities (`user_id`, `act_inst_id`, `done`, `deleted`, `act_id`, `event_id`, `timestamp`)
+        $sql = "INSERT INTO `activities` (`user_id`, `act_inst_id`, `done`, `deleted`, `act_id`, `event_id`, `timestamp`)
                 VALUES (?,?,?,?,?,?,?)";
         foreach ($this->newEntries as $act) {
             parent::bufferParams($userid, $act->act_inst_id, $act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp);
@@ -305,7 +335,7 @@ class Activities extends Database
         /**
          * Update the existing activities with new values
          */
-        $sql = "UPDATE act_def
+        $sql = "UPDATE `act_def`
                 SET `name`=(?), `deleted`=(?), `club_id`=(?), `duration`=(?)
                 WHERE `activity_id`=(?)";
         $stmt = $this->db->prepare($sql);
@@ -317,7 +347,7 @@ class Activities extends Database
         /**
          * Insert new activities
          */
-        $sql = "INSERT INTO act_def (`activity_id`, `name`, `deleted`, `club_id`, `duration`)
+        $sql = "INSERT INTO `act_def` (`activity_id`, `name`, `deleted`, `club_id`, `duration`)
                 VALUES (?,?,?,?,?)";
         $stmt = $this->db->prepare($sql);
         foreach ($this->newEntries as $act) {
@@ -370,9 +400,9 @@ class Activities extends Database
         /**
          * Update the existing activities with new values
          */
-        $sql = "UPDATE evt_def
-                SET activity_id=(?), event_start=(?), event_end=(?), attendees=(?), max_attendees=(?), joined=(?), deleted=(?), cancelled=(?), bookable_from=(?)
-                WHERE event_id=(?)";
+        $sql = "UPDATE `evt_def`
+                SET `activity_id`=(?), `event_start`=(?), `event_end`=(?), `attendees`=(?), `max_attendees`=(?), `joined`=(?), `deleted`=(?), `cancelled`=(?), `bookable_from`=(?)
+                WHERE `event_id`=(?)";
         foreach ($this->dupEntries as $act) {
             parent::bufferParams($act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp, $act->event_id);
         }
@@ -406,47 +436,65 @@ class Activities extends Database
         //Generic variables
         $userid = $this->session->getUserID();
 
+        //Get club id arrays
+        $curClubIds = $this->getClubIds();
+        $clubIds = [];
+        foreach ($clubs as $club) {
+            $clubIds[] = $club['club_id'];
+        }
+
         //Generate arrays for new & obsolete clubs
-        $curClubs = $this->getClubs();
         $obsClubs = [];
         $newClubs = [];
-        if (!empty($curClubs) && $curClubs) {
+        $dupClubs = [];
+        if (!empty($curClubIds) && $curClubIds) {
             foreach ($clubs as $club) {
-                if (!in_array($club, $curClubs)) {
+                if (!in_array($club['club_id'], $curClubIds)) {
                     $newClubs[] = $club;
+                } else {
+                    $dupClubs[] = $club;
                 }
             }
-            foreach ($curClubs as $club) {
-                if (!in_array($club, $clubs)) {
-                    $obsClubs[] = $club;
+            foreach ($curClubIds as $curClubId) {
+                if (!in_array($curClubId, $clubIds)) {
+                    $obsClubs[] = $curClubId;
                 }
             }
         } else {
             $newClubs = $clubs;
         }
 
+        //Update duplicate clubs
+        $sql = "UPDATE `clubs`
+                SET `name`=(?), `address`=(?), `street`=(?), `zip_code`=(?), `city`=(?), `club_description`=(?)
+                WHERE `user_id`=(?) AND `club_id`=(?)";
+        foreach ($dupClubs as $club) {
+            parent::bufferParams($club['name'], $club['address'], $club['street'], $club['zip_code'], $club['city'], $club['club_description'], $userid, $club['club_id']);
+        }
+        parent::query($sql);
+
         //Store new clubs
-        $sql = "INSERT INTO clubs (`user_id`, `club_id`)
-                VALUES (?,?)";
+        $sql = "INSERT INTO `clubs` (`user_id`, `club_id`, `name`, `address`, `street`, `zip_code`, `city`, `club_description`)
+                VALUES (?,?,?,?,?,?,?,?)";
         foreach ($newClubs as $club) {
-            parent::bufferParams($userid, $club);
+            parent::bufferParams($userid, $club['club_id'], $club['name'], $club['address'], $club['street'], $club['zip_code'], $club['city'], $club['club_description']);
         }
         parent::query($sql);
 
         //Delete obsolete clubs
         $sql = "DELETE FROM `clubs` WHERE `user_id`=(?) AND `club_id`=(?)";
         foreach ($obsClubs as $club) {
-            parent::bufferParams($userid, $club);
+            parent::bufferParams($userid, $club['club_id']);
         }
         parent::query($sql);
     }
 
-    function getClubs()
+    function getClubIds()
     {
         $userid = $this->session->getUserID();
-        $sql = "SELECT club_id
-                FROM clubs
-                WHERE user_id = (?)";
+        $sql = "SELECT `club_id`
+                FROM `clubs`
+                WHERE `user_id` = (?)";
         parent::bufferParams($userid);
         parent::query($sql);
         return parent::getRows('club_id');
@@ -510,9 +558,9 @@ class Activities extends Database
          * Update the existing activities with new values
          */
         if (!empty($this->dupEntries)) {
-            $sql = "UPDATE appointments
-                    SET agenda_id=(?)
-                    WHERE user_id=(?) AND appointment_id=(?)";
+            $sql = "UPDATE `appointments`
+                    SET `agenda_id`=(?)
+                    WHERE `user_id`=(?) AND `appointment_id`=(?)";
             foreach ($this->dupEntries as $act) {
                 parent::bufferParams($act['id'], $userid, $act['agendaId']);
             }
@@ -564,11 +612,11 @@ class Activities extends Database
 
         //Remove relations where activity is cancelled
         $sql = "DELETE ata FROM `act_to_apt` ata
-        LEFT JOIN `activities` act ON ata.act_inst_id = act.act_inst_id
-        LEFT JOIN `act_def` ad ON act.act_id = ad.activity_id
-        LEFT JOIN `evt_def` ed on act.event_id = ed.event_id
-        LEFT JOIN `appointments` apt ON ata.appointment_id = apt.appointment_id
-        WHERE ata.user_id = (?) AND (act.deleted = '1' OR ad.deleted = '1' OR ed.deleted = '1' OR ed.cancelled = '1' OR apt.appointment_id IS NULL)";
+                LEFT JOIN `activities` act ON ata.act_inst_id = act.act_inst_id
+                LEFT JOIN `act_def` ad ON act.`act_id` = ad.`activity_id`
+                LEFT JOIN `evt_def` ed on act.`event_id` = ed.`event_id`
+                LEFT JOIN `appointments` apt ON ata.`appointment_id` = apt.`appointment_id`
+                WHERE ata.`user_id` = (?) AND (act.`deleted` = '1' OR ad.`deleted` = '1' OR ed.`deleted` = '1' OR ed.`cancelled` = '1' OR apt.`appointment_id` IS NULL)";
         parent::bufferParams($userid);
         parent::query($sql);
         return parent::getRows();
@@ -632,8 +680,8 @@ class Activities extends Database
     {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `act_inst_id`
-                FROM activities
-                WHERE user_id = (?)";
+                FROM `activities`
+                WHERE `user_id` = (?)";
         parent::bufferParams($userid);
         parent::query($sql);
         $this->curEntries = parent::getRows('act_inst_id');
@@ -643,7 +691,7 @@ class Activities extends Database
     {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `activity_id`
-                FROM act_def";
+                FROM `act_def`";
         parent::query($sql);
         $this->curEntries = parent::getRows('activity_id');
     }
@@ -652,7 +700,7 @@ class Activities extends Database
     {
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `event_id`
-                FROM evt_def";
+                FROM `evt_def`";
         parent::query($sql);
         $this->curEntries = parent::getRows('event_id');
     }
@@ -662,7 +710,7 @@ class Activities extends Database
         $userid = $this->session->getUserID();
         $sql = "SELECT DISTINCT `appointment_id`
                 FROM `appointments`
-                WHERE user_id = (?)";
+                WHERE `user_id` = (?)";
         parent::bufferParams($userid);
         parent::query($sql);
         $this->curEntries = parent::getRows('appointment_id');

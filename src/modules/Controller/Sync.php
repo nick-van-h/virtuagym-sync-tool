@@ -29,7 +29,7 @@ class Sync
         $this->settings = new Settings;
         $this->activities = new Activities;
         $this->settings = new Settings;
-        if(!$this->log->getConnectionOk() || !$this->settings->getConnectionOk() || !$this->activities->getConnectionOk() || !$this->settings->getConnectionOk()) {
+        if (!$this->log->getConnectionOk() || !$this->settings->getConnectionOk() || !$this->activities->getConnectionOk() || !$this->settings->getConnectionOk()) {
             throw new Exception("Internal server error: Unable to establish database connection(s)");
         }
 
@@ -52,7 +52,7 @@ class Sync
         if ($provider) {
             $credentials = $this->settings->getCalendarCredentials();
             $this->cal = CalendarFactory::getProvider($provider, $credentials);
-            if ($this->cal->testConnection()) throw new \Exception ("Unable to establish Calendar connection");
+            if ($this->cal->testConnection()) throw new \Exception("Unable to establish Calendar connection");
         }
     }
 
@@ -175,11 +175,54 @@ class Sync
          * If call was unsuccesful add a log entry and abort sync
          */
         $activities = $this->vgapi->getActivities();
-        if(!$this->vgapi->getLastStatusIsOk()) {
-            $this->log->addError('Sync','Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
+        if (!$this->vgapi->getLastStatusIsOk()) {
+            $this->log->addError('Sync', 'Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
+            $this->settings->setLastCalendarConnectionStatusNok();
             return false;
         }
         $this->activities->storeActivities($activities);
+
+        /**
+         * Check if there are any missing activity definitions
+         * If so, retrieve the current clubs from the database
+         * Then retrieve the activity definitions for those clubs
+         * And store it in the database
+         */
+        $missingDefinitions = $this->activities->getMissingActivityDefinitions();
+        if (isset($missingDefinitions) && !empty($missingDefinitions)) {
+            $curClubIds = $this->activities->getClubIds();
+            $this->getAndStoreActivityDefinitions($curClubIds);
+        }
+
+        /**
+         * Check for new clubs
+         * Check again if there are missing activity definitions
+         * If this is the case it means that the user added a new club (and planned at least 1 activity)
+         * Retrieve new clubs and retrieve activity definitions for those clubs
+         */
+        $missingDefinitions = $this->activities->getMissingActivityDefinitions();
+        if (isset($missingDefinitions) && !empty($missingDefinitions)) {
+            //Get clubs info and store in database
+            $clubs = $this->vgapi->getClubs();
+            $this->activities->storeClubs($clubs);
+
+
+            //Extract the ID's from the array
+            $clubIds = [];
+            foreach ($clubs as $club) {
+                $clubIds[] = $club['club_id'];
+            }
+
+            //Extract new clubs only
+            $newClubIds = array_diff($clubIds, $curClubIds);
+
+            //Loop through new clubs and get activity definitions
+            if (isset($newClubIds) && !empty($newClubIds)) {
+                $this->getAndStoreActivityDefinitions($newClubIds);
+            }
+        }
+
+
         /**
          * Get the latest club id's from the recent activities call
          * Get the date range for user planned events from the recent activities call
@@ -198,15 +241,22 @@ class Sync
         /**
          * Check if all database queres were executed ok
          */
-        if($this->activities->getQueryOk()) {
+        if ($this->activities->getQueryOk()) {
             return true;
         } else {
             $dbErrors = $this->activities->getErrors();
-            foreach($dbErrors as $error)
-            {
-                $this->log->addError('Sync','Unable to store data: ' . $error);
+            foreach ($dbErrors as $error) {
+                $this->log->addError('Sync', 'Unable to store data: ' . $error);
             }
             return false;
+        }
+    }
+
+    private function getAndStoreActivityDefinitions($clubIds)
+    {
+        foreach ($clubIds as $clubId) {
+            $activities = $this->vgapi->getActivityDefinitions($clubId);
+            $this->activities->storeActivityDefinitions($activities);
         }
     }
 
