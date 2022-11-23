@@ -270,25 +270,29 @@ class Activities extends Database
         /**
          * Update the existing activities with new values
          */
-        $sql = "UPDATE `activities`
-                SET `done`=(?), `deleted`=(?), `act_id`=(?), `event_id`=(?), `timestamp`=(?)
-                WHERE `user_id`=(?) AND `act_inst_id`=(?)";
-        foreach ($this->dupEntries as $act) {
-            parent::bufferParams($act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp, $userid, $act->act_inst_id);
+        if (isset($this->dupEntries) && !empty($this->dupEntries)) {
+            $sql = "UPDATE `activities`
+                    SET `done`=(?), `deleted`=(?), `act_id`=(?), `event_id`=(?), `timestamp`=(?)
+                    WHERE `user_id`=(?) AND `act_inst_id`=(?)";
+            foreach ($this->dupEntries as $act) {
+                parent::bufferParams($act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp, $userid, $act->act_inst_id);
+            }
+            parent::query($sql);
+            $success &= parent::getQueryOK();
         }
-        parent::query($sql);
-        $success &= parent::getQueryOK();
 
         /**
          * Insert new activities
          */
-        $sql = "INSERT INTO `activities` (`user_id`, `act_inst_id`, `done`, `deleted`, `act_id`, `event_id`, `timestamp`)
-                VALUES (?,?,?,?,?,?,?)";
-        foreach ($this->newEntries as $act) {
-            parent::bufferParams($userid, $act->act_inst_id, $act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp);
+        if (isset($this->newEntries) && !empty($this->newEntries)) {
+            $sql = "INSERT INTO `activities` (`user_id`, `act_inst_id`, `done`, `deleted`, `act_id`, `event_id`, `timestamp`)
+                    VALUES (?,?,?,?,?,?,?)";
+            foreach ($this->newEntries as $act) {
+                parent::bufferParams($userid, $act->act_inst_id, $act->done, $act->deleted, $act->act_id, $act->event_id, $act->timestamp);
+            }
+            parent::query($sql);
+            $success &= parent::getQueryOK();
         }
-        parent::query($sql);
-        $success &= parent::getQueryOK();
 
         //Clear the existing activities array because it is now obsolete
         $this->clearBuffer();
@@ -335,25 +339,29 @@ class Activities extends Database
         /**
          * Update the existing activities with new values
          */
-        $sql = "UPDATE `act_def`
-                SET `name`=(?), `deleted`=(?), `club_id`=(?), `duration`=(?)
-                WHERE `activity_id`=(?)";
-        $stmt = $this->db->prepare($sql);
-        foreach ($this->dupEntries as $act) {
-            parent::bufferParams($act->name, $act->deleted, $act->club_id, $act->duration, $act->id);
+        if (isset($this->dupEntries) && !empty($this->dupEntries)) {
+            $sql = "UPDATE `act_def`
+                    SET `name`=(?), `deleted`=(?), `club_id`=(?), `duration`=(?)
+                    WHERE `activity_id`=(?)";
+            $stmt = $this->db->prepare($sql);
+            foreach ($this->dupEntries as $act) {
+                parent::bufferParams($act->name, $act->deleted, $act->club_id, $act->duration, $act->id);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
 
         /**
          * Insert new activities
          */
-        $sql = "INSERT INTO `act_def` (`activity_id`, `name`, `deleted`, `club_id`, `duration`)
-                VALUES (?,?,?,?,?)";
-        $stmt = $this->db->prepare($sql);
-        foreach ($this->newEntries as $act) {
-            parent::bufferParams($act->activity_id, $act->name, $act->deleted, $act->club_id, $act->duration);
+        if (isset($this->newEntries) && !empty($this->newEntries)) {
+            $sql = "INSERT INTO `act_def` (`activity_id`, `name`, `deleted`, `club_id`, `duration`)
+                    VALUES (?,?,?,?,?)";
+            $stmt = $this->db->prepare($sql);
+            foreach ($this->newEntries as $act) {
+                parent::bufferParams($act->activity_id, $act->name, $act->deleted, $act->club_id, $act->duration);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
 
         //Clear the existing activities array because it is now obsolete
         $this->clearBuffer();
@@ -400,23 +408,27 @@ class Activities extends Database
         /**
          * Update the existing activities with new values
          */
-        $sql = "UPDATE `evt_def`
-                SET `activity_id`=(?), `event_start`=(?), `event_end`=(?), `attendees`=(?), `max_attendees`=(?), `joined`=(?), `deleted`=(?), `cancelled`=(?), `bookable_from`=(?)
-                WHERE `event_id`=(?)";
-        foreach ($this->dupEntries as $act) {
-            parent::bufferParams($act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp, $act->event_id);
+        if (isset($this->dupEntries) && !empty($this->dupEntries)) {
+            $sql = "UPDATE `evt_def`
+                    SET `activity_id`=(?), `event_start`=(?), `event_end`=(?), `attendees`=(?), `max_attendees`=(?), `joined`=(?), `deleted`=(?), `cancelled`=(?), `bookable_from`=(?)
+                    WHERE `event_id`=(?)";
+            foreach ($this->dupEntries as $act) {
+                parent::bufferParams($act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp, $act->event_id);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
 
         /**
          * Insert new activities
          */
-        $sql = "INSERT INTO `evt_def`(`event_id`, `activity_id`, `event_start`, `event_end`, `attendees`, `max_attendees`, `joined`, `deleted`, `cancelled`, `bookable_from`)
-                VALUES (?,?,?,?,?,?,?,?,?,?)";
-        foreach ($this->newEntries as $act) {
-            parent::bufferParams($act->event_id, $act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp);
+        if (isset($this->newEntries) && !empty($this->newEntries)) {
+            $sql = "INSERT INTO `evt_def`(`event_id`, `activity_id`, `event_start`, `event_end`, `attendees`, `max_attendees`, `joined`, `deleted`, `cancelled`, `bookable_from`)
+                    VALUES (?,?,?,?,?,?,?,?,?,?)";
+            foreach ($this->newEntries as $act) {
+                parent::bufferParams($act->event_id, $act->activity_id, $act->event_start, $act->event_end, $act->attendees, $act->max_attendees, $act->joined, $act->deleted, $act->canceled, $act->bookable_from_timestamp);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
 
         //Clear the existing activities array because it is now obsolete
         $this->clearBuffer();
@@ -474,19 +486,23 @@ class Activities extends Database
         parent::query($sql);
 
         //Store new clubs
-        $sql = "INSERT INTO `clubs` (`user_id`, `club_id`, `name`, `address`, `street`, `zip_code`, `city`, `club_description`)
-                VALUES (?,?,?,?,?,?,?,?)";
-        foreach ($newClubs as $club) {
-            parent::bufferParams($userid, $club['club_id'], $club['name'], $club['address'], $club['street'], $club['zip_code'], $club['city'], $club['club_description']);
+        if (isset($newClubs) && !empty($newClubs)) {
+            $sql = "INSERT INTO `clubs` (`user_id`, `club_id`, `name`, `address`, `street`, `zip_code`, `city`, `club_description`)
+                    VALUES (?,?,?,?,?,?,?,?)";
+            foreach ($newClubs as $club) {
+                parent::bufferParams($userid, $club['club_id'], $club['name'], $club['address'], $club['street'], $club['zip_code'], $club['city'], $club['club_description']);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
 
         //Delete obsolete clubs
-        $sql = "DELETE FROM `clubs` WHERE `user_id`=(?) AND `club_id`=(?)";
-        foreach ($obsClubs as $club) {
-            parent::bufferParams($userid, $club['club_id']);
+        if (isset($obsClubs) && !empty($obsClubs)) {
+            $sql = "DELETE FROM `clubs` WHERE `user_id`=(?) AND `club_id`=(?)";
+            foreach ($obsClubs as $club) {
+                parent::bufferParams($userid, $club['club_id']);
+            }
+            parent::query($sql);
         }
-        parent::query($sql);
     }
 
     function getClubIds()
@@ -571,13 +587,15 @@ class Activities extends Database
         /**
          * Insert new activities
          */
-        if (!empty($this->newEntries)) {
-            $sql = "INSERT INTO `appointments`(`user_id`, `appointment_id`, `agenda_id`)
-                    VALUES (?,?,?)";
-            foreach ($this->newEntries as $act) {
-                parent::bufferParams($userid, $act['id'], $act['agendaId']);
+        if (isset($this->newEntries) && !empty($this->newEntries)) {
+            if (!empty($this->newEntries)) {
+                $sql = "INSERT INTO `appointments`(`user_id`, `appointment_id`, `agenda_id`)
+                        VALUES (?,?,?)";
+                foreach ($this->newEntries as $act) {
+                    parent::bufferParams($userid, $act['id'], $act['agendaId']);
+                }
+                parent::query($sql);
             }
-            parent::query($sql);
         }
 
         /**

@@ -157,11 +157,11 @@ class Settings extends Database
      */
     public function setLastVgConnectionStatusOk()
     {
-        $this->setSetting('last_vg_conn_errors',0);
+        $this->setSetting('last_vg_conn_errors', 0);
     }
-    public function setLastVgConnectionStatusNok()
+    public function addLastVgConnectionErrorCount()
     {
-        $this->setSetting('last_vg_conn_errors',$this->getSettingValue('last_vg_conn_errors')+1);
+        $this->setSetting('last_vg_conn_errors', $this->getSettingValue('last_vg_conn_errors') + 1);
     }
     public function getLastVgConnectionStatusIsOk()
     {
@@ -173,11 +173,11 @@ class Settings extends Database
      */
     public function setLastCalendarConnectionStatusOk()
     {
-        $this->setSetting('last_cal_conn_errors',0);
+        $this->setSetting('last_cal_conn_errors', 0);
     }
-    public function setLastCalendarConnectionStatusNok()
+    public function addLastCalendarConnectionErrorCount()
     {
-        $this->setSetting('last_cal_conn_errors',$this->getSettingValue('last_cal_conn_errors')+1);
+        $this->setSetting('last_cal_conn_errors', $this->getSettingValue('last_cal_conn_errors') + 1);
     }
     public function getLastCalendarConnectionStatusIsOk()
     {

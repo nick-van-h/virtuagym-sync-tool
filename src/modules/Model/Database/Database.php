@@ -2,6 +2,8 @@
 
 namespace Vst\Model\Database;
 
+use Vst\Exceptions\DatabaseConnectionException;
+
 /**
  * Use Template Method to define basic Database behavior
  */
@@ -11,7 +13,6 @@ abstract class Database
     private $stmt;
 
     //External status parameters
-    private $connection_ok;
     private $errors;
 
     //Internal status parameters
@@ -30,7 +31,6 @@ abstract class Database
     function __construct()
     {
         //Init variables
-        $this->connection_ok = false;
         $this->errors = [];
         $this->rows = [];
         $this->numrows = [];
@@ -40,8 +40,7 @@ abstract class Database
         //Get the config file
         $db = getConfig();
         if (!$db) {
-            $this->addError('Unable to get config file');
-            exit;
+            throw new DatabaseConnectionException('Unable to get config file');
         }
 
         //Set up the connection
@@ -51,15 +50,13 @@ abstract class Database
             $this->db = new \mysqli($db['host'], $db['username'], $db['password'], $db['database']);
         } catch (\Exception $e) {
             //Store the exception details as error
-            $this->addError('MySQLi Error Code: ' . $e->getCode() . ' | Exception Msg: ' . $e->getMessage());
-            exit;
+            throw new DatabaseConnectionException('Unable to establish database connection: ' . $e->getCode() . ' | ' . $e->getMessage());
         }
         //Turn off excessive error reporting
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         //Set status succesful
         $this->setOk();
-        $this->connection_ok = true;
     }
 
     function __destruct()
@@ -88,21 +85,12 @@ abstract class Database
     }
 
     /**
-     * Retrieves the status of the connection to the database
-     * @return bool connection_ok
-     */
-    function getConnectionOk()
-    {
-        return $this->connection_ok;
-    }
-
-    /**
      * Retrieves the status succesful of last query
      * @return bool no errors occurred
      */
     function getQueryOk()
     {
-        return (isset($this->errors) && !empty($this->errors));
+        return (!isset($this->errors) || empty($this->errors));
     }
 
     /**
@@ -189,7 +177,7 @@ abstract class Database
 
                 //If the query ran into an error then reset and reprepare the statement
                 if (!$this->query_ok) {
-                    echo ('Query NOK, message: ' . $this->status);
+                    echo ($this->status);
                     $this->stmt->reset();
                     $this->stmt->prepare($query);
                 }
@@ -218,7 +206,7 @@ abstract class Database
         //Catch a query with paramaters (? or :) while no parameters ar bound
         if (preg_match('/[?:]/', $query) && !(isset($params) && !empty($params))) {
             $this->rows[] = NULL;
-            throw new \Exception('Trying to execute a query with parameters while no parameters are bound');
+            throw new \Exception('Trying to execute a query with parameters while no parameters are bound in ' . print_r(debug_backtrace()));
             return;
         }
 

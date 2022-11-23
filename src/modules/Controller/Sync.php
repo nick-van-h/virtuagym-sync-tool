@@ -10,6 +10,7 @@ use Vst\Model\VGAPI;
 use Vst\Model\Calendar\CalendarFactory;
 use Vst\Model\Database\Log;
 
+use \Vst\Exceptions\DatabaseConnectionException;
 
 class Sync
 {
@@ -25,12 +26,15 @@ class Sync
          * Init database controllers & check if db connection can be made
          * If no connection can be made then there is no use to continue
          */
-        $this->log = new Log;
-        $this->settings = new Settings;
-        $this->activities = new Activities;
-        $this->settings = new Settings;
-        if (!$this->log->getConnectionOk() || !$this->settings->getConnectionOk() || !$this->activities->getConnectionOk() || !$this->settings->getConnectionOk()) {
-            throw new Exception("Internal server error: Unable to establish database connection(s)");
+
+        try {
+            $this->log = new Log;
+            $this->settings = new Settings;
+            $this->activities = new Activities;
+            $this->settings = new Settings;
+        } catch (DatabaseConnectionException $e) {
+            throw new Exception("Internal server error: Unable to establish database connection: " . $e->getMessage());
+
         }
 
         /**
@@ -52,7 +56,34 @@ class Sync
         if ($provider) {
             $credentials = $this->settings->getCalendarCredentials();
             $this->cal = CalendarFactory::getProvider($provider, $credentials);
-            if ($this->cal->testConnection()) throw new \Exception("Unable to establish Calendar connection");
+
+            if (!$this->cal->testConnection()) throw new \Exception("Unable to establish Calendar connection");
+        }
+
+        /**
+         * Test if the connection to VG and calendar can be made
+         * First look at the track record in the database
+         * If an error occurred in the past try to connect now
+         * If it is ok now reset the counter
+         * If it is still nok then throw an error because we can´t sync
+         */
+        if (!$this->settings->getLastVgConnectionStatusIsOk()) {
+            if ($this->testVgConnection()) {
+                $this->settings->setLastVgConnectionStatusOk();
+            } else {
+                $this->settings->addLastVgConnectionErrorCount();
+                throw new \Exception("Unable to connect to VirtuaGym");
+            }
+        }
+
+        if (!$this->settings->getLastCalendarConnectionStatusIsOk()) {
+            if ($this->testCalendarConnection()) {
+                $this->settings->setLastCalendarConnectionStatusOk();
+            } else {
+                $this->settings->addLastCalendarConnectionErrorCount();
+                throw new \Exception("Unable to connect to Calendar");
+            }
+
         }
     }
 
@@ -158,7 +189,7 @@ class Sync
             echo ('Exception occurred in sync: ' . $e->getMessage());
         } catch (\Error $er) {
             //TODO: Handle errors
-            echo ('Exception occurred in sync: ' . $er->getMessage());
+            echo ('Error occurred in sync: ' . $er->getMessage());
         }
     }
 
@@ -176,9 +207,15 @@ class Sync
          */
         $activities = $this->vgapi->getActivities();
         if (!$this->vgapi->getLastStatusIsOk()) {
+            //Check if the reason for nOK is because of invalid credentials
+            if ($this->vgapi->getLastStatusIsUnauthorized()) {
+                $this->settings->addLastVgConnectionErrorCount();
+            }
             $this->log->addError('Sync', 'Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
-            $this->settings->setLastCalendarConnectionStatusNok();
-            return false;
+            throw new \Exception('Unable to retrieve data from VirtuaGym: ' . $this->vgapi->getLastStatusMessage());
+        } else {
+            $this->settings->setLastVgConnectionStatusOk();
+
         }
         $this->activities->storeActivities($activities);
 
@@ -241,14 +278,14 @@ class Sync
         /**
          * Check if all database queres were executed ok
          */
-        if ($this->activities->getQueryOk()) {
-            return true;
-        } else {
+        if (!$this->activities->getQueryOk()) {
             $dbErrors = $this->activities->getErrors();
+            $err = '';
             foreach ($dbErrors as $error) {
                 $this->log->addError('Sync', 'Unable to store data: ' . $error);
+                $err .= $error . '\n';
             }
-            return false;
+            throw new \Exception('Unable to store VirtuaGym data in database: ' . $err);
         }
     }
 
@@ -266,6 +303,7 @@ class Sync
      */
     public function retrieveAndStoreAppointments()
     {
+        //TODO: Test if getEvents was actually able to make an authorized call
         $events = $this->cal->getEvents();
         if (!empty($events)) $this->activities->storeAppointments($events);
     }
