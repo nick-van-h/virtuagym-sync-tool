@@ -83,10 +83,19 @@ class Activities extends Database
                     ed.`joined`,
                     ed.`deleted` as `evtdef_deleted`,
                     ed.`cancelled`,
-                    ed.`bookable_from`
+                    ed.`bookable_from`,
+                    ata.`appointment_id`,
+                    c.`name` as `club_name`,
+                    c.`full_address`,
+                    c.`street`,
+                    c.`zip_code`,
+                    c.`city`,
+                    c.`club_description`
                 FROM `activities` act
                 LEFT JOIN `act_def` ad ON act.`act_id` = ad.`activity_id`
                 LEFT JOIN `evt_def` ed on act.`event_id` = ed.`event_id`
+                LEFT JOIN `act_to_apt` ata ON act.`act_inst_id` = ata.`act_inst_id`
+                LEFT JOIN `clubs` c ON c.`club_id` = ad.`club_id`
                 WHERE act.`user_id` = (?) AND ed.`event_start` > (?)";
         if ($ascdesc == ORDER_ASC) {
             $sql .= "ORDER BY ed.event_start ASC";
@@ -95,7 +104,9 @@ class Activities extends Database
         }
         parent::bufferParams($userid, $mintimestamp);
         parent::query($sql);
-        return parent::getRows();
+        $rows = parent::getRows();
+        //TODO: Convert to activity object
+        return $rows;
     }
 
     /**
@@ -104,50 +115,18 @@ class Activities extends Database
      */
     function getUnsyncedActivities()
     {
-        //Prepare variables
-        $userid = $this->session->getUserID();
-        $dt = new \DateTime();
-        $dt->modify('-1 week');
-        $mintimestamp = strtotime($dt->format("Y-m-d H:i:s"));
-
-        /**
-         * Query results
-         * Start from activities, enrich with activity definition & event definition
-         * Join the relation activity to appointment
-         * Get all activities which are for the current user, within the current timeframe,
-         *      which are still valid (i.e. not deleted/cancelled) and do not have a relation to an appointment
-         */
-        $sql = "SELECT DISTINCT 
-                    act.`user_id`,
-                    act.`act_inst_id`,
-                    act.`done`,
-                    act.`deleted`,
-                    act.`act_id`,
-                    act.`event_id`,
-                    act.`timestamp`,
-                    ad.`activity_id`,
-                    ad.`name`,
-                    ad.`deleted` as `actdef_deleted`,
-                    ad.`club_id`,
-                    ad.`duration`,
-                    ed.`event_start`,
-                    ed.`event_end`,
-                    ed.`attendees`,
-                    ed.`max_attendees`,
-                    ed.`joined`,
-                    ed.`deleted` as `evtdef_deleted`,
-                    ed.`cancelled`,
-                    ed.`bookable_from`
-                FROM `activities` act
-                LEFT JOIN `act_def` ad ON act.`act_id` = ad.`activity_id`
-                LEFT JOIN `evt_def` ed on act.`event_id` = ed.`event_id`
-                LEFT JOIN `act_to_apt` ata ON act.`act_inst_id` = ata.`act_inst_id`
-                WHERE act.`user_id` = (?) AND ed.`event_start` > (?) AND ata.`act_inst_id` IS NULL 
-                        AND act.`deleted` = '0' AND ad.`deleted` = '0' AND ed.`deleted` = '0' AND ed.`cancelled` = '0'
-                ORDER BY ed.`event_start` DESC";
-        parent::bufferParams($userid, $mintimestamp);
-        parent::query($sql);
-        return parent::getRows();
+        $unsynced = [];
+        $activities = $this->getAllJoined();
+        if(isset($activities) && !(empty($activities))) {
+            foreach($activities as $activity) {
+                if((is_null($activity['act_inst_id']) || empty($activity['act_inst_id'])) && !$activity['deleted'] &&
+                        !$activity['actdef_deleted'] && !$activity['evtdef_deleted'] && !$activity['cancelled'])
+                        {
+                            $unsynced[] = $activity;
+                        }
+            }
+        }
+        return $unsynced;
     }
 
     function getMissingEvents()
