@@ -119,25 +119,21 @@ header.app img {
     display: flex;
 }
 
-#show-cancelled:not(:checked) ~ .training-entry.cancelled,
-#show-cancelled:not(:checked) ~ .training-entry.not-joined {
+#show-cancelled:not(:checked) ~ .training-entry.cancelled {
     display: none;
 }
 
-.training-entry.cancelled,
-.training-entry.not-joined {
+.training-entry.cancelled {
     border-left: none;
     background-color: #0c1820 !important;
     padding-left: 15px;
 }
 
-.training-entry.cancelled div,
-.training-entry.not-joined div {
+.training-entry.cancelled div {
     text-decoration: line-through;
 }
 
 .training-entry.cancelled,
-.training-entry.not-joined,
 .training-entry.past {
     background-color: var(--background-table-alt);
     color: var(--text-inactive);

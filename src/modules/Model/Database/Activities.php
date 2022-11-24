@@ -117,13 +117,13 @@ class Activities extends Database
     {
         $unsynced = [];
         $activities = $this->getAllJoined();
-        if(isset($activities) && !(empty($activities))) {
-            foreach($activities as $activity) {
-                if((is_null($activity['act_inst_id']) || empty($activity['act_inst_id'])) && !$activity['deleted'] &&
-                        !$activity['actdef_deleted'] && !$activity['evtdef_deleted'] && !$activity['cancelled'])
-                        {
-                            $unsynced[] = $activity;
-                        }
+        if (isset($activities) && !(empty($activities))) {
+            foreach ($activities as $activity) {
+                if ((is_null($activity['appointment_id']) || empty($activity['appointment_id'])) && !$activity['deleted'] &&
+                    !$activity['actdef_deleted'] && !$activity['evtdef_deleted'] && !$activity['cancelled']
+                ) {
+                    $unsynced[] = $activity;
+                }
             }
         }
         return $unsynced;
