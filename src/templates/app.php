@@ -47,7 +47,7 @@ $calConnection = $sync->testCalendarConnection();
     foreach ($activities as $act) {
         $edt = new \DateTime(date("d-m-Y H:i", $act['event_start']));
         if ($edt >= $dt) {
-            echo '<div class="training-entry' . (($edt < $dt) ? ' past' : '') . ($act['cancelled'] ? ' cancelled' : '') . (!$act['joined'] ? ' not-joined' : '') . '">';
+            echo '<div class="training-entry' . (($edt < $dt) ? ' past' : '') . (($act['deleted'] || $act['cancelled']) ? ' cancelled' : '') . '">';
             echo '<div class="dow">' . date("D", $act['event_start']) . '</div>';
             echo '<div class="dt">';
             echo '<div class="date">' . date("d-m-Y", $act['event_start']) . '</div>';
