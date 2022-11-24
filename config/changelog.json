@@ -10,7 +10,7 @@
         "summary": "These functionalities are currently being developed",
         "added": []
     },
-    "1.0.2": {
+    "1.0.3": {
         "released": "2022-11-24",
         "summary": "Improved back-end flow",
         "added": [
@@ -19,6 +19,13 @@
         "fixed": [
             "Obsolete events are now correctly removed from the calendar",
             "Events are now more efficiently loaded from VirtuaGym"
+        ]
+    },
+    "1.0.2": {
+        "released": "2022-11-18",
+        "summary": "Bug fix after release 1.0.1",
+        "fixed": [
+            "Sync flow correctly updates obsolete appointments"
         ]
     },
     "1.0.1": {
@@ -31,7 +38,6 @@
         ],
         "fixed": [
             "Enable AutoSync for all users",
-            "Sync flow correctly updates obsolete appointments"
         ]
     },
     "1.0.0": {
