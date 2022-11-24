@@ -38,7 +38,7 @@ class Google implements CalendarInterface
         $missing = array_diff($required, $credentialsKeys);
         if (count($missing)) {
             //At least one key is missing, throw an exception and break initiation
-            throw new \Exception('Passed credentials array is missing following keys: ' . implode('; ', $missing));
+            throw new CalendarException('Passed credentials array is missing following keys: ' . implode('; ', $missing));
         }
 
         //Set variables
@@ -59,6 +59,9 @@ class Google implements CalendarInterface
         //Init calendar/event service
         $this->cal = new \Google\Service\Calendar($this->client);
         $this->timezone = $credentials['timezone'];
+
+        //Test the connection
+        $this->testConnection();
     }
 
     public function testConnection()
@@ -74,10 +77,35 @@ class Google implements CalendarInterface
         }
         $accessToken = $this->client->getAccessToken();
         if (!empty($accessToken)) {
-            //TODO: Test for token expired via https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=xxx
+            /**
+             * Test for token expired via https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=xxx
+             */
+            $url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' . $accessToken;
+            try {
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                $reply = curl_exec($ch);
+                curl_close($ch);
+            } catch (\Exception $e) {
+                echo ('Calendar API call failed with message: ' . $e->getMessage());
+                $this->log->addWarning('Calendar-call', 'Call to ' . $url . ' failed with message: ' . $e->getMessage());
+            }
+            if(!isset($reply) || empty($reply)) {
+                throw new CalendarException ('Unable to validate token');
+            }
+            //TODO: Check content of response and process result
+
+            /**
+             * Next check if we can retrieve any agendas
+             * The getAgendas function will throw an error if unsuccesful
+             * so we only need to call it without procesing the return value
+             */
+            $this->getAgendas();
             return true;
         } else {
             //The entered refresh token is invalid
+            Throw new CalendarException ('Unable to retrieve access token');
             return false;
         }
     }
@@ -89,6 +117,10 @@ class Google implements CalendarInterface
     public function getAgendas()
     {
         $cals = $this->cal->calendarList->listCalendarList();
+        
+        if (empty($cals) || !isset($cals)) {
+            throw new CalendarException("Unable to retrieve calendars");
+        }
         $ret = [];
         foreach ($cals->items as $cal) {
             $ret[] = array(
@@ -136,9 +168,8 @@ class Google implements CalendarInterface
         try {
             $this->cal->events->delete($this->agendaId, $appointmentId);
         } catch (\Google\Service\Exception $e) {
-            echo ('TODO: Store this output & implement proper error handling in code\n');
-            echo ('ErrorMessage: ' . $e->getMessage() . '\n');
-            echo ('Full error: ' . $e . '\n');
+            echo ("TODO: Store this output & implement proper error handling in code\n");
+            echo ('ErrorMessage: ' . $e->getMessage() . "\n");
             throw new CalendarException('Unable to delete calendar appointment');
         }
     }
@@ -158,6 +189,7 @@ class Google implements CalendarInterface
             'timeMax' => $this->dtToStr($dt->modify('+2 months')->modify('+2 days'))
         );
         $result = $this->cal->events->listEvents($this->agendaId, $optParams);
+        if(empty($result) || !isset($result)) throw new CalendarException ('Unable to retrieve events (check if there are any events at all)');
         $events = [];
 
         //Loop through the events & pages
@@ -166,7 +198,7 @@ class Google implements CalendarInterface
             foreach ($result->getItems() as $event) {
                 //Store the required event details in the array
                 $events[] = array(
-                    'all_day' =>  $event['start']['dateTime'] ? false : true, //if dateTime is passed this is not an all day event, otherwise it is
+                    'all_day' =>  isset($event['start']['dateTime']) ? false : true, //if dateTime is passed this is not an all day event, otherwise it is
                     'agendaId' => $this->agendaId,
                     'summary' => $event['summary'],
                     'start' => $event['start']['dateTime'] ? $event['start']['dateTime'] : $event['start']['date'],
