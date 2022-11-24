@@ -2,7 +2,8 @@
 
 namespace Vst\Interface;
 
-class Activity {
+class Activity
+{
     private $act_inst_id;
     private $done;
     private $deleted;
@@ -30,33 +31,34 @@ class Activity {
     private $city;
     private $club_description;
 
-    private const REQUIRED_PARAMETERS = array('summary','location','start','end','id','appointment_id');
-
-    public function __construct() {
+    public function __construct()
+    {
         $arguments = func_get_args();
         $this->setParameters($arguments);
     }
 
-    public function setParameters() {
+    public function setParameters()
+    {
         $arguments = func_get_args();
 
-        if(!empty($arguments)) {
-            foreach($arguments[0] as $key => $value) {
-                if(property_exists($this, $key)) {
+        if (!empty($arguments)) {
+            foreach ($arguments[0] as $key => $value) {
+                if (property_exists($this, $key)) {
                     $this->{$key} = $value;
                 }
             }
         }
     }
 
-    public function getParameters() {
+    public function getParameters()
+    {
         $arguments = func_get_args();
 
         $ret = [];
 
-        if(!empty($arguments)) {
-            foreach($arguments[0] as $key => $value) {
-                if(property_exists($this, $key)) {
+        if (!empty($arguments)) {
+            foreach ($arguments[0] as $key => $value) {
+                if (property_exists($this, $key)) {
                     $ret[$key] = $value;
                 }
             }

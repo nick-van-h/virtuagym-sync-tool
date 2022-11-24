@@ -80,7 +80,7 @@ class Google implements CalendarInterface
             /**
              * Test for token expired via https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=xxx
              */
-            $url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' . $accessToken;
+            $url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' . $accessToken['access_token'];
             try {
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -91,8 +91,8 @@ class Google implements CalendarInterface
                 echo ('Calendar API call failed with message: ' . $e->getMessage());
                 $this->log->addWarning('Calendar-call', 'Call to ' . $url . ' failed with message: ' . $e->getMessage());
             }
-            if(!isset($reply) || empty($reply)) {
-                throw new CalendarException ('Unable to validate token');
+            if (!isset($reply) || empty($reply)) {
+                throw new CalendarException('Unable to validate token');
             }
             //TODO: Check content of response and process result
 
@@ -105,7 +105,7 @@ class Google implements CalendarInterface
             return true;
         } else {
             //The entered refresh token is invalid
-            Throw new CalendarException ('Unable to retrieve access token');
+            throw new CalendarException('Unable to retrieve access token');
             return false;
         }
     }
@@ -117,7 +117,7 @@ class Google implements CalendarInterface
     public function getAgendas()
     {
         $cals = $this->cal->calendarList->listCalendarList();
-        
+
         if (empty($cals) || !isset($cals)) {
             throw new CalendarException("Unable to retrieve calendars");
         }
@@ -189,7 +189,7 @@ class Google implements CalendarInterface
             'timeMax' => $this->dtToStr($dt->modify('+2 months')->modify('+2 days'))
         );
         $result = $this->cal->events->listEvents($this->agendaId, $optParams);
-        if(empty($result) || !isset($result)) throw new CalendarException ('Unable to retrieve events (check if there are any events at all)');
+        if (empty($result) || !isset($result)) throw new CalendarException('Unable to retrieve events (check if there are any events at all)');
         $events = [];
 
         //Loop through the events & pages
