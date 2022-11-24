@@ -8,12 +8,21 @@
         },
         "released": "Not yet released",
         "summary": "These functionalities are currently being developed",
-        "added" : [
-            "Nothing yet"
+        "added": []
+    },
+    "1.0.2": {
+        "released": "2022-11-24",
+        "summary": "Improved back-end flow",
+        "added": [
+            "Implemented back-end error handling for unhappy flow"
+        ],
+        "fixed": [
+            "Obsolete events are now correctly removed from the calendar",
+            "Events are now more efficiently loaded from VirtuaGym"
         ]
     },
     "1.0.1": {
-        "released": "2022-18-11",
+        "released": "2022-11-18",
         "summary": "Fixed sync flow, introduced changelog, updated homepage",
         "added": [
             "Changelog",
