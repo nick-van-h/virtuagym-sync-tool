@@ -105,7 +105,9 @@ class Google implements CalendarInterface
             return true;
         } else {
             //The entered refresh token is invalid
-            throw new CalendarException('Unable to retrieve access token');
+            // print_r($accessToken);
+            // print_r($this->getAgendas());
+            // throw new CalendarException('Unable to retrieve access token');
             return false;
         }
     }
