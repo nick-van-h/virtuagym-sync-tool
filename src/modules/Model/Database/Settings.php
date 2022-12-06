@@ -167,6 +167,10 @@ class Settings extends Database
     {
         return $this->getSettingValue('last_vg_conn_errors') == 0;
     }
+    public function getVgConnectionErrorCount()
+    {
+        return $this->getSettingValue('last_vg_conn_errors');
+    }
 
     /**
      * Last Calendar connection status
@@ -182,6 +186,10 @@ class Settings extends Database
     public function getLastCalendarConnectionStatusIsOk()
     {
         return $this->getSettingValue('last_cal_conn_errors') == 0;
+    }
+    public function getCalendarConnectionErrorCount()
+    {
+        return $this->getSettingValue('last_cal_conn_errors');
     }
 
     /**

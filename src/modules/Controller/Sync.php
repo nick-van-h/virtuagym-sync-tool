@@ -56,7 +56,12 @@ class Sync
             $credentials = $this->settings->getCalendarCredentials();
             $this->cal = CalendarFactory::getProvider($provider, $credentials);
 
-            if (!$this->cal->testConnection()) throw new \Exception("Unable to establish Calendar connection");
+            if ($this->cal->testConnection()) {
+                $this->settings->setLastCalendarConnectionStatusOk();
+            } else {
+                $this->settings->addLastCalendarConnectionErrorCount();
+                throw new \Exception("Unable to establish Calendar connection");
+            }
         }
 
         /**

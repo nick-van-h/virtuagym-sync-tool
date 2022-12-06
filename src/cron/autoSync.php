@@ -2,6 +2,8 @@
 //Default include autoload
 require_once 'vendor/vst/autoload.php';
 
+CONST THRESHOLD = 5;
+
 $start = new DateTime();
 $ref = $start;
 $ref->modify('-1 hour');
@@ -22,11 +24,21 @@ foreach ($users as $usr) {
     //Set the next user to  be synced
     $session->setUserId($usr);
 
-    //Sync the user
-    $sync = new Vst\Controller\Sync;
-    try {
-        $sync->scheduledSyncAll();
-    } catch (Exception $e) {
-        echo ("Error during sync: " . $e->getMessage() . ' in ' . $e->getTraceAsString());
+    if($settings->getCalendarConnectionErrorCount() < THRESHOLD && $settings->getVgConnectionErrorCount() < THRESHOLD) {
+        //Sync the user
+        try {
+            $sync = new Vst\Controller\Sync;
+            $sync->scheduledSyncAll();
+        } catch (Exception $e) {
+            //TODO: Make nice email handler #76
+            if($settings->getCalendarConnectionErrorCount() == THRESHOLD) {
+                echo("Unable to connect to calendar for " . THRESHOLD . " times in a row, disabling autosync.");
+            }
+            if($settings->getVgConnectionErrorCount() == THRESHOLD) {
+                echo("Unable to connect to VirtuaGym for " . THRESHOLD . " times in a row, disabling autosync.");
+
+            }
+            echo ("Error during sync: " . $e->getMessage() . ' in ' . $e->getTraceAsString());
+        }
     }
 }
