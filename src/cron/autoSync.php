@@ -24,7 +24,7 @@ foreach ($users as $usr) {
     //Set the next user to  be synced
     $session->setUserId($usr);
 
-    if($settings->getCalendarConnectionErrorCount() < THRESHOLD && $settings->getVgConnectionErrorCount() < THRESHOLD) {
+    if($settings->getMasterAutoSyncEnabled()) {
         //Sync the user
         try {
             $sync = new Vst\Controller\Sync;
@@ -33,10 +33,11 @@ foreach ($users as $usr) {
             //TODO: Make nice email handler #76
             if($settings->getCalendarConnectionErrorCount() == THRESHOLD) {
                 echo("Unable to connect to calendar for " . THRESHOLD . " times in a row, disabling autosync.");
+                $settings->masterDisableAutoSync();
             }
             if($settings->getVgConnectionErrorCount() == THRESHOLD) {
                 echo("Unable to connect to VirtuaGym for " . THRESHOLD . " times in a row, disabling autosync.");
-
+                $settings->masterDisableAutoSync();
             }
             echo ("Error during sync: " . $e->getMessage() . ' in ' . $e->getTraceAsString());
         }

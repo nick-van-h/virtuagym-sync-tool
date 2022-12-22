@@ -1,3 +1,43 @@
+
+$(function () {
+    $("#settings-masterswitch button").click(function (ev) {
+        ev.preventDefault() // cancel form submission
+        //Get form data
+        let enabled = $("#settings-masterswitch select[id='masterswitch']").first().val();
+        let data = {
+            enabled,
+        };
+
+        //Do the AJAX request
+        $.ajax({
+            type: "POST",
+            url: rootPath + "../../interfaces/web/toggleMasterSwitch.php",
+            data: data,
+            beforeSend: function () { },
+            success: function (response) {
+                //Parse the received data
+                try {
+                    var data = JSON.parse(response);
+                } catch {
+                    console.log("Unable to parse JSON data: ");
+                    console.log(response);
+                    return;
+                }
+                console.log(response);
+
+                //Update the value in the container span
+                setFormStatusMessage($("#settings-masterswitch .status-message")[0], data["payload"]["statusmessage"]);
+
+                //Re-toggle the switch if the request returned a different state
+                //This probably means a connection can't be made to either VG or the calendar
+                if(data["payload"]["master_autosync_enabled"] !== enabled) {
+                    $("#masterswitch").selected = !enabled;
+                }
+            },
+        });
+    });
+});
+
 $(function () {
     $("#settings-virtuagym button").click(function (ev) {
         ev.preventDefault() // cancel form submission
@@ -35,6 +75,13 @@ $(function () {
 
                 //Update the value in the container span
                 setFormStatusMessage($("#settings-virtuagym .status-message")[0], data["payload"]["statusmessage"]);
+
+                //TODO: process data["payload"]["master_autosync_enabled"] = true --> toggle switch
+                if(data["payload"]["master_autosync_enabled"]) {
+                    $("#masterswitch").selected = true;
+                } else {
+                    $("#masterswitch").selected = false;
+                }
             },
         });
     });
@@ -89,6 +136,13 @@ $(function () {
 
                 //Update the value in the container span
                 setFormStatusMessage($("#settings-calendar .status-message")[0], data["payload"]["statusmessage"]);
+                
+                //TODO: process data["payload"]["master_autosync_enabled"] = true --> toggle switch
+                if(data["payload"]["master_autosync_enabled"]) {
+                    $("#masterswitch").selected = true;
+                } else {
+                    $("#masterswitch").selected = false;
+                }
             },
         });
     });

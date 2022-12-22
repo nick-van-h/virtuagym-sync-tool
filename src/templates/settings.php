@@ -8,6 +8,17 @@ $parameters = new Vst\View\Parameters;
         <img src="<?php echo (public_base_url()); ?>/resources/img/title_settings.png">
     </div>
     <h1>Virtuagym credentials</h1>
+    <form class="settings" id="settings-masterswitch" method="post">
+        <fieldset>
+            <div class="row row--align box-xs">
+                <input type="checkbox" id="masterswitch" <?php if($parameters->getMasterSwitchEnabled()) echo('checked'); ?> />
+                <label for="masterswitch">Show cancelled events</label><br><br>
+            </div>
+        </fieldset>
+        <div class="status-message status-message--hidden">
+            <span></span>
+        </div>
+    </form>
 
     <form class="settings" id="settings-virtuagym" method="post">
         <fieldset>
@@ -43,6 +54,9 @@ $parameters = new Vst\View\Parameters;
                 <?php get_vw_settings_calendar(); ?>
             </div>
         </fieldset>
+        <div class="status-message status-message--hidden">
+            <span></span>
+        </div>
     </form>
     <br>
     &lt;Under construction>

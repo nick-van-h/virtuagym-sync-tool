@@ -192,6 +192,19 @@ class Settings extends Database
         return $this->getSettingValue('last_cal_conn_errors');
     }
 
+    public function masterEnableAutoSync() 
+    {
+        $this->setSetting('master_enable_autosync', 1);
+    }
+    public function masterDisableAutoSync()
+    {
+        $this->setSetting('master_eanable_autosync', 0);
+    }
+    public function getMasterAutoSyncEnabled()
+    {
+        return $this->getSettingValue('master_enable_autosync') === 1;
+    }
+
     /**
      * Token expiry date
      */

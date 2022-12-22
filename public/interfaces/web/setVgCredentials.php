@@ -9,35 +9,55 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     $password = (isset($_POST['password']) ? $_POST['password'] : '');
     $action = (isset($_POST['action']) ? $_POST['action'] : '');
 
-    $settings = new Vst\Model\UserSettings;
+    $settings = new Vst\Model\Database\Settings;
     $sync = new Vst\Controller\Sync;
 
     //Init return values
     $payload = [];
     $resp = array(
-        'success' => true,
+        'success' => false,
         'payload' => 'default'
     );
 
-
-    switch ($action) {
-        case "test":
-            $name = $sync->getVgName($username, $password);
-            if ($name) {
-                $payload['statusmessage'] = 'Connection OK! Account detected for ' . $name;
-            } else {
-                $payload['statusmessage'] = 'Connection error: ' . $sync->getLastVgMessage();
+    try {
+        $name = $sync->getVgName($username, $password);
+        if ($name) {
+            switch ($action) {
+                case "test":
+                        $payload['statusmessage'] = 'Connection OK! Account detected for ' . $name;
+                default:
+                    if ($settings->updateVirtuagymCredentials($username, $password)) {
+                        // $this->session->setStatus('virtuagym', 'Success', 'Credentials updated succesfully');
+                        $payload['statusmessage'] = 'Credentials updated succesfully';
+                        $this->log->addEvent('Settings', 'Updated VirtuaGym credentials');
+                    } else {
+                        // $this->session->setStatus('virtuagym', 'Warning', 'Error while updating credentials: ' . $settings->getErrors());
+                        $errors = $settings->getErrors();
+                        if(isset($errors) && !empty($errors)) {
+                            $payload['statusmessage'] = 'Error while updating credentials: ';
+                            foreach($errors as $err) {
+                                $payload['statusmessage'] .= $err . ';';
+                            }
+                        } else {
+                            $payload['statusmessage'] = 'Unable to save credentials';
+                            throw new Exception("Error occurred while saving database credentials but no error message was returned");
+                        }
+                    }
+                    $settings->setLastVgConnectionStatusOk();
+                    if($sync->testCalendarConnection()) {
+                        $settings->masterEnableAutoSync();
+                        $payload['master_autosync_enabled'] = true;
+                    } else {
+                        $payload['master_autosync_enabled'] = false;
+                    }
+                    break;
             }
-            break;
-        default:
-            if ($settings->updateVirtuagymCredentials($username, $password)) {
-                $this->session->setStatus('virtuagym', 'Success', 'Credentials updated succesfully');
-                $this->log->addEvent('Settings', 'Updated VirtuaGym credentials');
-            } else {
-                $this->session->setStatus('virtuagym', 'Warning', 'Error while updating credentials: ' . $settings->getStatusMessage());
-            }
-            $payload['statusmessage'] = $settings->getVirtuagymMessage();
-            break;
+        } else {
+            $payload['statusmessage'] = 'Invalid credentials';
+        }
+        $resp['success'] = true;
+    } catch (Exception $e) {
+        $payload['statusmessage'] = 'Error: ' . $e->getMessage();
     }
 
     //Incorporate the payload and return the result

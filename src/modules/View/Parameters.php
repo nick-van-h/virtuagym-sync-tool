@@ -35,4 +35,9 @@ class Parameters
     {
         return $this->session->getAndClearStatus('Google-login');
     }
+
+    public function getMasterSwitchEnabled()
+    {
+        return $this->settings->getMasterAutoSyncEnabled();
+    }
 }

@@ -9,26 +9,42 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     $action = (isset($_POST['action']) ? $_POST['action'] : '');
 
     $settings = new Vst\Model\Database\Settings;
+    $sync = new Vst\Controller\Sync;
 
     //Init return values
     $payload = [];
     $resp = array(
-        'success' => true,
+        'success' => false,
         'payload' => 'default'
     );
 
-    //TODO: Remove after validate
-    // $payload['get-cal'] = $agenda;
-    // $payload['get-action'] = $action;
-    // $payload['get'] = $_GET;
-    // $payload['post'] = $_POST;
-    switch ($action) {
-        case 'save':
-            $settings->setTargetAgenda($agenda);
-            $payload['statusmessage'] = 'Agenda saved succesfully!';
-            break;
-        default:
-            $payload['statusmessage'] = 'Undefined action passed';
+    try {
+        if($sync->testCalendarConnection()) {
+            switch ($action) {
+                case 'save':
+                    $settings->setTargetAgenda($agenda);
+                    $payload['statusmessage'] = 'Agenda saved succesfully';
+
+                    //Reset status
+                    $settings->setLastCalendarConnectionStatusOk();
+
+                    //Test for VG connection
+                    if ($sync->testVgConnection()) {
+                        $settings->masterEnableAutoSync();
+                        $payload['master_autosync_enabled'] = true;
+                    } else {
+                        $payload['master_autosync_enabled'] = false;
+                    }
+                    break;
+                default:
+                    $payload['statusmessage'] = 'Undefined action passed';
+        }
+        } else {
+            $payload['statusmessage'] = 'Unable to connect to calendar';
+        }
+        $resp['success'] = true;
+    } catch (Exception $e) {
+        $payload['statusmessage'] = 'Error: ' . $e->getMessage();
     }
 
     //Incorporate the payload and return the result

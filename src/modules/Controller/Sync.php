@@ -60,7 +60,7 @@ class Sync
                 $this->settings->setLastCalendarConnectionStatusOk();
             } else {
                 $this->settings->addLastCalendarConnectionErrorCount();
-                throw new \Exception("Unable to establish Calendar connection");
+                //throw new \Exception("Unable to establish Calendar connection");
             }
         }
 
@@ -76,7 +76,7 @@ class Sync
                 $this->settings->setLastVgConnectionStatusOk();
             } else {
                 $this->settings->addLastVgConnectionErrorCount();
-                throw new \Exception("Unable to connect to VirtuaGym");
+                //throw new \Exception("Unable to connect to VirtuaGym");
             }
         }
 
@@ -85,7 +85,7 @@ class Sync
                 $this->settings->setLastCalendarConnectionStatusOk();
             } else {
                 $this->settings->addLastCalendarConnectionErrorCount();
-                throw new \Exception("Unable to connect to Calendar");
+                //throw new \Exception("Unable to connect to Calendar");
             }
         }
     }
